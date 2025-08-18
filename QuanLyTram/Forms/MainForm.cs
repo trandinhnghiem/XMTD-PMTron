@@ -95,7 +95,7 @@ namespace QuanLyTram.Forms
                 IconFont = IconFont.Auto,
                 IconSize = 28,
                 FlatStyle = FlatStyle.Flat,
-                Margin = new Padding(6),
+                Margin = new Padding(5,6,6,6),
                 Anchor = AnchorStyles.None,
                 Cursor = Cursors.Hand
             };
