@@ -289,7 +289,7 @@ namespace QuanLyTram.Forms
         private void InitData()
         {
             dtData = new DataTable();
-            dtData.Columns.Add("Mã CT");
+            dtData.Columns.Add("Mã công trình");
             dtData.Columns.Add("Địa điểm");
             dtData.Columns.Add("Hạng mục");
             dtData.Columns.Add("Thiết bị bơm");
@@ -374,7 +374,7 @@ namespace QuanLyTram.Forms
             if (_mode == EditMode.Add)
             {
                 DataRow newRow = dtData.NewRow();
-                newRow["Mã CT"] = (dtData.Rows.Count + 1).ToString();
+                newRow["Mã công trình"] = (dtData.Rows.Count + 1).ToString();
                 newRow["Địa điểm"] = diadiem;
                 newRow["Hạng mục"] = hangmuc;
                 newRow["Thiết bị bơm"] = thietbi;

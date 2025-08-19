@@ -23,6 +23,11 @@ namespace QuanLyTram.Forms
             StartPosition = FormStartPosition.CenterScreen;
             ClientSize = new Size(1200, 720);
             BackColor = Color.FromArgb(215, 215, 255);
+            
+            // 🚫 Khóa nút phóng to
+            this.MaximizeBox = false;
+            this.FormBorderStyle = FormBorderStyle.FixedSingle; // cũng khóa kéo thay đổi kích thước
+
 
             BuildTabs();
             BuildMainContent();

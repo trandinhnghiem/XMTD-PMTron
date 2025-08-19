@@ -282,8 +282,8 @@ namespace QuanLyTram.Forms
         private void InitData()
         {
             dtData = new DataTable();
-            dtData.Columns.Add("Mã Khách");
-            dtData.Columns.Add("Tên Khách hàng");
+            dtData.Columns.Add("Mã khách");
+            dtData.Columns.Add("Tên khách hàng");
             dtData.Columns.Add("Địa chỉ");
 
             dtData.Rows.Add("1", "ANH DƯƠNG", "");
@@ -366,8 +366,8 @@ namespace QuanLyTram.Forms
             if (_mode == EditMode.Add)
             {
                 DataRow newRow = dtData.NewRow();
-                newRow["Mã Khách"] = (dtData.Rows.Count + 1).ToString();
-                newRow["Tên Khách hàng"] = ten;
+                newRow["Mã khách"] = (dtData.Rows.Count + 1).ToString();
+                newRow["Tên khách hàng"] = ten;
                 newRow["Địa chỉ"] = diachi;
                 dtData.Rows.Add(newRow);
                 dgv.CurrentCell = dgv.Rows[dgv.Rows.Count - 1].Cells[0];

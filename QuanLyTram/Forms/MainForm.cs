@@ -19,11 +19,11 @@ namespace QuanLyTram.Forms
         {
             Text = "QUẢN LÝ SỐ LIỆU TRẠM TRỘN";
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(1200, 600);
+            ClientSize = new Size(1200, 400);
             BackColor = Color.White;
                     
             // 🚫 Không cho kéo nhỏ hơn 1200x600
-            this.MinimumSize = new Size(1205, 600);
+         this.FormBorderStyle = FormBorderStyle.FixedSingle; // cũng khóa kéo thay đổi kích thước
 
             // === TOOLBAR ===
             tlpToolbar = new TableLayoutPanel
