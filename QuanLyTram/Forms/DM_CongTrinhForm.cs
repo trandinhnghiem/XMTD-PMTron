@@ -114,7 +114,7 @@ namespace QuanLyTram.Forms
             {
                 Text = "DỮ LIỆU CÔNG TRÌNH",
                 Font = new Font("Segoe UI", 10f, FontStyle.Bold),
-                ForeColor = Color.Black,
+                ForeColor = Color.Red,
                 AutoSize = true,
                 Location = new Point(8, 8)
             };
@@ -140,7 +140,7 @@ namespace QuanLyTram.Forms
             {
                 Text = "THÔNG TIN CÔNG TRÌNH",
                 Font = new Font("Segoe UI", 10f, FontStyle.Bold),
-                ForeColor = Color.Black,
+                ForeColor = Color.Red,
                 BackColor = Color.Transparent,
                 Size = new Size(400, 560),
                 Location = new Point(dgv.Right + 16, 8),
@@ -150,11 +150,11 @@ namespace QuanLyTram.Forms
 
             lblDiaDiem = new Label
             {
-                Text = "ĐỊA ĐIỂM CÔNG TRÌNH:",
-                Font = FText,
+                Text = "Địa điểm công trình:",
+                Font = new Font(FText.FontFamily, FText.Size, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(20, 50),
-                ForeColor = Color.DimGray
+                ForeColor = Color.Black
             };
             txtDiaDiem = new TextBox
             {
@@ -165,11 +165,11 @@ namespace QuanLyTram.Forms
 
             lblHangMuc = new Label
             {
-                Text = "HẠNG MỤC:",
-                Font = FText,
+                Text = "Hạng mục:",
+                Font = new Font(FText.FontFamily, FText.Size, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(20, 130),
-                ForeColor = Color.DimGray
+                ForeColor = Color.Black
             };
             txtHangMuc = new TextBox
             {
@@ -180,11 +180,11 @@ namespace QuanLyTram.Forms
 
             lblThietBi = new Label
             {
-                Text = "THIẾT BỊ BƠM:",
-                Font = FText,
+                Text = "Thiết bị bơm:",
+                Font = new Font(FText.FontFamily, FText.Size, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(20, 210),
-                ForeColor = Color.DimGray
+                ForeColor = Color.Black
             };
             txtThietBi = new TextBox
             {
@@ -299,6 +299,9 @@ namespace QuanLyTram.Forms
             dtData.Rows.Add("3", "Công trình C", "Thi công PCCC", "Bơm cứu hỏa");
 
             dgv.DataSource = dtData;
+
+            // in đậm tiêu đề cột
+            dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
 
             if (dgv.Rows.Count > 0)
                 dgv.CurrentCell = dgv.Rows[0].Cells[0];

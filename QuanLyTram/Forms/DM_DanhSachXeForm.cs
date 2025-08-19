@@ -113,7 +113,7 @@ namespace QuanLyTram.Forms
             {
                 Text = "DỮ LIỆU DANH SÁCH XE",
                 Font = new Font("Segoe UI", 10f, FontStyle.Bold),
-                ForeColor = Color.Black,
+                ForeColor = Color.Red,
                 AutoSize = true,
                 Location = new Point(8, 8)
             };
@@ -139,7 +139,7 @@ namespace QuanLyTram.Forms
             {
                 Text = "THÔNG TIN XE",
                 Font = new Font("Segoe UI", 10f, FontStyle.Bold),
-                ForeColor = Color.Black,
+                ForeColor = Color.Red,
                 BackColor = Color.Transparent,
                 Size = new Size(400, 560),
                 Location = new Point(dgv.Right + 16, 8),
@@ -149,11 +149,11 @@ namespace QuanLyTram.Forms
 
             lblBienSo = new Label
             {
-                Text = "BIỂN SỐ XE:",
-                Font = FText,
+                Text = "Biển số xe:",
+                Font = new Font(FText.FontFamily, FText.Size, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(20, 50),
-                ForeColor = Color.DimGray
+                ForeColor = Color.Black
             };
             txtBienSo = new TextBox
             {
@@ -164,11 +164,11 @@ namespace QuanLyTram.Forms
 
             lblLaiXe = new Label
             {
-                Text = "LÁI XE:",
-                Font = FText,
+                Text = "Lái xe:",
+                Font = new Font(FText.FontFamily, FText.Size, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(20, 95),
-                ForeColor = Color.DimGray
+                ForeColor = Color.Black
             };
             txtLaiXe = new TextBox
             {
@@ -183,14 +183,14 @@ namespace QuanLyTram.Forms
                 Font = new Font("Segoe UI", 11.5f, FontStyle.Bold),
                 BackColor = Color.LightSkyBlue,
                 FlatStyle = FlatStyle.Flat,
-                Size = new Size(140, 40),
-                Location = new Point(50, 160), // đẩy lên gần field
+                Size = new Size(160, 46),
+                Location = new Point(33, 155), // đẩy lên gần field
                 IconChar = IconChar.Save,
                 IconColor = Color.White,
                 IconFont = IconFont.Auto,
-                IconSize = 24,
+                IconSize = 28,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
-                Padding = new Padding(20, 0, 0, 0),
+                Padding = new Padding(28, 0, 0, 0),
                 Cursor = Cursors.Hand
             };
             btnLuu.FlatAppearance.BorderSize = 0;
@@ -201,14 +201,14 @@ namespace QuanLyTram.Forms
                 Font = new Font("Segoe UI", 11.5f, FontStyle.Bold),
                 BackColor = Color.LightCoral,
                 FlatStyle = FlatStyle.Flat,
-                Size = new Size(140, 40),
-                Location = new Point(btnLuu.Right + 16, 160), // cùng hàng với LƯU
+                Size = new Size(160, 46),
+                Location = new Point(btnLuu.Right + 16, 155), // cùng hàng với LƯU
                 IconChar = IconChar.TimesCircle,
                 IconColor = Color.White,
                 IconFont = IconFont.Auto,
-                IconSize = 24,
+                IconSize = 28,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
-                Padding = new Padding(20, 0, 0, 0),
+                Padding = new Padding(28, 0, 0, 0),
                 Cursor = Cursors.Hand
             };
             btnHuy.FlatAppearance.BorderSize = 0;
@@ -280,6 +280,9 @@ namespace QuanLyTram.Forms
 
             dgv.DataSource = dtData;
 
+            // in đậm tiêu đề cột
+            dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
+            
             if (dgv.Rows.Count > 0)
                 dgv.CurrentCell = dgv.Rows[0].Cells[0];
         }

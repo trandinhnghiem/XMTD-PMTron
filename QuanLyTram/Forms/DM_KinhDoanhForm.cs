@@ -112,7 +112,7 @@ namespace QuanLyTram.Forms
             {
                 Text = "DỮ LIỆU KINH DOANH",
                 Font = new Font("Segoe UI", 10f, FontStyle.Bold),
-                ForeColor = Color.Black,
+                ForeColor = Color.Red,
                 AutoSize = true,
                 Location = new Point(8, 8)
             };
@@ -138,7 +138,7 @@ namespace QuanLyTram.Forms
             {
                 Text = "THÔNG TIN KINH DOANH",
                 Font = new Font("Segoe UI", 10f, FontStyle.Bold),
-                ForeColor = Color.Black,
+                ForeColor = Color.Red,
                 BackColor = Color.Transparent,
                 Size = new Size(400, 560),
                 Location = new Point(dgv.Right + 16, 8),
@@ -148,11 +148,11 @@ namespace QuanLyTram.Forms
 
             lblTenKD = new Label
             {
-                Text = "TÊN KINH DOANH:",
-                Font = FText,
+                Text = "Tên kinh doanh:",
+                Font = new Font(FText.FontFamily, FText.Size, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(20, 50),
-                ForeColor = Color.DimGray
+                ForeColor = Color.Black
             };
             txtTenKD = new TextBox
             {
@@ -168,7 +168,7 @@ namespace QuanLyTram.Forms
                 BackColor = Color.LightSkyBlue,
                 FlatStyle = FlatStyle.Flat,
                 Size = new Size(160, 46),
-                Location = new Point(20, 130),
+                Location = new Point(20, 140),
                 IconChar = IconChar.Save,
                 IconColor = Color.White,
                 IconFont = IconFont.Auto,
@@ -186,7 +186,7 @@ namespace QuanLyTram.Forms
                 BackColor = Color.LightCoral,
                 FlatStyle = FlatStyle.Flat,
                 Size = new Size(160, 46),
-                Location = new Point(btnLuu.Right + 16, 130),
+                Location = new Point(btnLuu.Right + 16, 140),
                 IconChar = IconChar.TimesCircle,
                 IconColor = Color.White,
                 IconFont = IconFont.Auto,
@@ -259,6 +259,9 @@ namespace QuanLyTram.Forms
             dtData.Rows.Add("3", "Kinh doanh C");
 
             dgv.DataSource = dtData;
+
+            // in đậm tiêu đề cột
+            dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
 
             if (dgv.Rows.Count > 0)
                 dgv.CurrentCell = dgv.Rows[0].Cells[0];

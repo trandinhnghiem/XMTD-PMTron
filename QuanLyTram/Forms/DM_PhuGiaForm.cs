@@ -112,7 +112,7 @@ namespace QuanLyTram.Forms
             {
                 Text = "DỮ LIỆU PHỤ GIA",
                 Font = new Font("Segoe UI", 10f, FontStyle.Bold),
-                ForeColor = Color.Black,
+                ForeColor = Color.Red,
                 AutoSize = true,
                 Location = new Point(8, 8)
             };
@@ -138,7 +138,7 @@ namespace QuanLyTram.Forms
             {
                 Text = "THÔNG TIN PHỤ GIA",
                 Font = new Font("Segoe UI", 10f, FontStyle.Bold),
-                ForeColor = Color.Black,
+                ForeColor = Color.Red,
                 BackColor = Color.Transparent,
                 Size = new Size(400, 560),
                 Location = new Point(dgv.Right + 16, 8),
@@ -148,11 +148,11 @@ namespace QuanLyTram.Forms
 
             lblTenPhuGia = new Label
             {
-                Text = "TÊN PHỤ GIA:",
-                Font = FText,
+                Text = "Tên phụ gia:",
+                Font = new Font(FText.FontFamily, FText.Size, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(20, 50),
-                ForeColor = Color.DimGray
+                ForeColor = Color.Black
             };
             txtTenPhuGia = new TextBox
             {
@@ -163,11 +163,11 @@ namespace QuanLyTram.Forms
 
             lblGhiChu = new Label
             {
-                Text = "GHI CHÚ:",
-                Font = FText,
+                Text = "Ghi chú:",
+                Font = new Font(FText.FontFamily, FText.Size, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(20, 130),
-                ForeColor = Color.DimGray
+                ForeColor = Color.Black
             };
             txtGhiChu = new TextBox
             {
@@ -278,6 +278,9 @@ namespace QuanLyTram.Forms
             dtData.Rows.Add("3", "Phụ gia C", "Dùng cho bê tông");
 
             dgv.DataSource = dtData;
+
+            // in đậm tiêu đề cột
+            dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
 
             if (dgv.Rows.Count > 0)
                 dgv.CurrentCell = dgv.Rows[0].Cells[0];

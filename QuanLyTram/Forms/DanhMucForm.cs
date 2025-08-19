@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Timer = System.Windows.Forms.Timer;
 
 namespace QuanLyTram.Forms
 {
@@ -14,8 +15,13 @@ namespace QuanLyTram.Forms
         private Form _currentChild;
         private List<Button> _allTabs;
 
-        // Panel highlight (dấu nhọn/underline)
         private Panel activeIndicator;
+
+        // Fade animation
+        private Timer fadeTimer;
+        private Form nextChild;
+        private Button nextTab;
+        private double fadeStep = 1; // càng lớn càng nhanh
 
         public DanhMucForm()
         {
@@ -23,17 +29,15 @@ namespace QuanLyTram.Forms
             StartPosition = FormStartPosition.CenterScreen;
             ClientSize = new Size(1200, 720);
             BackColor = Color.FromArgb(215, 215, 255);
-            
-            // 🚫 Khóa nút phóng to
-            this.MaximizeBox = false;
-            this.FormBorderStyle = FormBorderStyle.FixedSingle; // cũng khóa kéo thay đổi kích thước
 
+            MaximizeBox = false;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
 
             BuildTabs();
             BuildMainContent();
 
             // Mặc định mở KHÁCH HÀNG
-            OpenChild(new DM_KhachHangForm(), tabKhach);
+            OpenChild(new DM_KhachHangForm(), tabKhach, firstLoad: true);
         }
 
         private void BuildTabs()
@@ -62,7 +66,6 @@ namespace QuanLyTram.Forms
                 x += b.Width + 10;
             }
 
-            // Thanh gạch highlight
             activeIndicator = new Panel
             {
                 Height = 4,
@@ -71,7 +74,6 @@ namespace QuanLyTram.Forms
             };
             pnlTabs.Controls.Add(activeIndicator);
 
-            // gán sự kiện click
             tabKhach.Click += (s, e) => OpenChild(new DM_KhachHangForm(), tabKhach);
             tabCongTrinh.Click += (s, e) => OpenChild(new DM_CongTrinhForm(), tabCongTrinh);
             tabDanhSachXe.Click += (s, e) => OpenChild(new DM_DanhSachXeForm(), tabDanhSachXe);
@@ -89,11 +91,11 @@ namespace QuanLyTram.Forms
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 Padding = new Padding(16, 6, 16, 6),
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(230, 230, 230)
+                BackColor = Color.FromArgb(230, 230, 230),
+                Cursor = Cursors.Hand
             };
             b.FlatAppearance.BorderColor = Color.Gainsboro;
             b.FlatAppearance.BorderSize = 1;
-            b.Cursor = Cursors.Hand;
             return b;
         }
 
@@ -108,27 +110,73 @@ namespace QuanLyTram.Forms
             mainContent.BringToFront();
         }
 
-        private void OpenChild(Form child, Button senderTab)
+        private void OpenChild(Form child, Button senderTab, bool firstLoad = false)
         {
-            // đóng child cũ nếu có
-            if (_currentChild != null)
+            if (_currentChild == null || firstLoad)
             {
-                _currentChild.Close();
-                _currentChild.Dispose();
-                _currentChild = null;
+                _currentChild = child;
+                child.TopLevel = false;
+                child.FormBorderStyle = FormBorderStyle.None;
+                child.Dock = DockStyle.Fill;
+                mainContent.Controls.Clear();
+                mainContent.Controls.Add(child);
+                child.Show();
+                SetActiveTab(senderTab);
+                return;
             }
 
-            // mở child mới
-            _currentChild = child;
-            child.TopLevel = false;
-            child.FormBorderStyle = FormBorderStyle.None;
-            child.Dock = DockStyle.Fill;
-            mainContent.Controls.Clear();
-            mainContent.Controls.Add(child);
-            child.Show();
+            if (fadeTimer != null && fadeTimer.Enabled)
+                return; // đang fade, tránh bấm liên tục gây lỗi
 
-            // set active tab
-            SetActiveTab(senderTab);
+            // Chuẩn bị fade
+            nextChild = child;
+            nextTab = senderTab;
+            nextChild.TopLevel = false;
+            nextChild.FormBorderStyle = FormBorderStyle.None;
+            nextChild.Dock = DockStyle.Fill;
+            nextChild.Opacity = 0.0;
+            mainContent.Controls.Add(nextChild);
+            nextChild.Show();
+
+            fadeTimer = new Timer();
+            fadeTimer.Interval = 10; // tick nhanh để mượt
+            fadeTimer.Tick += FadeTimer_Tick;
+            fadeTimer.Start();
+        }
+
+        private void FadeTimer_Tick(object sender, EventArgs e)
+        {
+            if (_currentChild != null)
+            {
+                _currentChild.Opacity -= fadeStep;
+                if (_currentChild.Opacity < 0) _currentChild.Opacity = 0;
+            }
+
+            if (nextChild != null)
+            {
+                nextChild.Opacity += fadeStep;
+                if (nextChild.Opacity > 1) nextChild.Opacity = 1;
+            }
+
+            if ((_currentChild == null || _currentChild.Opacity <= 0) && (nextChild != null && nextChild.Opacity >= 1))
+            {
+                fadeTimer.Stop();
+                fadeTimer.Tick -= FadeTimer_Tick;
+                fadeTimer.Dispose();
+                fadeTimer = null;
+
+                if (_currentChild != null)
+                {
+                    mainContent.Controls.Remove(_currentChild);
+                    _currentChild.Close();
+                    _currentChild.Dispose();
+                }
+
+                _currentChild = nextChild;
+                nextChild = null;
+
+                SetActiveTab(nextTab);
+            }
         }
 
         private void SetActiveTab(Button active)
@@ -142,7 +190,6 @@ namespace QuanLyTram.Forms
             active.BackColor = Color.LightGray;
             active.Font = new Font("Segoe UI", 10.5f, FontStyle.Bold);
 
-            // di chuyển thanh underline dưới nút đang chọn
             activeIndicator.Width = active.Width;
             activeIndicator.Left = active.Left;
             activeIndicator.Top = pnlTabs.Height - activeIndicator.Height;
