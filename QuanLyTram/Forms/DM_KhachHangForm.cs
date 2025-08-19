@@ -28,6 +28,10 @@ namespace QuanLyTram.Forms
 
         private DataTable dtData; // DataTable dùng cho dgv
 
+        // Biến lưu dữ liệu gốc để so sánh khi Hủy
+        private string _originalTen = "";
+        private string _originalDiaChi = "";
+
         public DM_KhachHangForm()
         {
             Text = "KHÁCH HÀNG";
@@ -109,11 +113,22 @@ namespace QuanLyTram.Forms
             Controls.Add(main);
             main.BringToFront();
 
-            // DataGridView trực tiếp trên panel, style đơn giản
+            // Label tiêu đề cho DataGridView
+            var lblGridTitle = new Label
+            {
+                Text = "DỮ LIỆU KHÁCH HÀNG",
+                Font = new Font("Segoe UI", 10f, FontStyle.Bold),
+                ForeColor = Color.Black,
+                AutoSize = true,
+                Location = new Point(8, 8)
+            };
+            main.Controls.Add(lblGridTitle);
+
+            // DataGridView
             dgv = new DataGridView
             {
-                Location = new Point(8, 8),
-                Size = new Size(740, 560),
+                Location = new Point(8, lblGridTitle.Bottom + 8),
+                Size = new Size(740, 530),
                 ReadOnly = true,
                 MultiSelect = false,
                 AllowUserToAddRows = false,
@@ -127,7 +142,7 @@ namespace QuanLyTram.Forms
             };
             main.Controls.Add(dgv);
 
-            // GroupBox thông tin khách hàng bên phải
+            // GroupBox
             grpInfo = new GroupBox
             {
                 Text = "THÔNG TIN KHÁCH HÀNG",
@@ -145,13 +160,13 @@ namespace QuanLyTram.Forms
                 Text = "TÊN KHÁCH HÀNG:",
                 Font = FText,
                 AutoSize = true,
-                Location = new Point(20, 60),
+                Location = new Point(20, 50),
                 ForeColor = Color.DimGray
             };
             txtTen = new TextBox
             {
                 Font = new Font("Segoe UI", 10.5f, FontStyle.Regular),
-                Location = new Point(20, 85),
+                Location = new Point(20, 75),
                 Width = 340
             };
 
@@ -160,13 +175,13 @@ namespace QuanLyTram.Forms
                 Text = "ĐỊA CHỈ:",
                 Font = FText,
                 AutoSize = true,
-                Location = new Point(20, 140),
+                Location = new Point(20, 130),
                 ForeColor = Color.DimGray
             };
             txtDiaChi = new TextBox
             {
                 Font = new Font("Segoe UI", 10.5f, FontStyle.Regular),
-                Location = new Point(20, 165),
+                Location = new Point(20, 155),
                 Width = 340
             };
 
@@ -177,7 +192,7 @@ namespace QuanLyTram.Forms
                 BackColor = Color.LightSkyBlue,
                 FlatStyle = FlatStyle.Flat,
                 Size = new Size(160, 46),
-                Location = new Point(20, 230),
+                Location = new Point(20, 220),
                 IconChar = IconChar.Save,
                 IconColor = Color.White,
                 IconFont = IconFont.Auto,
@@ -197,7 +212,7 @@ namespace QuanLyTram.Forms
                 BackColor = Color.LightCoral,
                 FlatStyle = FlatStyle.Flat,
                 Size = new Size(160, 46),
-                Location = new Point(btnLuu.Right + 16, 230),
+                Location = new Point(btnLuu.Right + 16, 220),
                 IconChar = IconChar.TimesCircle,
                 IconColor = Color.White,
                 IconFont = IconFont.Auto,
@@ -231,16 +246,28 @@ namespace QuanLyTram.Forms
                 if (dgv.CurrentRow != null)
                 {
                     ApplyMode(EditMode.Edit);
-                    txtTen.Text = dgv.CurrentRow.Cells["Tên Khách hàng"].Value.ToString();
-                    txtDiaChi.Text = dgv.CurrentRow.Cells["Địa chỉ"].Value.ToString();
-                    txtTen.Focus();
-                    txtTen.SelectAll();
                 }
             };
 
             btnLuu.Click += (s, e) => SaveCurrent();
 
-            btnHuy.Click += (s, e) => ApplyMode(EditMode.None);
+            btnHuy.Click += (s, e) =>
+            {
+                if (txtTen.Text != _originalTen || txtDiaChi.Text != _originalDiaChi)
+                {
+                    var result = MessageBox.Show(
+                        "Bạn có chắc chắn muốn hủy? Mọi thay đổi sẽ không được lưu.",
+                        "Xác nhận hủy",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question
+                    );
+
+                    if (result == DialogResult.No)
+                        return;
+                }
+
+                ApplyMode(EditMode.None);
+            };
 
             dgv.SelectionChanged += (s, e) =>
             {
@@ -272,7 +299,6 @@ namespace QuanLyTram.Forms
 
             dgv.DataSource = dtData;
 
-            // Chọn mặc định hàng đầu tiên
             if (dgv.Rows.Count > 0)
                 dgv.CurrentCell = dgv.Rows[0].Cells[0];
         }
@@ -282,7 +308,6 @@ namespace QuanLyTram.Forms
             _mode = mode;
             bool editing = mode != EditMode.None;
 
-            // Nút action
             UpdateButtonState(btnThemMoi, !editing, Color.FromArgb(110, 170, 60));
             UpdateButtonState(btnCapNhat, !editing && dgv.CurrentRow != null, Color.FromArgb(70, 130, 180));
             UpdateButtonState(btnLuu, editing, Color.FromArgb(90, 90, 150));
@@ -292,12 +317,18 @@ namespace QuanLyTram.Forms
             {
                 txtTen.Text = string.Empty;
                 txtDiaChi.Text = string.Empty;
+                _originalTen = "";
+                _originalDiaChi = "";
                 txtTen.Focus();
             }
             else if (mode == EditMode.Edit && dgv.CurrentRow != null)
             {
                 txtTen.Text = dgv.CurrentRow.Cells["Tên Khách hàng"].Value.ToString();
                 txtDiaChi.Text = dgv.CurrentRow.Cells["Địa chỉ"].Value.ToString();
+
+                _originalTen = txtTen.Text;
+                _originalDiaChi = txtDiaChi.Text;
+
                 txtTen.Focus();
                 txtTen.SelectAll();
             }
@@ -305,6 +336,9 @@ namespace QuanLyTram.Forms
             {
                 txtTen.Text = dgv.CurrentRow.Cells["Tên Khách hàng"].Value.ToString();
                 txtDiaChi.Text = dgv.CurrentRow.Cells["Địa chỉ"].Value.ToString();
+
+                _originalTen = txtTen.Text;
+                _originalDiaChi = txtDiaChi.Text;
             }
         }
 
