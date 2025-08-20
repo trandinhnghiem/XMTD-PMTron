@@ -23,6 +23,9 @@ namespace QuanLyTram.Forms
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.Beige;
 
+            MaximizeBox = false;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+
             Font btnFont = new Font("Segoe UI", 10, FontStyle.Bold);
 
             // Nút Thêm mới
@@ -39,8 +42,8 @@ namespace QuanLyTram.Forms
                 Image = SystemIcons.Application.ToBitmap(),
                 TextImageRelation = TextImageRelation.ImageBeforeText
             };
-            btnThemMoi.FlatAppearance.BorderSize = 0; // bỏ viền
-            btnThemMoi.FlatAppearance.MouseOverBackColor = Color.LawnGreen; // khi hover
+            btnThemMoi.FlatAppearance.BorderSize = 0;
+            btnThemMoi.FlatAppearance.MouseOverBackColor = Color.FromArgb(152, 251, 152);
 
             // Nút Cập nhật
             btnCapNhat = new Button()
@@ -56,8 +59,8 @@ namespace QuanLyTram.Forms
                 Image = SystemIcons.Information.ToBitmap(),
                 TextImageRelation = TextImageRelation.ImageBeforeText
             };
-            btnCapNhat.FlatAppearance.BorderSize = 0; // bỏ viền
-            btnCapNhat.FlatAppearance.MouseOverBackColor = Color.DarkKhaki; // khi hover
+            btnCapNhat.FlatAppearance.BorderSize = 0;
+            btnCapNhat.FlatAppearance.MouseOverBackColor = Color.FromArgb(255 ,246 ,143);
 
             // Nút Xóa
             btnXoa = new Button()
@@ -73,15 +76,14 @@ namespace QuanLyTram.Forms
                 Image = SystemIcons.Error.ToBitmap(),
                 TextImageRelation = TextImageRelation.ImageBeforeText
             };
-            btnXoa.FlatAppearance.BorderSize = 0; // bỏ viền
-            btnXoa.FlatAppearance.MouseOverBackColor = Color.MediumVioletRed; // khi hover
-
+            btnXoa.FlatAppearance.BorderSize = 0;
+            btnXoa.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 123, 115);
 
             this.Controls.Add(btnThemMoi);
             this.Controls.Add(btnCapNhat);
             this.Controls.Add(btnXoa);
 
-            // ---------- GroupBox "THÔNG TIN ĐẶT HÀNG" (style đồng bộ DM_KinhDoanhForm) ----------
+            // ---------- GroupBox "THÔNG TIN ĐẶT HÀNG" ----------
             GroupBox groupInfo = new GroupBox()
             {
                 Text = "THÔNG TIN ĐẶT HÀNG",
@@ -93,168 +95,39 @@ namespace QuanLyTram.Forms
                 Padding = new Padding(18)
             };
 
-            int startY = 35;  // Y bắt đầu
-            int gapY = 38;    // Khoảng cách dòng
+            int startY = 35;  
+            int gapY = 38;    
 
             // Labels
-            Label lblNgay = new Label() 
-            { 
-                Text = "Ngày hệ thống:", 
-                Font = new Font("Segoe UI", 10f, FontStyle.Bold), 
-                ForeColor = Color.Black, 
-                Location = new Point(20, startY), 
-                AutoSize = true 
-            };
-            Label lblMaDon = new Label() 
-            { 
-                Text = "Mã đơn hàng:", 
-                Font = new Font("Segoe UI", 10f, FontStyle.Bold), 
-                ForeColor = Color.Black, 
-                Location = new Point(20, startY + 1 * gapY), 
-                AutoSize = true 
-            };
-            Label lblKyHieu = new Label() 
-            { 
-                Text = "Ký hiệu đơn:", 
-                Font = new Font("Segoe UI", 10f, FontStyle.Bold), 
-                ForeColor = Color.Black, 
-                Location = new Point(20, startY + 2 * gapY), 
-                AutoSize = true 
-            };
-            Label lblSoPhieu = new Label() 
-            { 
-                Text = "Số phiếu:", 
-                Font = new Font("Segoe UI", 10f, FontStyle.Bold), 
-                ForeColor = Color.Black, 
-                Location = new Point(20, startY + 3 * gapY), 
-                AutoSize = true 
-            };
-            Label lblDatHang = new Label() 
-            { 
-                Text = "Đặt hàng (m3):", 
-                Font = new Font("Segoe UI", 10f, FontStyle.Bold), 
-                ForeColor = Color.Black, 
-                Location = new Point(20, startY + 4 * gapY), 
-                AutoSize = true 
-            };
-            Label lblTichLuy = new Label() 
-            { 
-                Text = "Tích lũy (m3):", 
-                Font = new Font("Segoe UI", 10f, FontStyle.Bold), 
-                ForeColor = Color.Black, 
-                Location = new Point(20, startY + 5 * gapY), // xuống dòng dưới
-                AutoSize = true 
-            };
+            Label lblNgay = new Label() { Text = "Ngày hệ thống:", Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.Black, Location = new Point(20, startY), AutoSize = true };
+            Label lblMaDon = new Label() { Text = "Mã đơn hàng:", Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.Black, Location = new Point(20, startY + 1 * gapY), AutoSize = true };
+            Label lblKyHieu = new Label() { Text = "Ký hiệu đơn:", Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.Black, Location = new Point(20, startY + 2 * gapY), AutoSize = true };
+            Label lblSoPhieu = new Label() { Text = "Số phiếu:", Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.Black, Location = new Point(20, startY + 3 * gapY), AutoSize = true };
+            Label lblDatHang = new Label() { Text = "Đặt hàng (m3):", Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.Black, Location = new Point(20, startY + 4 * gapY), AutoSize = true };
+            Label lblTichLuy = new Label() { Text = "Tích lũy (m3):", Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.Black, Location = new Point(20, startY + 5 * gapY), AutoSize = true };
 
-            Label lblTramTron = new Label() 
-            { 
-                Text = "Trạm trộn:", 
-                Font = new Font("Segoe UI", 10f, FontStyle.Bold), 
-                ForeColor = Color.Black, 
-                Location = new Point(400, startY), 
-                AutoSize = true 
-            };
-            Label lblKhach = new Label() 
-            { 
-                Text = "Khách hàng:", 
-                Font = new Font("Segoe UI", 10f, FontStyle.Bold), 
-                ForeColor = Color.Black, 
-                Location = new Point(400, startY + 1 * gapY), 
-                AutoSize = true 
-            };
-            Label lblDiaDiem = new Label() 
-            { 
-                Text = "Địa điểm:", 
-                Font = new Font("Segoe UI", 10f, FontStyle.Bold), 
-                ForeColor = Color.Black, 
-                Location = new Point(400, startY + 2 * gapY), 
-                AutoSize = true 
-            };
-            Label lblKD = new Label() 
-            { 
-                Text = "Kinh doanh:", 
-                Font = new Font("Segoe UI", 10f, FontStyle.Bold), 
-                ForeColor = Color.Black, 
-                Location = new Point(400, startY + 3 * gapY), 
-                AutoSize = true 
-            };
+            Label lblTramTron = new Label() { Text = "Trạm trộn:", Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.Black, Location = new Point(400, startY), AutoSize = true };
+            Label lblKhach = new Label() { Text = "Khách hàng:", Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.Black, Location = new Point(400, startY + 1 * gapY), AutoSize = true };
+            Label lblDiaDiem = new Label() { Text = "Địa điểm:", Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.Black, Location = new Point(400, startY + 2 * gapY), AutoSize = true };
+            Label lblKD = new Label() { Text = "Kinh doanh:", Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.Black, Location = new Point(400, startY + 3 * gapY), AutoSize = true };
 
-            // TextBoxes, ComboBoxes, CheckBox
-            dtpNgay = new DateTimePicker() 
-            { 
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Regular), 
-                Location = new Point(150, startY), 
-                Width = 200, 
-                Format = DateTimePickerFormat.Custom, 
-                CustomFormat = "dd/MM/yyyy" 
-            };
-            txtMaDon = new TextBox() 
-            { 
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Regular), 
-                Location = new Point(150, startY + 1 * gapY), 
-                Width = 200 
-            };
-            txtKyHieu = new TextBox() 
-            { 
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Regular), 
-                Location = new Point(150, startY + 2 * gapY), 
-                Width = 200 
-            };
-            txtSoPhieu = new TextBox() 
-            { 
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Regular), 
-                Location = new Point(150, startY + 3 * gapY), 
-                Width = 200 
-            };
-            txtDatHang = new TextBox() 
-            { 
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Regular), 
-                Location = new Point(150, startY + 4 * gapY), 
-                Width = 200 
-            };
-            txtTichLuy = new TextBox() 
-            { 
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Regular), 
-                Location = new Point(150, startY + 5 * gapY), // xuống dòng dưới
-                Width = 200 
-            };
+            // TextBoxes, ComboBoxes
+            dtpNgay = new DateTimePicker() { Font = new Font("Segoe UI", 10.5f), Location = new Point(150, startY), Width = 200, Format = DateTimePickerFormat.Custom, CustomFormat = "dd/MM/yyyy" };
+            txtMaDon = new TextBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(150, startY + 1 * gapY), Width = 200 };
+            txtKyHieu = new TextBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(150, startY + 2 * gapY), Width = 200 };
+            txtSoPhieu = new TextBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(150, startY + 3 * gapY), Width = 200 };
+            txtDatHang = new TextBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(150, startY + 4 * gapY), Width = 200 };
+            txtTichLuy = new TextBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(150, startY + 5 * gapY), Width = 200 };
 
-            cbTramTron = new ComboBox() 
-            { 
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Regular), 
-                Location = new Point(500, startY), 
-                Width = 350 
-            };
-            cbKhachHang = new ComboBox() 
-            { 
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Regular), 
-                Location = new Point(500, startY + 1 * gapY), 
-                Width = 350 
-            };
-            cbDiaDiem = new ComboBox() 
-            { 
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Regular), 
-                Location = new Point(500, startY + 2 * gapY), 
-                Width = 350 
-            };
-            cbKinhDoanh = new ComboBox() 
-            { 
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Regular), 
-                Location = new Point(500, startY + 3 * gapY), 
-                Width = 350 
-            };
+            cbTramTron = new ComboBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(500, startY), Width = 350 };
+            cbKhachHang = new ComboBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(500, startY + 1 * gapY), Width = 350 };
+            cbDiaDiem = new ComboBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(500, startY + 2 * gapY), Width = 350 };
+            cbKinhDoanh = new ComboBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(500, startY + 3 * gapY), Width = 350 };
 
-            // CheckBox Hoạt động vẫn giữ ở cùng hàng với Đặt hàng
-            chkHoatDong = new CheckBox() 
-            {  
-                Text = "Hoạt động", 
-                Font = new Font("Segoe UI", 10f, FontStyle.Bold), 
-                ForeColor = Color.Black,
-                Location = new Point(500, 190), 
-                AutoSize = true 
-            };
+            // CheckBox
+            chkHoatDong = new CheckBox() { Text = "Hoạt động", Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.Black, Location = new Point(500, 190), AutoSize = true };
 
-            // Nút Lưu (style giống DM_KinhDoanhForm)
+            // Nút Lưu
             btnLuu = new Button()
             {
                 Text = " LƯU",
@@ -268,22 +141,13 @@ namespace QuanLyTram.Forms
                 Image = SystemIcons.Shield.ToBitmap(),
                 TextImageRelation = TextImageRelation.ImageBeforeText
             };
-            btnLuu.FlatAppearance.BorderSize = 0; // bỏ viền
-            btnLuu.FlatAppearance.MouseOverBackColor = Color.SkyBlue; // khi hover
+            btnLuu.FlatAppearance.BorderSize = 0;
+            btnLuu.FlatAppearance.MouseOverBackColor =  Color.FromArgb(176 ,226,255);
 
-            // Thêm controls vào groupInfo
             groupInfo.Controls.AddRange(new Control[] {
-                lblNgay, dtpNgay,
-                lblMaDon, txtMaDon,
-                lblKyHieu, txtKyHieu,
-                lblSoPhieu, txtSoPhieu,
-                lblTramTron, cbTramTron,
-                lblKhach, cbKhachHang,
-                lblDiaDiem, cbDiaDiem,
-                lblKD, cbKinhDoanh,
-                lblDatHang, txtDatHang,
-                lblTichLuy, txtTichLuy,
-                chkHoatDong, btnLuu
+                lblNgay, dtpNgay, lblMaDon, txtMaDon, lblKyHieu, txtKyHieu, lblSoPhieu, txtSoPhieu,
+                lblTramTron, cbTramTron, lblKhach, cbKhachHang, lblDiaDiem, cbDiaDiem, lblKD, cbKinhDoanh,
+                lblDatHang, txtDatHang, lblTichLuy, txtTichLuy, chkHoatDong, btnLuu
             });
 
             this.Controls.Add(groupInfo);
@@ -301,14 +165,21 @@ namespace QuanLyTram.Forms
             };
             this.Controls.Add(lblDGVTitle);
 
-            // DataGridView
+            // DataGridView (đồng bộ style với DM_KhachHangForm)
             dgvDonHang = new DataGridView()
             {
                 Location = new Point(20, lblDGVTitle.Bottom + 5),
-                Size = new Size(1180, 300),
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                Size = new Size(1190, 260),
+                ReadOnly = true,
+                MultiSelect = false,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = false
+                BackgroundColor = Color.White,
+                BorderStyle = BorderStyle.FixedSingle,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                RowHeadersVisible = true,
+                EnableHeadersVisualStyles = true
             };
             this.Controls.Add(dgvDonHang);
 
@@ -328,10 +199,9 @@ namespace QuanLyTram.Forms
 
             dgvDonHang.DataSource = dtDonHang;
             dgvDonHang.Columns["Ngày tháng"].DefaultCellStyle.Format = "dd/MM/yyyy";
-            dgvDonHang.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10f, FontStyle.Bold);
-            dgvDonHang.EnableHeadersVisualStyles = false;
+            dgvDonHang.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
 
-            // Sự kiện nút
+            // Sự kiện
             btnThemMoi.Click += BtnThemMoi_Click;
             btnCapNhat.Click += BtnCapNhat_Click;
             btnXoa.Click += BtnXoa_Click;

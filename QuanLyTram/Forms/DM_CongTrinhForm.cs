@@ -116,13 +116,13 @@ namespace QuanLyTram.Forms
                 Font = new Font("Segoe UI", 10f, FontStyle.Bold),
                 ForeColor = Color.Red,
                 AutoSize = true,
-                Location = new Point(8, 8)
+                Location = new Point(20, 8)
             };
             main.Controls.Add(lblGridTitle);
 
             dgv = new DataGridView
             {
-                Location = new Point(8, lblGridTitle.Bottom + 8),
+                Location = new Point(20, lblGridTitle.Bottom + 8),
                 Size = new Size(740, 530),
                 ReadOnly = true,
                 MultiSelect = false,
@@ -143,7 +143,7 @@ namespace QuanLyTram.Forms
                 ForeColor = Color.Red,
                 BackColor = Color.Transparent,
                 Size = new Size(400, 560),
-                Location = new Point(dgv.Right + 16, 8),
+                Location = new Point(dgv.Right + 20, 8),
                 Padding = new Padding(18)
             };
             main.Controls.Add(grpInfo);
