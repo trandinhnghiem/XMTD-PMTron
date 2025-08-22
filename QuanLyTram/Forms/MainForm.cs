@@ -14,16 +14,15 @@ namespace QuanLyTram.Forms
         private TableLayoutPanel tlpToolbar;
         private Form currentChildForm;
 
-
         public MainForm()
         {
             Text = "QUẢN LÝ SỐ LIỆU TRẠM TRỘN";
             StartPosition = FormStartPosition.CenterScreen;
             ClientSize = new Size(1200, 400);
             BackColor = Color.White;
-                    
+
             // 🚫 Không cho kéo nhỏ hơn 1200x600
-         this.FormBorderStyle = FormBorderStyle.FixedSingle; // cũng khóa kéo thay đổi kích thước
+            this.FormBorderStyle = FormBorderStyle.FixedSingle; // cũng khóa kéo thay đổi kích thước
 
             // === TOOLBAR ===
             tlpToolbar = new TableLayoutPanel
@@ -35,15 +34,12 @@ namespace QuanLyTram.Forms
                 Padding = new Padding(10)
             };
 
-            // Column menu chữ (7 nút)
             for (int i = 0; i < 7; i++)
                 tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70f / 7f));
 
-            // Column cho 2 nút tròn
             tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 60));
             tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 60));
 
-            // 7 menu chữ lớn
             var menuItems = new (string Text, Type FormType)[]
             {
                 ("DANH MỤC", typeof(DanhMucForm)),
@@ -61,30 +57,20 @@ namespace QuanLyTram.Forms
                 Button btn = MakeBigButton(text);
                 btn.Click += (s, e) =>
                 {
-                    // Nếu đã có form con đang mở thì đóng nó
                     if (currentChildForm != null && !currentChildForm.IsDisposed)
-                    {
                         currentChildForm.Close();
-                    }
 
-                    // Tạo form con mới
                     var form = (Form)Activator.CreateInstance(formType);
                     form.StartPosition = FormStartPosition.CenterScreen;
 
-                    // Ghi nhớ form con này
                     currentChildForm = form;
-
-                    // Khi form con đóng thì clear biến
                     form.FormClosed += (s2, e2) => { currentChildForm = null; };
-
-                    // Hiển thị
                     form.Show();
                 };
-
                 tlpToolbar.Controls.Add(btn, col++, 0);
             }
 
-            // --- Nút Logout tròn (cam) ---
+            // --- Nút Logout ---
             IconButton btnLogout = new IconButton
             {
                 Size = new Size(50, 50),
@@ -95,7 +81,7 @@ namespace QuanLyTram.Forms
                 IconFont = IconFont.Auto,
                 IconSize = 28,
                 FlatStyle = FlatStyle.Flat,
-                Margin = new Padding(5,6,6,6),
+                Margin = new Padding(5, 6, 6, 6),
                 Anchor = AnchorStyles.None,
                 Cursor = Cursors.Hand
             };
@@ -124,7 +110,7 @@ namespace QuanLyTram.Forms
                 }
             };
 
-            // --- Nút Thoát tròn (đỏ) ---
+            // --- Nút Exit ---
             IconButton btnExit = new IconButton
             {
                 Size = new Size(50, 50),
@@ -155,8 +141,6 @@ namespace QuanLyTram.Forms
             };
             btnExit.MouseEnter += (s, e) => btnExit.BackColor = ControlPaint.Light(btnExit.BackColor);
             btnExit.MouseLeave += (s, e) => btnExit.BackColor = Color.Red;
-
-            // **Giống nút cam: sử dụng Layout event**
             btnExit.Layout += (s, e) =>
             {
                 if (btnExit.Width > 0 && btnExit.Height > 0)
@@ -169,7 +153,6 @@ namespace QuanLyTram.Forms
                 }
             };
 
-            // Thêm 2 nút tròn vào toolbar
             tlpToolbar.Controls.Add(btnLogout, col++, 0);
             tlpToolbar.Controls.Add(btnExit, col++, 0);
 
@@ -178,7 +161,7 @@ namespace QuanLyTram.Forms
             // === GROUPBOX: Thông tin trạm ===
             var grpTram = new GroupBox
             {
-                Text = "Thông tin trạm",
+                Text = "THÔNG TIN TRẠM",
                 Dock = DockStyle.Top,
                 Height = 120,
             };
@@ -214,7 +197,7 @@ namespace QuanLyTram.Forms
                 lblDiaDiem, txtDiaDiem, lblCongSuat, txtCongSuat, lblSdt, txtSoDienThoai
             });
 
-            // === DATAGRIDVIEW ===
+            // === DATAGRIDVIEW (chỉnh style đồng bộ) ===
             dgvData = new DataGridView
             {
                 Dock = DockStyle.Fill,
@@ -222,10 +205,14 @@ namespace QuanLyTram.Forms
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 AllowUserToAddRows = false,
                 ReadOnly = true,
-                RowHeadersVisible = false,
+                MultiSelect = false,
                 BackgroundColor = Color.White,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
+                BorderStyle = BorderStyle.FixedSingle,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                RowHeadersVisible = true,
+                EnableHeadersVisualStyles = true
             };
+            dgvData.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
 
             dgvData.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "STT", DataPropertyName = "STT", Width = 60, FillWeight = 40 });
             dgvData.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Công suất - Địa điểm", DataPropertyName = "CongSuatDiaDiem" });
@@ -261,10 +248,8 @@ namespace QuanLyTram.Forms
             };
             b.FlatAppearance.BorderSize = 1;
             b.FlatAppearance.BorderColor = Color.Gainsboro;
-
             b.MouseEnter += (s, e) => b.BackColor = Color.WhiteSmoke;
             b.MouseLeave += (s, e) => b.BackColor = Color.FromArgb(230, 230, 230);
-
             return b;
         }
 
