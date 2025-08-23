@@ -21,7 +21,6 @@ namespace QuanLyTram.Forms
             ClientSize = new Size(1200, 400);
             BackColor = Color.White;
 
-            // 🚫 Không cho kéo nhỏ hơn 1200x600
             this.FormBorderStyle = FormBorderStyle.FixedSingle; // cũng khóa kéo thay đổi kích thước
 
             // === TOOLBAR ===

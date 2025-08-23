@@ -28,7 +28,7 @@ namespace QuanLyTram.Forms
             {
                 Text = "CHỌN PHIẾU",
                 Location = new Point(0, 0),
-                Size = new Size(240, 300)
+                Size = new Size(240, 300),
             };
             Label lblNgay = new Label() { Text = "Ngày:", Location = new Point(10, 25), AutoSize = true };
             DateTimePicker dtpNgay = new DateTimePicker() { Location = new Point(60, 20), Width = 150, Format = DateTimePickerFormat.Short };
