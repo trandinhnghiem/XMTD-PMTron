@@ -297,6 +297,11 @@ namespace QuanLyTram.Forms
             dtData.Rows.Add("1", "Công trình A", "Xây dựng hạ tầng", "Bơm nước 3HP");
             dtData.Rows.Add("2", "Công trình B", "Lắp đặt điện", "Bơm công nghiệp 5HP");
             dtData.Rows.Add("3", "Công trình C", "Thi công PCCC", "Bơm cứu hỏa");
+            dtData.Rows.Add("4", "Công trình D", "Nhà xưởng sản xuất", "Máy nén khí 15kW");
+            dtData.Rows.Add("5", "Công trình E", "Chung cư cao tầng", "Thang máy tải khách");
+            dtData.Rows.Add("6", "Công trình F", "Cầu đường", "Máy phát điện 100kVA");
+            dtData.Rows.Add("7", "Công trình G", "Kho bãi logistics", "Hệ thống lạnh công nghiệp");
+            dtData.Rows.Add("8", "Công trình H", "Khu đô thị", "Máy bơm nước thải 7.5HP");
 
             dgv.DataSource = dtData;
 

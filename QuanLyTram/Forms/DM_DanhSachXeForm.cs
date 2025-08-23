@@ -274,9 +274,14 @@ namespace QuanLyTram.Forms
             dtData.Columns.Add("Biển số xe");
             dtData.Columns.Add("Lái xe");
 
-            dtData.Rows.Add("1", "51F-12345", "Nguyễn Văn A");
-            dtData.Rows.Add("2", "51G-67890", "Trần Văn B");
-            dtData.Rows.Add("3", "60A-24680", "Lê Văn C");
+            dtData.Rows.Add("1", "51C-34567", "Nguyễn Văn An");
+            dtData.Rows.Add("2", "51D-67890", "Trần Quốc Bảo");
+            dtData.Rows.Add("3", "60A-24680", "Lê Minh Cường");
+            dtData.Rows.Add("4", "65H-11223", "Phạm Thị Dung");
+            dtData.Rows.Add("5", "66B-33445", "Huỳnh Tấn Đạt");
+            dtData.Rows.Add("6", "67C-55667", "Ngô Hoàng Phúc");
+            dtData.Rows.Add("7", "68D-77889", "Đỗ Thị Hồng");
+            dtData.Rows.Add("8", "69E-99001", "Bùi Văn Hùng");
 
             dgv.DataSource = dtData;
 

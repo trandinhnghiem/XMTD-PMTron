@@ -194,8 +194,15 @@ namespace QuanLyTram.Forms
             dtDonHang.Columns.Add("Tích lũy");
             dtDonHang.Columns.Add("Địa điểm CT");
 
-            dtDonHang.Rows.Add("1", "A01", "CTY TNHH TV TK XD", "24", new DateTime(2025, 7, 27), "0", "0", "KHO BẠC NHÀ NƯỚC");
-            dtDonHang.Rows.Add("2", "A02", "CTY TRƯỜNG SƠN 145", "20", new DateTime(2025, 7, 5), "0", "0", "QL61C, H.CHÂU THÀNH");
+            dtDonHang.Rows.Add("1", "A01", "CTY TNHH TV TK XD Tây Đô", "24", new DateTime(2025, 7, 27), "0", "0", "KHO BẠC NHÀ NƯỚC HẬU GIANG");
+            dtDonHang.Rows.Add("2", "A02", "CTY TNHH Trường Sơn 145", "20", new DateTime(2025, 7, 5), "0", "0", "QL61C, H.CHÂU THÀNH");
+            dtDonHang.Rows.Add("3", "A03", "CTY CP Xây Dựng Minh Phát", "15", new DateTime(2025, 7, 10), "0", "0", "KCN TÂN PHÚ THẠNH");
+            dtDonHang.Rows.Add("4", "A04", "CTY TNHH Bê Tông Long An", "30", new DateTime(2025, 7, 15), "0", "0", "QL1A, P.7, TP.VĨNH LONG");
+            dtDonHang.Rows.Add("5", "A05", "CTY CP XD Giao Thông 8", "18", new DateTime(2025, 7, 20), "0", "0", "CẦU CÁI RĂNG - CẦN THƠ");
+            dtDonHang.Rows.Add("6", "A06", "CTY TNHH XD Phương Nam", "25", new DateTime(2025, 7, 22), "0", "0", "KDC HƯNG PHÚ 1, CẦN THƠ");
+            dtDonHang.Rows.Add("7", "A07", "CTY CP Đầu Tư Xây Dựng Hòa Bình", "40", new DateTime(2025, 7, 24), "0", "0", "KĐT MỚI NAM CẦN THƠ");
+            dtDonHang.Rows.Add("8", "A08", "CTY TNHH MTV XD Nam Việt", "12", new DateTime(2025, 7, 30), "0", "0", "KCN TRÀ NÓC 2, CẦN THƠ");
+
 
             dgvDonHang.DataSource = dtDonHang;
             dgvDonHang.Columns["Ngày tháng"].DefaultCellStyle.Format = "dd/MM/yyyy";

@@ -136,8 +136,12 @@ namespace QuanLyTram.Forms
             dt.Columns.Add("Số điện thoại");
             dt.Columns.Add("Công suất");
 
-            dt.Rows.Add("T01", "Trạm 1", "TP.HCM", "0909123456", "50");
-            dt.Rows.Add("T02", "Trạm 2", "Bình Dương", "0912345678", "60");
+            // Danh sách 4 trạm 
+            dt.Rows.Add("T01", "90m3 - T 90 Đặng Tài - Hậu Giang", "0909123456", "Hậu Giang", "90");
+            dt.Rows.Add("T02", "82m3 - T 82 Xe kíp - M", "0912345678", "TP.HCM", "82");
+            dt.Rows.Add("T03", "150m3 - T 150 - Ô Môn 1", "0913456789", "Cần Thơ", "150");
+            dt.Rows.Add("T04", "150m3 - T 150 - Ô Môn 2", "0914567890", "Cần Thơ", "150");
+
 
             dgvTram.DataSource = dt;
 

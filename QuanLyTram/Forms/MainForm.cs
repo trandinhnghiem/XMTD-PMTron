@@ -254,21 +254,56 @@ namespace QuanLyTram.Forms
         }
 
         private void MainForm_Load(object sender, EventArgs e)
+{
+    var dt = new DataTable();
+    dt.Columns.Add("STT");
+    dt.Columns.Add("CongSuatDiaDiem");
+    dt.Columns.Add("TongKLNgay");
+    dt.Columns.Add("KhachHang");
+    dt.Columns.Add("BienXe");
+    dt.Columns.Add("KLXe");
+    dt.Columns.Add("MacBeTong");
+    dt.Columns.Add("TrangThai");
+
+    bool tram1Connected = true;
+    bool tram2Connected = true;
+    bool tram3Connected = true;
+    bool tram4Connected = true;
+
+    dt.Rows.Add("1", "90m3 - T 90 Đặng Tài - Hậu Giang", "0.0 m3", "----", "----", "0.0 m3", "----",
+        tram1Connected ? "🖥 ✔" : "🖥 ❌");
+
+    dt.Rows.Add("2", "82m3 - T 82 Xe kíp - M", "0.0 m3", "----", "----", "0.0 m3", "----",
+        tram2Connected ? "🖥 ✔" : "🖥 ❌");
+
+    dt.Rows.Add("3", "150m3 - T 150 - Omon1", "0.0 m3", "----", "----", "0.0 m3", "----",
+        tram3Connected ? "🖥 ✔" : "🖥 ❌");
+
+    dt.Rows.Add("4", "150m3 - T 150 - Omon2", "0.0 m3", "----", "----", "0.0 m3", "----",
+        tram4Connected ? "🖥 ✔" : "🖥 ❌");
+
+    dgvData.DataSource = dt;
+
+    // ⚡ gán màu cho trạng thái
+    dgvData.CellFormatting += DgvData_CellFormatting;
+}
+
+private void DgvData_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+{
+    if (dgvData.Columns[e.ColumnIndex].DataPropertyName == "TrangThai" && e.Value != null)
+    {
+        string status = e.Value.ToString();
+
+        if (status.Contains("✔"))
         {
-            var dt = new DataTable();
-            dt.Columns.Add("STT");
-            dt.Columns.Add("CongSuatDiaDiem");
-            dt.Columns.Add("TongKLNgay");
-            dt.Columns.Add("KhachHang");
-            dt.Columns.Add("BienXe");
-            dt.Columns.Add("KLXe");
-            dt.Columns.Add("MacBeTong");
-            dt.Columns.Add("TrangThai");
-
-            dt.Rows.Add("1", "90m3 - T 90 Đặng Tài - Hậu Giang", "0.0 m3", "----", "----", "0.0 m3", "----", "🖥 ❌");
-            dt.Rows.Add("2", "82m3 - T 82 Xe kíp - M", "0.0 m3", "----", "----", "0.0 m3", "----", "🖥 ❌");
-
-            dgvData.DataSource = dt;
+            e.CellStyle.ForeColor = Color.Green; // màu xanh lá cho ✔
         }
+        else if (status.Contains("❌"))
+        {
+            e.CellStyle.ForeColor = Color.Red;   // màu đỏ cho ❌
+        }
+    }
+}
+
     }
 }

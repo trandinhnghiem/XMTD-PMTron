@@ -146,6 +146,14 @@ namespace QuanLyTram.Forms
             materialGrid.Rows.Add("Đơn hàng DH001", "500", "400", "300", "150", "20");
             materialGrid.Rows.Add("Đơn hàng DH002", "300", "250", "200", "100", "15");
             materialGrid.Rows.Add("Đơn hàng DH003", "400", "350", "250", "120", "18");
+            materialGrid.Rows.Add("Đơn hàng DH004", "600", "500", "420", "200", "25");
+            materialGrid.Rows.Add("Đơn hàng DH005", "250", "200", "150", "80",  "10");
+            materialGrid.Rows.Add("Đơn hàng DH006", "700", "600", "500", "250", "30");
+            materialGrid.Rows.Add("Đơn hàng DH007", "450", "380", "300", "160", "22");
+            materialGrid.Rows.Add("Đơn hàng DH008", "520", "420", "340", "170", "24");
+            materialGrid.Rows.Add("Đơn hàng DH009", "350", "290", "230", "110", "16");
+            materialGrid.Rows.Add("Đơn hàng DH010", "800", "700", "600", "300", "35");
+
 
             totalLayout.Controls.Add(materialGrid, 0, 0);
 

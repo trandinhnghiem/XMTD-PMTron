@@ -198,7 +198,17 @@ namespace QuanLyTram.Forms
             dgvKho.Columns.Add("NhanVien", "Tên nhân viên");
 
             // Data mẫu
-            dgvKho.Rows.Add("1", "PX01", "HD001", "Nhập", "18/08/2025", "Xi măng", "AG-257.29", "Nguyễn Văn A", "CTY AB", "CTY DC", "Trần Văn B");
+            dgvKho.Rows.Add("1", "PX01", "HD001", "Nhập", "18/08/2025", "Xi măng PCB40", "XM-257.29", "Nguyễn Văn An", "CTY Xi Măng Hà Tiên", "CTY Xây Dựng Hòa Bình", "Trần Quốc Khánh");
+            dgvKho.Rows.Add("2", "PX02", "HD002", "Xuất", "19/08/2025", "Cát vàng rửa", "CT-128.44", "Trần Minh Tuấn", "CTY VLXD Minh Tâm", "CTY Xây Dựng Hoàng Long", "Nguyễn Hữu Phúc");
+            dgvKho.Rows.Add("3", "PX03", "HD003", "Nhập", "20/08/2025", "Đá 1x2 xanh", "DA-349.15", "Lê Văn Hùng", "CTY VLXD Hòa Bình", "CTY Xây Dựng Sông Hậu", "Phạm Văn Toàn");
+            dgvKho.Rows.Add("4", "PX04", "HD004", "Xuất", "20/08/2025", "Phụ gia siêu dẻo", "PG-482.60", "Nguyễn Thanh Bình", "CTY Hóa Chất Miền Nam", "CTY Bê Tông 586", "Võ Thành Công");
+            dgvKho.Rows.Add("5", "PX05", "HD005", "Nhập", "21/08/2025", "Thép D16 Việt Nhật", "TP-673.40", "Phạm Văn Lộc", "CTY Thép Việt Nhật", "CTY Xây Dựng Phúc An", "Đỗ Minh Quang");
+            dgvKho.Rows.Add("6", "PX06", "HD006", "Xuất", "21/08/2025", "Xi măng Nghi Sơn", "XM-112.90", "Nguyễn Hoàng Nam", "CTY Xi Măng Nghi Sơn", "CTY Xây Dựng Hưng Thịnh", "Trần Văn Phát");
+            dgvKho.Rows.Add("7", "PX07", "HD007", "Nhập", "22/08/2025", "Đá 0x4 trắng", "DA-214.75", "Nguyễn Văn Phước", "CTY VLXD Thành Công", "CTY Xây Dựng Hoàng Anh", "Lê Quốc Đạt");
+            dgvKho.Rows.Add("8", "PX08", "HD008", "Xuất", "22/08/2025", "Phụ gia chống thấm Sika", "PG-552.10", "Trần Minh Hào", "CTY Hóa Chất An Phát", "CTY Xây Dựng Phương Nam", "Nguyễn Văn Giang");
+            dgvKho.Rows.Add("9", "PX09", "HD009", "Nhập", "23/08/2025", "Thép hộp 50x50", "TP-762.33", "Phan Văn Kiệt", "CTY Thép Hòa Phát", "CTY Cơ Khí Đại Nam", "Hoàng Văn Tâm");
+            dgvKho.Rows.Add("10", "PX10", "HD010", "Xuất", "23/08/2025", "Cát xây tô", "CT-441.82", "Ngô Văn Long", "CTY VLXD Sông Đà", "CTY Xây Dựng An Phú", "Trần Văn Hiếu");
+
         }
     }
 }

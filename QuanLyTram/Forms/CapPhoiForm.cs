@@ -49,9 +49,14 @@ namespace QuanLyTram.Forms
             dgvCapPhoi.Columns.Add("CotLieuMax", "Cốt Liệu Max");
             dgvCapPhoi.Columns.Add("DoSut", "Độ sụt");
 
-            dgvCapPhoi.Rows.Add("1", "C30R28-10+/-2", "25", "20", "10±2");
-            dgvCapPhoi.Rows.Add("2", "C20R28-10+/-2", "20", "16", "12±2");
-            dgvCapPhoi.Rows.Add("3", "C25R28-14+/-2", "22", "18", "14±2");
+            dgvCapPhoi.Rows.Add("1", "C30R28-10±2", "25", "20", "10±2");
+            dgvCapPhoi.Rows.Add("2", "C20R28-12±2", "20", "16", "12±2");
+            dgvCapPhoi.Rows.Add("3", "C25R28-14±2", "22", "18", "14±2");
+            dgvCapPhoi.Rows.Add("4", "C35R28-10±2", "28", "22", "10±2");
+            dgvCapPhoi.Rows.Add("5", "C40R28-16±2", "30", "24", "16±2");
+            dgvCapPhoi.Rows.Add("6", "C25R14-12±2", "21", "17", "12±2");
+            dgvCapPhoi.Rows.Add("7", "C30R14-10±2", "24", "19", "10±2");
+            dgvCapPhoi.Rows.Add("8", "C20R14-14±2", "18", "15", "14±2");
 
             dgvCapPhoi.CellClick += DgvCapPhoi_CellClick;
 

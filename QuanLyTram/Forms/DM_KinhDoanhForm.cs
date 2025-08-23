@@ -254,9 +254,14 @@ namespace QuanLyTram.Forms
             dtData.Columns.Add("Mã kinh doanh");
             dtData.Columns.Add("Tên kinh doanh");
 
-            dtData.Rows.Add("1", "Kinh doanh A");
-            dtData.Rows.Add("2", "Kinh doanh B");
-            dtData.Rows.Add("3", "Kinh doanh C");
+            dtData.Rows.Add("1", "Công ty TNHH Thương mại An Phát");
+            dtData.Rows.Add("2", "Công ty CP Xây dựng Minh Tâm");
+            dtData.Rows.Add("3", "Doanh nghiệp Tư nhân Hoàng Gia");
+            dtData.Rows.Add("4", "Công ty TNHH SX - TM Đại Thành");
+            dtData.Rows.Add("5", "Công ty CP Vận tải Đông Dương");
+            dtData.Rows.Add("6", "Công ty TNHH Cơ khí Tân Tiến");
+            dtData.Rows.Add("7", "Công ty CP VLXD Sài Gòn");
+            dtData.Rows.Add("8", "Doanh nghiệp Tư nhân Hòa Bình");
 
             dgv.DataSource = dtData;
 

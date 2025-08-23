@@ -273,9 +273,15 @@ namespace QuanLyTram.Forms
             dtData.Columns.Add("Tên phụ gia");
             dtData.Columns.Add("Ghi chú");
 
-            dtData.Rows.Add("1", "Phụ gia A", "Sử dụng trong xây dựng");
-            dtData.Rows.Add("2", "Phụ gia B", "Dùng cho công trình thủy");
-            dtData.Rows.Add("3", "Phụ gia C", "Dùng cho bê tông");
+            dtData.Rows.Add("1", "Phụ gia siêu dẻo", "Tăng độ chảy, giảm nước khi trộn bê tông");
+            dtData.Rows.Add("2", "Phụ gia chậm đông kết", "Kéo dài thời gian ninh kết, phù hợp công trình lớn");
+            dtData.Rows.Add("3", "Phụ gia chống thấm", "Tăng khả năng chống thấm cho bê tông và vữa");
+            dtData.Rows.Add("4", "Phụ gia khoáng hoạt tính", "Cải thiện cường độ và độ bền lâu dài");
+            dtData.Rows.Add("5", "Phụ gia cuốn khí", "Tăng khả năng chống nứt và chống băng giá");
+            dtData.Rows.Add("6", "Phụ gia tăng nhanh đông kết", "Rút ngắn thời gian ninh kết, thi công nhanh");
+            dtData.Rows.Add("7", "Phụ gia giảm co ngót", "Giảm hiện tượng nứt do co ngót");
+            dtData.Rows.Add("8", "Phụ gia khoáng mịn (Silica Fume)", "Tăng độ đặc chắc, chống xâm thực hóa chất");
+
 
             dgv.DataSource = dtData;
 

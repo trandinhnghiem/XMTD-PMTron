@@ -10,7 +10,7 @@ namespace QuanLyTram.Forms
         {
             // Form
             Text = "PHIẾU GIAO NHẬN BÊ TÔNG";
-            Size = new Size(1260, 740); // to hơn
+            Size = new Size(1260, 740);
             StartPosition = FormStartPosition.CenterScreen;
             BackColor = Color.LightYellow;
             Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point);
@@ -34,6 +34,16 @@ namespace QuanLyTram.Forms
             DateTimePicker dtpNgay = new DateTimePicker() { Location = new Point(60, 20), Width = 150, Format = DateTimePickerFormat.Short };
             Button btnTim = new Button() { Text = "Tìm", Location = new Point(60, 50), Width = 150 };
             ListBox lstPhieu = new ListBox() { Location = new Point(10, 85), Size = new Size(210, 200) };
+
+            // 👉 Thêm dữ liệu mẫu phiếu
+            lstPhieu.Items.AddRange(new object[]
+            {
+                "PX001 - KH A",
+                "PX002 - KH B",
+                "PX003 - KH C",
+                "PX004 - KH D"
+            });
+
             grpChonPhieu.Controls.AddRange(new Control[] { lblNgay, dtpNgay, btnTim, lstPhieu });
 
             // Tùy chọn in
@@ -44,34 +54,10 @@ namespace QuanLyTram.Forms
                 Size = new Size(240, 140)
             };
 
-            RadioButton radMau1 = new RadioButton()
-            {
-                Text = "Mẫu 1 (In chi tiết)",
-                Location = new Point(10, 20),
-                AutoSize = true,
-                ForeColor = Color.Blue
-            };
-            RadioButton radMau2 = new RadioButton()
-            {
-                Text = "Mẫu 2 (In chi tiết)",
-                Location = new Point(10, 40),
-                AutoSize = true,
-                ForeColor = Color.Red
-            };
-            RadioButton radMau3 = new RadioButton()
-            {
-                Text = "Mẫu 3 (In chi tiết)",
-                Location = new Point(10, 60),
-                AutoSize = true,
-                ForeColor = Color.Orange
-            };
-            RadioButton radMau4 = new RadioButton()
-            {
-                Text = "Mẫu 4 (In tổng)",
-                Location = new Point(10, 80),
-                AutoSize = true,
-                ForeColor = Color.Purple
-            };
+            RadioButton radMau1 = new RadioButton() { Text = "Mẫu 1 (In chi tiết)", Location = new Point(10, 20), AutoSize = true, ForeColor = Color.Blue, Checked = true };
+            RadioButton radMau2 = new RadioButton() { Text = "Mẫu 2 (In chi tiết)", Location = new Point(10, 40), AutoSize = true, ForeColor = Color.Red };
+            RadioButton radMau3 = new RadioButton() { Text = "Mẫu 3 (In chi tiết)", Location = new Point(10, 60), AutoSize = true, ForeColor = Color.Orange };
+            RadioButton radMau4 = new RadioButton() { Text = "Mẫu 4 (In tổng)", Location = new Point(10, 80), AutoSize = true, ForeColor = Color.Purple };
 
             Button btnSave = new Button()
             {
@@ -102,9 +88,9 @@ namespace QuanLyTram.Forms
                 Size = new Size(240, 120)
             };
             Label lblBD = new Label() { Text = "Thời gian bắt đầu", Location = new Point(10, 25), AutoSize = true };
-            TextBox txtBD = new TextBox() { Location = new Point(130, 20), Width = 90 };
+            TextBox txtBD = new TextBox() { Location = new Point(130, 20), Width = 90, Text = "08:30" };
             Label lblKT = new Label() { Text = "Thời gian kết thúc", Location = new Point(10, 60), AutoSize = true };
-            TextBox txtKT = new TextBox() { Location = new Point(130, 55), Width = 90 };
+            TextBox txtKT = new TextBox() { Location = new Point(130, 55), Width = 90, Text = "09:15" };
             grpThoiGian.Controls.AddRange(new Control[] { lblBD, txtBD, lblKT, txtKT });
 
             panelLeft.Controls.AddRange(new Control[] { grpChonPhieu, grpIn, grpThoiGian });
@@ -128,26 +114,37 @@ namespace QuanLyTram.Forms
 
             Label lblKH = new Label() { Text = "Khách hàng:", Location = new Point(10, 25), AutoSize = true };
             ComboBox cboKH = new ComboBox() { Location = new Point(100, 20), Width = 220 };
+            cboKH.Items.AddRange(new object[] { "Công ty Xây dựng An Phát", "Công ty Hoà Bình", "Công ty Nam Thành" });
+            cboKH.SelectedIndex = 0;
+
             Label lblMaPhieu = new Label() { Text = "Mã phiếu:", Location = new Point(340, 25), AutoSize = true };
-            TextBox txtMaPhieu = new TextBox() { Location = new Point(410, 20), Width = 180 };
+            TextBox txtMaPhieu = new TextBox() { Location = new Point(410, 20), Width = 180, Text = "PX001" };
 
             Label lblDD = new Label() { Text = "Địa điểm XD:", Location = new Point(10, 60), AutoSize = true };
             ComboBox cboDD = new ComboBox() { Location = new Point(100, 55), Width = 220 };
+            cboDD.Items.AddRange(new object[] { "Quận 1", "Quận 2", "Quận 7", "Bình Thạnh" });
+            cboDD.SelectedIndex = 1;
+
             Label lblSoPhieu = new Label() { Text = "Số phiếu:", Location = new Point(340, 60), AutoSize = true };
-            TextBox txtSoPhieu = new TextBox() { Location = new Point(410, 55), Width = 180 };
+            TextBox txtSoPhieu = new TextBox() { Location = new Point(410, 55), Width = 180, Text = "S001" };
 
             Label lblHM = new Label() { Text = "Hạng mục:", Location = new Point(10, 95), AutoSize = true };
             ComboBox cboHM = new ComboBox() { Location = new Point(100, 90), Width = 220 };
+            cboHM.Items.AddRange(new object[] { "Móng", "Cột", "Dầm", "Sàn" });
+            cboHM.SelectedIndex = 2;
+
             Label lblNgayTron = new Label() { Text = "Ngày trộn:", Location = new Point(340, 95), AutoSize = true };
-            DateTimePicker dtpTron = new DateTimePicker() { Location = new Point(410, 90), Width = 180, Format = DateTimePickerFormat.Short };
+            DateTimePicker dtpTron = new DateTimePicker() { Location = new Point(410, 90), Width = 180, Format = DateTimePickerFormat.Short, Value = DateTime.Today };
 
             Label lblTB = new Label() { Text = "Thiết bị bơm:", Location = new Point(620, 25), AutoSize = true };
             ComboBox cboTB = new ComboBox() { Location = new Point(710, 20), Width = 220 };
+            cboTB.Items.AddRange(new object[] { "Bơm cần 36m", "Bơm tĩnh", "Bơm tự hành" });
+            cboTB.SelectedIndex = 0;
 
             Label lblMacBT = new Label() { Text = "Mác bê tông:", Location = new Point(620, 60), AutoSize = true };
-            TextBox txtMacBT = new TextBox() { Location = new Point(710, 55), Width = 220 };
+            TextBox txtMacBT = new TextBox() { Location = new Point(710, 55), Width = 220, Text = "M300" };
 
-            CheckBox chkBom = new CheckBox() { Text = "Sử dụng bơm", Location = new Point(710, 95), AutoSize = true };
+            CheckBox chkBom = new CheckBox() { Text = "Sử dụng bơm", Location = new Point(710, 95), AutoSize = true, Checked = true };
 
             grpThongTin.Controls.AddRange(new Control[] {
                 lblKH, cboKH, lblMaPhieu, txtMaPhieu,
@@ -175,51 +172,20 @@ namespace QuanLyTram.Forms
                 AllowUserToResizeRows = false,
                 ReadOnly = true,
                 Dock = DockStyle.Fill,
-                ScrollBars = ScrollBars.None // bỏ thanh cuộn
+                ScrollBars = ScrollBars.None
             };
 
-            // Style tiêu đề
-            dgvKhoiLuong.ColumnHeadersDefaultCellStyle.BackColor = Color.SkyBlue;
-            dgvKhoiLuong.ColumnHeadersDefaultCellStyle.ForeColor = Color.Black;
-            dgvKhoiLuong.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            dgvKhoiLuong.EnableHeadersVisualStyles = false;
-            dgvKhoiLuong.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dgvKhoiLuong.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            dgvKhoiLuong.ColumnHeadersHeight = 40;
-
-            // Style ô dữ liệu
-            dgvKhoiLuong.DefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Regular);
-            dgvKhoiLuong.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
-            // Đặt tên cột
             dgvKhoiLuong.Columns[0].Name = "VẬT LIỆU";
-            dgvKhoiLuong.Columns[1].Name = "ĐV";
+            dgvKhoiLuong.Columns[1].Name = "SỐ LƯỢNG";
 
-            // Thêm dữ liệu
-            dgvKhoiLuong.Rows.Add("XI MĂNG", "Kg");
-            dgvKhoiLuong.Rows.Add("CÁT", "Kg");
-            dgvKhoiLuong.Rows.Add("ĐÁ", "Kg");
-            dgvKhoiLuong.Rows.Add("NƯỚC", "Lit");
-            dgvKhoiLuong.Rows.Add("PHỤ GIA", "Kg");
+            dgvKhoiLuong.Rows.Add("XI MĂNG", "500 Kg");
+            dgvKhoiLuong.Rows.Add("CÁT", "1200 Kg");
+            dgvKhoiLuong.Rows.Add("ĐÁ", "1500 Kg");
+            dgvKhoiLuong.Rows.Add("NƯỚC", "250 L");
+            dgvKhoiLuong.Rows.Add("PHỤ GIA", "20 Kg");
 
-            // Không cho thêm hàng trống
             dgvKhoiLuong.AllowUserToAddRows = false;
 
-            // 👉 Tính chiều cao hàng động theo chiều cao GroupBox
-            dgvKhoiLuong.Resize += (s, e) =>
-            {
-                int soDong = dgvKhoiLuong.Rows.Count;
-                if (soDong > 0)
-                {
-                    int chieuCaoMoiDong = (dgvKhoiLuong.ClientSize.Height - dgvKhoiLuong.ColumnHeadersHeight) / soDong;
-                    foreach (DataGridViewRow row in dgvKhoiLuong.Rows)
-                    {
-                        row.Height = chieuCaoMoiDong;
-                    }
-                }
-            };
-
-            // Add vào GroupBox
             grpKhoiLuong.Controls.Add(dgvKhoiLuong);
             Controls.Add(grpKhoiLuong);
 
@@ -236,24 +202,33 @@ namespace QuanLyTram.Forms
                 RowCount = 3,
                 ColumnCount = 1
             };
-            tblThongSo.RowStyles.Add(new RowStyle(SizeType.Percent, 30));
-            tblThongSo.RowStyles.Add(new RowStyle(SizeType.Percent, 30));
-            tblThongSo.RowStyles.Add(new RowStyle(SizeType.Percent, 40));
 
             DataGridView dgv1 = CreateGrid(4, 2);
-            dgv1.ScrollBars = ScrollBars.None;   // 👉 bỏ thanh kéo
+            dgv1.Rows[0].Cells[0].Value = "Xe";
+            dgv1.Rows[0].Cells[1].Value = "Biển số";
+            dgv1.Rows[1].Cells[0].Value = "Xe 1";
+            dgv1.Rows[1].Cells[1].Value = "51D-12345";
 
             DataGridView dgv2 = CreateGrid(5, 2);
-            dgv2.ScrollBars = ScrollBars.None;   // 👉 bỏ thanh kéo
+            dgv2.Rows[0].Cells[0].Value = "STT";
+            dgv2.Rows[0].Cells[1].Value = "Khối lượng";
+            dgv2.Rows[1].Cells[0].Value = "1";
+            dgv2.Rows[1].Cells[1].Value = "7 m³";
 
             DataGridView dgv3 = CreateGrid(5, 4);
-            dgv3.ScrollBars = ScrollBars.None;   // 👉 bỏ thanh kéo
+            dgv3.Rows[0].Cells[0].Value = "STT";
+            dgv3.Rows[0].Cells[1].Value = "Tên";
+            dgv3.Rows[0].Cells[2].Value = "SL";
+            dgv3.Rows[0].Cells[3].Value = "Ghi chú";
+            dgv3.Rows[1].Cells[0].Value = "1";
+            dgv3.Rows[1].Cells[1].Value = "Xe bồn";
+            dgv3.Rows[1].Cells[2].Value = "2";
+            dgv3.Rows[1].Cells[3].Value = "Chở đủ tải";
 
             tblThongSo.Controls.Add(dgv1, 0, 0);
             tblThongSo.Controls.Add(dgv2, 0, 1);
             tblThongSo.Controls.Add(dgv3, 0, 2);
             grpThongSo.Controls.Add(tblThongSo);
-
 
             // Thông tin chi tiết
             GroupBox grpChiTiet = new GroupBox()
@@ -273,12 +248,21 @@ namespace QuanLyTram.Forms
                 AllowUserToResizeColumns = false,
                 AllowUserToResizeRows = false
             };
-            dgvChiTiet.ColumnHeadersDefaultCellStyle.BackColor = Color.LightGray;
-            dgvChiTiet.EnableHeadersVisualStyles = false;
+
+            dgvChiTiet.ColumnCount = 5;
+            dgvChiTiet.Columns[0].Name = "STT";
+            dgvChiTiet.Columns[1].Name = "Xe";
+            dgvChiTiet.Columns[2].Name = "Khối lượng (m³)";
+            dgvChiTiet.Columns[3].Name = "Thời gian xuất";
+            dgvChiTiet.Columns[4].Name = "Ghi chú";
+
+            dgvChiTiet.Rows.Add("1", "51D-12345", "7.0", "08:45", "OK");
+            dgvChiTiet.Rows.Add("2", "51D-67890", "6.5", "09:10", "Trễ 5p");
+            dgvChiTiet.Rows.Add("3", "51C-54321", "7.5", "09:40", "OK");
+
             pnlChiTiet.Controls.Add(dgvChiTiet);
             grpChiTiet.Controls.Add(pnlChiTiet);
 
-            // Thêm vào panel phải
             panelRight.Controls.AddRange(new Control[] { grpThongTin, grpKhoiLuong, grpThongSo, grpChiTiet });
 
             // Add 2 panel vào form
@@ -303,7 +287,5 @@ namespace QuanLyTram.Forms
             dgv.EnableHeadersVisualStyles = false;
             return dgv;
         }
-
-        
     }
 }
