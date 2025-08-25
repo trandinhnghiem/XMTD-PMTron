@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using FontAwesome.Sharp;
 
 namespace QuanLyTron.Forms
 {
@@ -20,35 +21,47 @@ namespace QuanLyTron.Forms
         private void InitializeComponent()
         {
             this.Text = "QUẢN LÝ CẤP PHỐI";
-            this.Width = 1000;
-            this.Height = 600;
+            this.Width = 1200;
+            this.Height = 720;
             this.StartPosition = FormStartPosition.CenterScreen;
-
-            // 🎨 Nền vàng nhạt cho toàn bộ form
             this.BackColor = Color.FromArgb(255, 250, 230);
 
-            // ====== SplitContainer chia đôi trên ======
+            // ====== SplitContainer ======
             SplitContainer splitTop = new SplitContainer
             {
                 Dock = DockStyle.Top,
-                Height = 300,
-                SplitterDistance = 650
+                Height = 350,
+                Orientation = Orientation.Vertical,
+                IsSplitterFixed = false,
+                BackColor = Color.White
             };
 
-            // Bảng dữ liệu bên trái
+            this.Load += (s, e) =>
+            {
+                splitTop.SplitterDistance = splitTop.Width / 2;
+            };
+
+            // ====== DataGridView ======
             dgvCapPhoi = new DataGridView
             {
                 Dock = DockStyle.Fill,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                AllowUserToResizeColumns = true,
+                AllowUserToResizeRows = true,
                 ReadOnly = true,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                BackgroundColor = Color.White,
+                GridColor = Color.LightGray,
+                RowHeadersVisible = false
             };
+
             dgvCapPhoi.Columns.Add("STT", "STT");
             dgvCapPhoi.Columns.Add("MacBT", "Mác BT");
             dgvCapPhoi.Columns.Add("CuongDo", "Cường Độ");
             dgvCapPhoi.Columns.Add("CotLieuMax", "Cốt Liệu Max");
             dgvCapPhoi.Columns.Add("DoSut", "Độ sụt");
 
+            // Dữ liệu mẫu
             dgvCapPhoi.Rows.Add("1", "C30R28-10±2", "25", "20", "10±2");
             dgvCapPhoi.Rows.Add("2", "C20R28-12±2", "20", "16", "12±2");
             dgvCapPhoi.Rows.Add("3", "C25R28-14±2", "22", "18", "14±2");
@@ -59,10 +72,9 @@ namespace QuanLyTron.Forms
             dgvCapPhoi.Rows.Add("8", "C20R14-14±2", "18", "15", "14±2");
 
             dgvCapPhoi.CellClick += DgvCapPhoi_CellClick;
-
             splitTop.Panel1.Controls.Add(dgvCapPhoi);
 
-            // Panel nền xám bên phải
+            // ====== Panel bên phải ======
             Panel rightPanel = new Panel
             {
                 Dock = DockStyle.Fill,
@@ -70,83 +82,92 @@ namespace QuanLyTron.Forms
             };
             splitTop.Panel2.Controls.Add(rightPanel);
 
-            // ====== Panel dưới chứa nhập liệu và nút ======
+            // ====== Panel dưới ======
             Panel bottomPanel = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.FromArgb(255, 250, 230) // vàng nhạt
+                BackColor = Color.FromArgb(255, 250, 230)
             };
 
-            int labelLeft = 20;
-            int textLeft = 140;
-            int topBase = 20;
-            int lineHeight = 40;
+            int labelLeft = 50;          // vị trí label bên trái
+            int textLeft = 200;          // textbox bên trái
+            int rightLabelLeft = 650;    // label bên phải
+            int rightTextLeft = 850;     // textbox bên phải
+            int textWidth = 280;
+            int controlHeight = 40;
+            int paddingY = 20;
+            Font labelFont = new Font("Segoe UI", 12, FontStyle.Bold);
+            Font textFont = new Font("Segoe UI", 12);
 
-            lblSTT = new Label { Text = "STT:", Left = labelLeft, Top = topBase, Width = 100 };
-            txtSTT = new TextBox { Left = textLeft, Top = topBase, Width = 200 };
+            // ====== Cột trái ======
+            lblSTT = new Label { Text = "STT:", Font = labelFont, Left = labelLeft, Top = 40, AutoSize = true, TextAlign = ContentAlignment.TopLeft };
+            txtSTT = new TextBox { Font = textFont, Left = textLeft, Top = lblSTT.Top, Width = textWidth, Height = controlHeight };
 
-            lblMacBT = new Label { Text = "Mác BT:", Left = labelLeft, Top = topBase + lineHeight, Width = 100 };
-            txtMacBT = new TextBox { Left = textLeft, Top = topBase + lineHeight, Width = 200 };
+            lblMacBT = new Label { Text = "Mác BT:", Font = labelFont, Left = labelLeft, Top = lblSTT.Bottom + paddingY, AutoSize = true, TextAlign = ContentAlignment.TopLeft };
+            txtMacBT = new TextBox { Font = textFont, Left = textLeft, Top = lblMacBT.Top, Width = textWidth, Height = controlHeight };
 
-            lblCuongDo = new Label { Text = "Cường Độ:", Left = labelLeft, Top = topBase + lineHeight * 2, Width = 100 };
-            txtCuongDo = new TextBox { Left = textLeft, Top = topBase + lineHeight * 2, Width = 200 };
+            lblCuongDo = new Label { Text = "Cường Độ:", Font = labelFont, Left = labelLeft, Top = lblMacBT.Bottom + paddingY, AutoSize = true, TextAlign = ContentAlignment.TopLeft };
+            txtCuongDo = new TextBox { Font = textFont, Left = textLeft, Top = lblCuongDo.Top, Width = textWidth, Height = controlHeight };
 
-            lblCotLieuMax = new Label { Text = "Cốt Liệu Max:", Left = labelLeft, Top = topBase + lineHeight * 3, Width = 100 };
-            txtCotLieuMax = new TextBox { Left = textLeft, Top = topBase + lineHeight * 3, Width = 200 };
+            // ====== Cột phải ======
+            lblCotLieuMax = new Label { Text = "Cốt Liệu Max:", Font = labelFont, Left = rightLabelLeft, Top = 40, AutoSize = true, TextAlign = ContentAlignment.TopLeft };
+            txtCotLieuMax = new TextBox { Font = textFont, Left = rightTextLeft, Top = lblCotLieuMax.Top, Width = textWidth, Height = controlHeight };
 
-            lblDoSut = new Label { Text = "Độ Sụt:", Left = labelLeft, Top = topBase + lineHeight * 4, Width = 100 };
-            txtDoSut = new TextBox { Left = textLeft, Top = topBase + lineHeight * 4, Width = 200 };
+            lblDoSut = new Label { Text = "Độ Sụt:", Font = labelFont, Left = rightLabelLeft, Top = lblCotLieuMax.Bottom + paddingY, AutoSize = true, TextAlign = ContentAlignment.TopLeft };
+            txtDoSut = new TextBox { Font = textFont, Left = rightTextLeft, Top = lblDoSut.Top, Width = textWidth, Height = controlHeight };
 
-            // Tổng khối lượng (readonly)
-            lblTongKhoiLuong = new Label { Text = "Tổng khối lượng:", Left = 450, Top = topBase, Width = 120 };
-            txtTongKhoiLuong = new TextBox
+            lblTongKhoiLuong = new Label { Text = "Tổng khối lượng:", Font = labelFont, Left = rightLabelLeft, Top = lblDoSut.Bottom + paddingY, AutoSize = true, TextAlign = ContentAlignment.TopLeft };
+            txtTongKhoiLuong = new TextBox { Font = textFont, Left = rightTextLeft, Top = lblTongKhoiLuong.Top, Width = textWidth, Height = controlHeight, ReadOnly = true };
+
+            // Nút bấm THÊM MỚI
+            btnThemMoi = new IconButton
             {
-                Left = 580,
-                Top = topBase,
-                Width = 200,
-                ReadOnly = true,
-                BackColor = Color.White
-            };
-
-            // Buttons
-            btnThemMoi = new Button
-            {
-                Left = 450,
-                Top = topBase + lineHeight * 2,
-                Width = 150,
-                Height = 40,
-                Text = "➕ THÊM MỚI",
+                Width = 180,
+                Height = 45,
+                Text = "THÊM MỚI",
                 BackColor = Color.SeaGreen,
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                IconChar = IconChar.PlusCircle,     // icon FontAwesome
+                IconColor = Color.White,
+                IconSize = 24,
+                TextImageRelation = TextImageRelation.ImageBeforeText // icon nằm trước chữ
             };
-            btnThemMoi.Click += (s, e) => MessageBox.Show("Thêm mới!");
 
-            btnCapNhat = new Button
+            // Nút bấm CẬP NHẬT
+            btnCapNhat = new IconButton
             {
-                Left = 620,
-                Top = topBase + lineHeight * 2,
-                Width = 150,
-                Height = 40,
-                Text = "💾 CẬP NHẬT",
+                Width = 180,
+                Height = 45,
+                Text = "CẬP NHẬT",
                 BackColor = Color.DodgerBlue,
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 9, FontStyle.Bold)
+                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                IconChar = IconChar.Save,           // icon FontAwesome
+                IconColor = Color.White,
+                IconSize = 24,
+                TextImageRelation = TextImageRelation.ImageBeforeText
             };
-            btnCapNhat.Click += (s, e) => MessageBox.Show("Cập nhật!");
+
+            btnThemMoi.Top = 250;
+            btnCapNhat.Top = 250;
+            btnThemMoi.Left = (bottomPanel.Width / 2) - btnThemMoi.Width - 20;
+            btnCapNhat.Left = (bottomPanel.Width / 2) + 20;
+
+            bottomPanel.Resize += (s, e) =>
+            {
+                btnThemMoi.Left = (bottomPanel.Width / 2) - btnThemMoi.Width - 20;
+                btnCapNhat.Left = (bottomPanel.Width / 2) + 20;
+            };
 
             bottomPanel.Controls.AddRange(new Control[]
             {
-                lblSTT, txtSTT,
-                lblMacBT, txtMacBT,
-                lblCuongDo, txtCuongDo,
-                lblCotLieuMax, txtCotLieuMax,
-                lblDoSut, txtDoSut,
+                lblSTT, txtSTT, lblMacBT, txtMacBT, lblCuongDo, txtCuongDo,
+                lblCotLieuMax, txtCotLieuMax, lblDoSut, txtDoSut,
                 lblTongKhoiLuong, txtTongKhoiLuong,
                 btnThemMoi, btnCapNhat
             });
 
-            // Add vào form
             this.Controls.Add(bottomPanel);
             this.Controls.Add(splitTop);
         }
@@ -156,7 +177,6 @@ namespace QuanLyTron.Forms
             if (e.RowIndex >= 0)
             {
                 DataGridViewRow row = dgvCapPhoi.Rows[e.RowIndex];
-
                 txtSTT.Text = row.Cells["STT"].Value?.ToString() ?? "";
                 txtMacBT.Text = row.Cells["MacBT"].Value?.ToString() ?? "";
                 txtCuongDo.Text = row.Cells["CuongDo"].Value?.ToString() ?? "";
