@@ -18,6 +18,7 @@ namespace QuanLyTron.Forms
             Width = 1280;
             Height = 720;
             StartPosition = FormStartPosition.CenterScreen;
+            BackColor = Color.AliceBlue;
 
             // GroupBox Thông tin trạm trộn
             var gbThongTin = new GroupBox
@@ -48,7 +49,7 @@ namespace QuanLyTron.Forms
             {
                 Text = "ĐƯỜNG DẪN CHƯƠNG TRÌNH",
                 Location = new Point(600, 40),
-                Size = new Size(620, 120),
+                Size = new Size(570, 120),
                 BackColor = Color.White
             };
 
@@ -68,7 +69,7 @@ namespace QuanLyTron.Forms
             {
                 Text = "CÀI ĐẶT THÔNG TIN PHIẾU IN",
                 Location = new Point(600, 180),
-                Size = new Size(620, 200),
+                Size = new Size(570, 200),
                 BackColor = Color.White
             };
 
@@ -85,10 +86,11 @@ namespace QuanLyTron.Forms
                 IconSize = 28,
                 Text = "MÁY IN",
                 TextImageRelation = TextImageRelation.ImageBeforeText,
-                Size = new Size(150, 45),
+                Size = new Size(110, 45),
                 BackColor = Color.SteelBlue,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
                 Location = new Point((620 - 150) / 2, 130)
             };
             btnMayIn.FlatAppearance.BorderSize = 0;
@@ -96,7 +98,7 @@ namespace QuanLyTron.Forms
             gbPhieuIn.Controls.AddRange(new Control[] { rdoChuan, rdoMe, chkPhuGia, chkInTrucTiep, btnMayIn });
 
             // Footer – LƯU
-            var panelFooter = new Panel { Dock = DockStyle.Bottom, Height = 90, BackColor = Color.LightYellow };
+            var panelFooter = new Panel { Dock = DockStyle.Bottom, Height = 90, BackColor = Color.AliceBlue };
             var btnLuu = new IconButton
             {
                 IconChar = IconChar.Save,
@@ -104,10 +106,11 @@ namespace QuanLyTron.Forms
                 IconSize = 28,
                 Text = "LƯU",
                 TextImageRelation = TextImageRelation.ImageBeforeText,
-                Size = new Size(160, 50),
+                Size = new Size(87, 50),
                 BackColor = Color.MediumSeaGreen,
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 14, FontStyle.Bold)
             };
             btnLuu.FlatAppearance.BorderSize = 0;
             panelFooter.Controls.Add(btnLuu);
