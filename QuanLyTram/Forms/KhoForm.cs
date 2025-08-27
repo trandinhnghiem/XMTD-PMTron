@@ -11,17 +11,14 @@ namespace QuanLyTram.Forms
         private Panel pnlTabs;
         private Button tabNhapXuat, tabLichSu, tabCuaVL;
         private Panel mainContent;
-
         private Form _currentChild;
         private List<Button> _allTabs;
         private Panel activeIndicator;
-
         // Fade animation
         private Timer fadeTimer;
         private Form nextChild;
         private Button nextTab;
         private double fadeStep = 1; // tốc độ fade 
-
         public KhoForm()
         {
             Text = "QUẢN LÝ KHO";
@@ -30,14 +27,11 @@ namespace QuanLyTram.Forms
             BackColor = Color.WhiteSmoke;
             MaximizeBox = false;
             FormBorderStyle = FormBorderStyle.FixedSingle;
-
             BuildTabs();
             BuildMainContent();
-
             // Mặc định mở NHẬP XUẤT VẬT LIỆU
             OpenChild(new Kho_NhapXuatForm(), tabNhapXuat, firstLoad: true);
         }
-
         private void BuildTabs()
         {
             pnlTabs = new Panel
@@ -47,13 +41,10 @@ namespace QuanLyTram.Forms
                 BackColor = Color.FromArgb(238, 238, 238)
             };
             Controls.Add(pnlTabs);
-
             tabNhapXuat = MakeTab("NHẬP XUẤT VẬT LIỆU");
             tabLichSu = MakeTab("LỊCH SỬ NHẬP XUẤT");
             tabCuaVL = MakeTab("CỬA VẬT LIỆU");
-
             _allTabs = new List<Button> { tabNhapXuat, tabLichSu, tabCuaVL };
-
             int x = 14;
             foreach (var b in _allTabs)
             {
@@ -61,7 +52,6 @@ namespace QuanLyTram.Forms
                 pnlTabs.Controls.Add(b);
                 x += b.Width + 10;
             }
-
             activeIndicator = new Panel
             {
                 Height = 4,
@@ -69,12 +59,10 @@ namespace QuanLyTram.Forms
                 Visible = false
             };
             pnlTabs.Controls.Add(activeIndicator);
-
             tabNhapXuat.Click += (s, e) => OpenChild(new Kho_NhapXuatForm(), tabNhapXuat);
             tabLichSu.Click += (s, e) => OpenChild(new Kho_LichSuForm(), tabLichSu);
             tabCuaVL.Click += (s, e) => OpenChild(new Kho_CuaVatLieuForm(), tabCuaVL);
         }
-
         private Button MakeTab(string text)
         {
             var b = new Button
@@ -92,7 +80,6 @@ namespace QuanLyTram.Forms
             b.FlatAppearance.BorderSize = 1;
             return b;
         }
-
         private void BuildMainContent()
         {
             mainContent = new Panel
@@ -103,7 +90,6 @@ namespace QuanLyTram.Forms
             Controls.Add(mainContent);
             mainContent.BringToFront();
         }
-
         private void OpenChild(Form child, Button senderTab, bool firstLoad = false)
         {
             if (_currentChild == null || firstLoad)
@@ -118,10 +104,8 @@ namespace QuanLyTram.Forms
                 SetActiveTab(senderTab);
                 return;
             }
-
             if (fadeTimer != null && fadeTimer.Enabled)
                 return; // đang fade, tránh bấm liên tục gây lỗi
-
             // Chuẩn bị fade
             nextChild = child;
             nextTab = senderTab;
@@ -131,13 +115,11 @@ namespace QuanLyTram.Forms
             nextChild.Opacity = 0.0;
             mainContent.Controls.Add(nextChild);
             nextChild.Show();
-
             fadeTimer = new Timer();
             fadeTimer.Interval = 15; // tick nhanh để mượt
             fadeTimer.Tick += FadeTimer_Tick;
             fadeTimer.Start();
         }
-
         private void FadeTimer_Tick(object sender, EventArgs e)
         {
             if (_currentChild != null)
@@ -145,34 +127,28 @@ namespace QuanLyTram.Forms
                 _currentChild.Opacity -= fadeStep;
                 if (_currentChild.Opacity < 0) _currentChild.Opacity = 0;
             }
-
             if (nextChild != null)
             {
                 nextChild.Opacity += fadeStep;
                 if (nextChild.Opacity > 1) nextChild.Opacity = 1;
             }
-
             if ((_currentChild == null || _currentChild.Opacity <= 0) && (nextChild != null && nextChild.Opacity >= 1))
             {
                 fadeTimer.Stop();
                 fadeTimer.Tick -= FadeTimer_Tick;
                 fadeTimer.Dispose();
                 fadeTimer = null;
-
                 if (_currentChild != null)
                 {
                     mainContent.Controls.Remove(_currentChild);
                     _currentChild.Close();
                     _currentChild.Dispose();
                 }
-
                 _currentChild = nextChild;
                 nextChild = null;
-
                 SetActiveTab(nextTab);
             }
         }
-
         private void SetActiveTab(Button active)
         {
             foreach (var btn in _allTabs)
@@ -180,10 +156,8 @@ namespace QuanLyTram.Forms
                 btn.BackColor = Color.FromArgb(230, 230, 230);
                 btn.Font = new Font("Segoe UI", 10.5f, FontStyle.Regular);
             }
-
             active.BackColor = Color.LightGray;
             active.Font = new Font("Segoe UI", 10.5f, FontStyle.Bold);
-
             activeIndicator.Width = active.Width;
             activeIndicator.Left = active.Left;
             activeIndicator.Top = pnlTabs.Height - activeIndicator.Height;

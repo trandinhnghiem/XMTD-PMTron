@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\QUANLYTRAM - Dự phòng\\QuanLyTram\\QuanLyTram.csproj": {}
+    "D:\\QUANLYTRAM - v2\\QuanLyTram\\QuanLyTram.csproj": {}
   },
   "projects": {
-    "D:\\QUANLYTRAM - Dự phòng\\QuanLyTram\\QuanLyTram.csproj": {
+    "D:\\QUANLYTRAM - v2\\QuanLyTram\\QuanLyTram.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\QUANLYTRAM - Dự phòng\\QuanLyTram\\QuanLyTram.csproj",
+        "projectUniqueName": "D:\\QUANLYTRAM - v2\\QuanLyTram\\QuanLyTram.csproj",
         "projectName": "QuanLyTram",
-        "projectPath": "D:\\QUANLYTRAM - Dự phòng\\QuanLyTram\\QuanLyTram.csproj",
+        "projectPath": "D:\\QUANLYTRAM - v2\\QuanLyTram\\QuanLyTram.csproj",
         "packagesPath": "C:\\Users\\XMTD-IT\\.nuget\\packages\\",
-        "outputPath": "D:\\QUANLYTRAM - Dự phòng\\QuanLyTram\\obj\\",
+        "outputPath": "D:\\QUANLYTRAM - v2\\QuanLyTram\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\XMTD-IT\\AppData\\Roaming\\NuGet\\NuGet.Config"

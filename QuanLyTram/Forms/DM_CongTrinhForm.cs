@@ -1,8 +1,10 @@
 using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
 using FontAwesome.Sharp;
+using QuanLyTram.DAL;
 
 namespace QuanLyTram.Forms
 {
@@ -44,7 +46,7 @@ namespace QuanLyTram.Forms
             BuildMainArea();
             WireEvents();
 
-            InitData();
+            LoadData();
             ApplyMode(EditMode.None);
         }
 
@@ -286,24 +288,35 @@ namespace QuanLyTram.Forms
             };
         }
 
-        private void InitData()
+        private void LoadData()
         {
-            dtData = new DataTable();
-            dtData.Columns.Add("Mã công trình");
-            dtData.Columns.Add("Địa điểm");
-            dtData.Columns.Add("Hạng mục");
-            dtData.Columns.Add("Thiết bị bơm");
+            try
+            {
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT MACONGTRINH, DIADIEM, HANGMUC, THIETBIBOM FROM CONGTRINH", conn))
+                    {
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            dtData = new DataTable();
+                            adapter.Fill(dtData);
 
-            dtData.Rows.Add("1", "Công trình A", "Xây dựng hạ tầng", "Bơm nước 3HP");
-            dtData.Rows.Add("2", "Công trình B", "Lắp đặt điện", "Bơm công nghiệp 5HP");
-            dtData.Rows.Add("3", "Công trình C", "Thi công PCCC", "Bơm cứu hỏa");
-            dtData.Rows.Add("4", "Công trình D", "Nhà xưởng sản xuất", "Máy nén khí 15kW");
-            dtData.Rows.Add("5", "Công trình E", "Chung cư cao tầng", "Thang máy tải khách");
-            dtData.Rows.Add("6", "Công trình F", "Cầu đường", "Máy phát điện 100kVA");
-            dtData.Rows.Add("7", "Công trình G", "Kho bãi logistics", "Hệ thống lạnh công nghiệp");
-            dtData.Rows.Add("8", "Công trình H", "Khu đô thị", "Máy bơm nước thải 7.5HP");
+                            // Đổi tên cột để hiển thị
+                            dtData.Columns["MACONGTRINH"].ColumnName = "Mã công trình";
+                            dtData.Columns["DIADIEM"].ColumnName = "Địa điểm";
+                            dtData.Columns["HANGMUC"].ColumnName = "Hạng mục";
+                            dtData.Columns["THIETBIBOM"].ColumnName = "Thiết bị bơm";
 
-            dgv.DataSource = dtData;
+                            dgv.DataSource = dtData;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải dữ liệu công trình: " + ex.Message);
+            }
 
             // in đậm tiêu đề cột
             dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
@@ -379,24 +392,68 @@ namespace QuanLyTram.Forms
                 return;
             }
 
-            if (_mode == EditMode.Add)
+            try
             {
-                DataRow newRow = dtData.NewRow();
-                newRow["Mã công trình"] = (dtData.Rows.Count + 1).ToString();
-                newRow["Địa điểm"] = diadiem;
-                newRow["Hạng mục"] = hangmuc;
-                newRow["Thiết bị bơm"] = thietbi;
-                dtData.Rows.Add(newRow);
-                dgv.CurrentCell = dgv.Rows[dgv.Rows.Count - 1].Cells[0];
-            }
-            else if (_mode == EditMode.Edit && dgv.CurrentRow != null)
-            {
-                dgv.CurrentRow.Cells["Địa điểm"].Value = diadiem;
-                dgv.CurrentRow.Cells["Hạng mục"].Value = hangmuc;
-                dgv.CurrentRow.Cells["Thiết bị bơm"].Value = thietbi;
-            }
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
 
-            ApplyMode(EditMode.None);
+                    if (_mode == EditMode.Add)
+                    {
+                        using (var cmd = new SqlCommand(@"
+                        INSERT INTO CONGTRINH (DIADIEM, HANGMUC, THIETBIBOM)
+                        VALUES (@diadiem, @hangmuc, @thietbi);
+                        SELECT SCOPE_IDENTITY();", conn))
+                        {
+                            cmd.Parameters.Add("@diadiem", SqlDbType.NVarChar).Value = diadiem;
+                            cmd.Parameters.Add("@hangmuc", SqlDbType.NVarChar).Value = hangmuc;
+                            cmd.Parameters.Add("@thietbi", SqlDbType.NVarChar).Value = thietbi;
+
+                            int newId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                            // Thêm vào DataTable
+                            DataRow newRow = dtData.NewRow();
+                            newRow["Mã công trình"] = newId;
+                            newRow["Địa điểm"] = diadiem;
+                            newRow["Hạng mục"] = hangmuc;
+                            newRow["Thiết bị bơm"] = thietbi;
+                            dtData.Rows.Add(newRow);
+
+                            // Cập nhật DataGridView
+                            dgv.DataSource = dtData;
+                            dgv.CurrentCell = dgv.Rows[dgv.Rows.Count - 1].Cells[0];
+                        }
+                    }
+                    else if (_mode == EditMode.Edit && dgv.CurrentRow != null)
+                    {
+                        int maCongTrinh = Convert.ToInt32(dgv.CurrentRow.Cells["Mã công trình"].Value);
+
+                        using (var cmd = new SqlCommand(@"
+                        UPDATE CONGTRINH 
+                        SET DIADIEM = @diadiem, HANGMUC = @hangmuc, THIETBIBOM = @thietbi
+                        WHERE MACONGTRINH = @maCongTrinh", conn))
+                        {
+                            cmd.Parameters.Add("@diadiem", SqlDbType.NVarChar).Value = diadiem;
+                            cmd.Parameters.Add("@hangmuc", SqlDbType.NVarChar).Value = hangmuc;
+                            cmd.Parameters.Add("@thietbi", SqlDbType.NVarChar).Value = thietbi;
+                            cmd.Parameters.Add("@maCongTrinh", SqlDbType.Int).Value = maCongTrinh;
+
+                            cmd.ExecuteNonQuery();
+
+                            // Cập nhật DataTable
+                            dgv.CurrentRow.Cells["Địa điểm"].Value = diadiem;
+                            dgv.CurrentRow.Cells["Hạng mục"].Value = hangmuc;
+                            dgv.CurrentRow.Cells["Thiết bị bơm"].Value = thietbi;
+                        }
+                    }
+                }
+
+                ApplyMode(EditMode.None);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi lưu dữ liệu công trình: " + ex.Message);
+            }
         }
     }
 }

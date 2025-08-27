@@ -1,8 +1,10 @@
 using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
 using FontAwesome.Sharp;
+using QuanLyTram.DAL;
 
 namespace QuanLyTram.Forms
 {
@@ -21,7 +23,7 @@ namespace QuanLyTram.Forms
             ClientSize = new Size(1200, 400);
             BackColor = Color.White;
 
-            this.FormBorderStyle = FormBorderStyle.FixedSingle; // cũng khóa kéo thay đổi kích thước
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
 
             // === TOOLBAR ===
             tlpToolbar = new TableLayoutPanel
@@ -130,12 +132,7 @@ namespace QuanLyTram.Forms
                 if (MessageBox.Show("Bạn có chắc thoát ứng dụng này?", "Xác nhận",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    Hide();
-                    using (var loginForm = new LoginForm())
-                    {
-                        Application.Exit();
-                    }
-                    Close();
+                    Application.Exit();
                 }
             };
             btnExit.MouseEnter += (s, e) => btnExit.BackColor = ControlPaint.Light(btnExit.BackColor);
@@ -172,11 +169,7 @@ namespace QuanLyTram.Forms
                 Width = 420,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
-            cbMaTram.Items.AddRange(new object[]
-            {
-                "1 - CÔNG TY CỔ PHẦN BÊ TÔNG TÂY ĐÔ",
-                "2 - TRẠM THỬ NGHIỆM"
-            });
+            LoadTramData();
             if (cbMaTram.Items.Count > 0) cbMaTram.SelectedIndex = 0;
 
             var lblChuTram = new Label { Text = "Chủ trạm:", AutoSize = true, Location = new Point(15, 65) };
@@ -229,6 +222,105 @@ namespace QuanLyTram.Forms
             Load += MainForm_Load;
         }
 
+        private void LoadTramData()
+        {
+            try
+            {
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT MATRAM, TENTRAM FROM TRAM", conn))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                cbMaTram.Items.Add(new { Value = reader["MATRAM"], Display = reader["TENTRAM"].ToString() });
+                            }
+                        }
+                    }
+                }
+                cbMaTram.DisplayMember = "Display";
+                cbMaTram.ValueMember = "Value";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải dữ liệu trạm: " + ex.Message);
+            }
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            var dt = new DataTable();
+            dt.Columns.Add("STT");
+            dt.Columns.Add("CongSuatDiaDiem");
+            dt.Columns.Add("TongKLNgay");
+            dt.Columns.Add("KhachHang");
+            dt.Columns.Add("BienXe");
+            dt.Columns.Add("KLXe");
+            dt.Columns.Add("MacBeTong");
+            dt.Columns.Add("TrangThai");
+
+            try
+            {
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand(@"
+                    SELECT MATRAM, TENTRAM, CHUTRAM, DIADIEM, CONGSUAT, DIENTHOAI, TRANGTHAI 
+                    FROM TRAM", conn))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            int stt = 1;
+                            while (reader.Read())
+                            {
+                                string trangThai = reader["TRANGTHAI"].ToString();
+                                string statusIcon = trangThai == "Online" ? "🖥 ✔" : "🖥 ❌";
+
+                                dt.Rows.Add(
+                                    stt++,
+                                    $"{reader["CONGSUAT"]} - {reader["TENTRAM"]} - {reader["DIADIEM"]}",
+                                    "0.0 m3",
+                                    "----",
+                                    "----",
+                                    "0.0 m3",
+                                    "----",
+                                    statusIcon
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải dữ liệu trạm: " + ex.Message);
+            }
+
+            dgvData.DataSource = dt;
+
+            // ⚡ gán màu cho trạng thái
+            dgvData.CellFormatting += DgvData_CellFormatting;
+        }
+
+        private void DgvData_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (dgvData.Columns[e.ColumnIndex].DataPropertyName == "TrangThai" && e.Value != null)
+            {
+                string status = e.Value.ToString();
+
+                if (status.Contains("✔"))
+                {
+                    e.CellStyle.ForeColor = Color.Green; // màu xanh lá cho ✔
+                }
+                else if (status.Contains("❌"))
+                {
+                    e.CellStyle.ForeColor = Color.Red;   // màu đỏ cho ❌
+                }
+            }
+        }
+
         private static Button MakeBigButton(string text)
         {
             var b = new Button
@@ -251,58 +343,5 @@ namespace QuanLyTram.Forms
             b.MouseLeave += (s, e) => b.BackColor = Color.FromArgb(230, 230, 230);
             return b;
         }
-
-        private void MainForm_Load(object sender, EventArgs e)
-{
-    var dt = new DataTable();
-    dt.Columns.Add("STT");
-    dt.Columns.Add("CongSuatDiaDiem");
-    dt.Columns.Add("TongKLNgay");
-    dt.Columns.Add("KhachHang");
-    dt.Columns.Add("BienXe");
-    dt.Columns.Add("KLXe");
-    dt.Columns.Add("MacBeTong");
-    dt.Columns.Add("TrangThai");
-
-    bool tram1Connected = true;
-    bool tram2Connected = true;
-    bool tram3Connected = true;
-    bool tram4Connected = true;
-
-    dt.Rows.Add("1", "90m3 - T 90 Đặng Tài - Hậu Giang", "0.0 m3", "----", "----", "0.0 m3", "----",
-        tram1Connected ? "🖥 ✔" : "🖥 ❌");
-
-    dt.Rows.Add("2", "82m3 - T 82 Xe kíp - M", "0.0 m3", "----", "----", "0.0 m3", "----",
-        tram2Connected ? "🖥 ✔" : "🖥 ❌");
-
-    dt.Rows.Add("3", "150m3 - T 150 - Omon1", "0.0 m3", "----", "----", "0.0 m3", "----",
-        tram3Connected ? "🖥 ✔" : "🖥 ❌");
-
-    dt.Rows.Add("4", "150m3 - T 150 - Omon2", "0.0 m3", "----", "----", "0.0 m3", "----",
-        tram4Connected ? "🖥 ✔" : "🖥 ❌");
-
-    dgvData.DataSource = dt;
-
-    // ⚡ gán màu cho trạng thái
-    dgvData.CellFormatting += DgvData_CellFormatting;
-}
-
-private void DgvData_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-{
-    if (dgvData.Columns[e.ColumnIndex].DataPropertyName == "TrangThai" && e.Value != null)
-    {
-        string status = e.Value.ToString();
-
-        if (status.Contains("✔"))
-        {
-            e.CellStyle.ForeColor = Color.Green; // màu xanh lá cho ✔
-        }
-        else if (status.Contains("❌"))
-        {
-            e.CellStyle.ForeColor = Color.Red;   // màu đỏ cho ❌
-        }
-    }
-}
-
     }
 }

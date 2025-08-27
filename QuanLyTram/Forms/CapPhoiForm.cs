@@ -1,9 +1,11 @@
 using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using FontAwesome.Sharp;
+using QuanLyTram.DAL;
 
 namespace QuanLyTram.Forms
 {
@@ -13,6 +15,7 @@ namespace QuanLyTram.Forms
         private TextBox txtSTT, txtMacBT, txtCuongDo, txtCotLieuMax, txtDoSut, txtTongKhoiLuong;
         private Label lblSTT, lblMacBT, lblCuongDo, lblCotLieuMax, lblDoSut, lblTongKhoiLuong;
         private Button btnThemMoi, btnCapNhat;
+        private DataTable dtCapPhoi;
 
         public CapPhoiForm()
         {
@@ -26,7 +29,7 @@ namespace QuanLyTram.Forms
             this.Height = 720;
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.FromArgb(255, 250, 230);
-
+            
             // ====== SplitContainer ======
             SplitContainer splitTop = new SplitContainer
             {
@@ -36,12 +39,11 @@ namespace QuanLyTram.Forms
                 IsSplitterFixed = false,
                 BackColor = Color.White
             };
-
             this.Load += (s, e) =>
             {
                 splitTop.SplitterDistance = splitTop.Width / 2;
             };
-
+            
             // ====== DataGridView ======
             dgvCapPhoi = new DataGridView
             {
@@ -55,26 +57,18 @@ namespace QuanLyTram.Forms
                 GridColor = Color.LightGray,
                 RowHeadersVisible = false
             };
-
             dgvCapPhoi.Columns.Add("STT", "STT");
             dgvCapPhoi.Columns.Add("MacBT", "Mác BT");
             dgvCapPhoi.Columns.Add("CuongDo", "Cường Độ");
             dgvCapPhoi.Columns.Add("CotLieuMax", "Cốt Liệu Max");
             dgvCapPhoi.Columns.Add("DoSut", "Độ sụt");
-
-            // Dữ liệu mẫu
-            dgvCapPhoi.Rows.Add("1", "C30R28-10±2", "25", "20", "10±2");
-            dgvCapPhoi.Rows.Add("2", "C20R28-12±2", "20", "16", "12±2");
-            dgvCapPhoi.Rows.Add("3", "C25R28-14±2", "22", "18", "14±2");
-            dgvCapPhoi.Rows.Add("4", "C35R28-10±2", "28", "22", "10±2");
-            dgvCapPhoi.Rows.Add("5", "C40R28-16±2", "30", "24", "16±2");
-            dgvCapPhoi.Rows.Add("6", "C25R14-12±2", "21", "17", "12±2");
-            dgvCapPhoi.Rows.Add("7", "C30R14-10±2", "24", "19", "10±2");
-            dgvCapPhoi.Rows.Add("8", "C20R14-14±2", "18", "15", "14±2");
-
+            
+            // Load dữ liệu
+            LoadData();
+            
             dgvCapPhoi.CellClick += DgvCapPhoi_CellClick;
             splitTop.Panel1.Controls.Add(dgvCapPhoi);
-
+            
             // ====== Panel bên phải ======
             Panel rightPanel = new Panel
             {
@@ -82,14 +76,14 @@ namespace QuanLyTram.Forms
                 BackColor = Color.LightGray
             };
             splitTop.Panel2.Controls.Add(rightPanel);
-
+            
             // ====== Panel dưới ======
             Panel bottomPanel = new Panel
             {
                 Dock = DockStyle.Fill,
                 BackColor = Color.FromArgb(255, 250, 230)
             };
-
+            
             int labelLeft = 50;          // vị trí label bên trái
             int textLeft = 200;          // textbox bên trái
             int rightLabelLeft = 650;    // label bên phải
@@ -99,27 +93,23 @@ namespace QuanLyTram.Forms
             int paddingY = 20;
             Font labelFont = new Font("Segoe UI", 12, FontStyle.Bold);
             Font textFont = new Font("Segoe UI", 12);
-
+            
             // ====== Cột trái ======
             lblSTT = new Label { Text = "STT:", Font = labelFont, Left = labelLeft, Top = 40, AutoSize = true, TextAlign = ContentAlignment.TopLeft };
             txtSTT = new TextBox { Font = textFont, Left = textLeft, Top = lblSTT.Top, Width = textWidth, Height = controlHeight };
-
             lblMacBT = new Label { Text = "Mác BT:", Font = labelFont, Left = labelLeft, Top = lblSTT.Bottom + paddingY, AutoSize = true, TextAlign = ContentAlignment.TopLeft };
             txtMacBT = new TextBox { Font = textFont, Left = textLeft, Top = lblMacBT.Top, Width = textWidth, Height = controlHeight };
-
             lblCuongDo = new Label { Text = "Cường Độ:", Font = labelFont, Left = labelLeft, Top = lblMacBT.Bottom + paddingY, AutoSize = true, TextAlign = ContentAlignment.TopLeft };
             txtCuongDo = new TextBox { Font = textFont, Left = textLeft, Top = lblCuongDo.Top, Width = textWidth, Height = controlHeight };
-
+            
             // ====== Cột phải ======
             lblCotLieuMax = new Label { Text = "Cốt Liệu Max:", Font = labelFont, Left = rightLabelLeft, Top = 40, AutoSize = true, TextAlign = ContentAlignment.TopLeft };
             txtCotLieuMax = new TextBox { Font = textFont, Left = rightTextLeft, Top = lblCotLieuMax.Top, Width = textWidth, Height = controlHeight };
-
             lblDoSut = new Label { Text = "Độ Sụt:", Font = labelFont, Left = rightLabelLeft, Top = lblCotLieuMax.Bottom + paddingY, AutoSize = true, TextAlign = ContentAlignment.TopLeft };
             txtDoSut = new TextBox { Font = textFont, Left = rightTextLeft, Top = lblDoSut.Top, Width = textWidth, Height = controlHeight };
-
             lblTongKhoiLuong = new Label { Text = "Tổng khối lượng:", Font = labelFont, Left = rightLabelLeft, Top = lblDoSut.Bottom + paddingY, AutoSize = true, TextAlign = ContentAlignment.TopLeft };
             txtTongKhoiLuong = new TextBox { Font = textFont, Left = rightTextLeft, Top = lblTongKhoiLuong.Top, Width = textWidth, Height = controlHeight, ReadOnly = true };
-
+            
             // Nút bấm THÊM MỚI
             btnThemMoi = new IconButton
             {
@@ -134,7 +124,7 @@ namespace QuanLyTram.Forms
                 IconSize = 24,
                 TextImageRelation = TextImageRelation.ImageBeforeText // icon nằm trước chữ
             };
-
+            
             // Nút bấm CẬP NHẬT
             btnCapNhat = new IconButton
             {
@@ -149,18 +139,17 @@ namespace QuanLyTram.Forms
                 IconSize = 24,
                 TextImageRelation = TextImageRelation.ImageBeforeText
             };
-
+            
             btnThemMoi.Top = 250;
             btnCapNhat.Top = 250;
             btnThemMoi.Left = (bottomPanel.Width / 2) - btnThemMoi.Width - 20;
             btnCapNhat.Left = (bottomPanel.Width / 2) + 20;
-
             bottomPanel.Resize += (s, e) =>
             {
                 btnThemMoi.Left = (bottomPanel.Width / 2) - btnThemMoi.Width - 20;
                 btnCapNhat.Left = (bottomPanel.Width / 2) + 20;
             };
-
+            
             bottomPanel.Controls.AddRange(new Control[]
             {
                 lblSTT, txtSTT, lblMacBT, txtMacBT, lblCuongDo, txtCuongDo,
@@ -168,21 +157,176 @@ namespace QuanLyTram.Forms
                 lblTongKhoiLuong, txtTongKhoiLuong,
                 btnThemMoi, btnCapNhat
             });
-
+            
             this.Controls.Add(bottomPanel);
             this.Controls.Add(splitTop);
+            
+            // Đăng ký sự kiện
+            btnThemMoi.Click += BtnThemMoi_Click;
+            btnCapNhat.Click += BtnCapNhat_Click;
         }
-
+        
+        private void LoadData()
+        {
+            try
+            {
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT MACAUPHOI, STT, MACBETONG, CUONGDO, COTLIEUMAX, DOSUT, TONGSLVATTU FROM CAUPHOI", conn))
+                    {
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            dtCapPhoi = new DataTable();
+                            adapter.Fill(dtCapPhoi);
+                            
+                            // Đổi tên cột để hiển thị
+                            dtCapPhoi.Columns["MACAUPHOI"].ColumnName = "ID";
+                            dtCapPhoi.Columns["STT"].ColumnName = "STT";
+                            dtCapPhoi.Columns["MACBETONG"].ColumnName = "MacBT";
+                            dtCapPhoi.Columns["CUONGDO"].ColumnName = "CuongDo";
+                            dtCapPhoi.Columns["COTLIEUMAX"].ColumnName = "CotLieuMax";
+                            dtCapPhoi.Columns["DOSUT"].ColumnName = "DoSut";
+                            dtCapPhoi.Columns["TONGSLVATTU"].ColumnName = "TongKhoiLuong";
+                            
+                            dgvCapPhoi.DataSource = dtCapPhoi;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải dữ liệu cấp phối: " + ex.Message);
+            }
+            
+            if (dgvCapPhoi.Rows.Count > 0)
+            {
+                dgvCapPhoi.CurrentCell = dgvCapPhoi.Rows[0].Cells[0];
+                LoadRowToForm(dgvCapPhoi.Rows[0]);
+            }
+        }
+        
+        private void LoadRowToForm(DataGridViewRow row)
+        {
+            txtSTT.Text = row.Cells["STT"].Value?.ToString() ?? "";
+            txtMacBT.Text = row.Cells["MacBT"].Value?.ToString() ?? "";
+            txtCuongDo.Text = row.Cells["CuongDo"].Value?.ToString() ?? "";
+            txtCotLieuMax.Text = row.Cells["CotLieuMax"].Value?.ToString() ?? "";
+            txtDoSut.Text = row.Cells["DoSut"].Value?.ToString() ?? "";
+            txtTongKhoiLuong.Text = row.Cells["TongKhoiLuong"].Value?.ToString() ?? "";
+        }
+        
         private void DgvCapPhoi_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
             {
                 DataGridViewRow row = dgvCapPhoi.Rows[e.RowIndex];
-                txtSTT.Text = row.Cells["STT"].Value?.ToString() ?? "";
-                txtMacBT.Text = row.Cells["MacBT"].Value?.ToString() ?? "";
-                txtCuongDo.Text = row.Cells["CuongDo"].Value?.ToString() ?? "";
-                txtCotLieuMax.Text = row.Cells["CotLieuMax"].Value?.ToString() ?? "";
-                txtDoSut.Text = row.Cells["DoSut"].Value?.ToString() ?? "";
+                LoadRowToForm(row);
+            }
+        }
+        
+        private void BtnThemMoi_Click(object sender, EventArgs e)
+        {
+            // Clear form
+            txtSTT.Text = "";
+            txtMacBT.Text = "";
+            txtCuongDo.Text = "";
+            txtCotLieuMax.Text = "";
+            txtDoSut.Text = "";
+            txtTongKhoiLuong.Text = "";
+            txtSTT.Focus();
+        }
+        
+        private void BtnCapNhat_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtMacBT.Text))
+            {
+                MessageBox.Show("Vui lòng nhập Mác BT.", "Thiếu thông tin", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtMacBT.Focus();
+                return;
+            }
+            
+            try
+            {
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    
+                    // Kiểm tra xem là thêm mới hay cập nhật
+                    if (string.IsNullOrWhiteSpace(txtSTT.Text) || !int.TryParse(txtSTT.Text, out int stt))
+                    {
+                        // Thêm mới
+                        using (var cmd = new SqlCommand(@"
+                        INSERT INTO CAUPHOI (STT, MACBETONG, CUONGDO, COTLIEUMAX, DOSUT, TONGSLVATTU)
+                        VALUES (@stt, @macbt, @cuongdo, @cotlieumax, @dosut, @tongsl);
+                        SELECT SCOPE_IDENTITY();", conn))
+                        {
+                            cmd.Parameters.Add("@stt", SqlDbType.Int).Value = GetNextSTT();
+                            cmd.Parameters.Add("@macbt", SqlDbType.NVarChar).Value = txtMacBT.Text;
+                            cmd.Parameters.Add("@cuongdo", SqlDbType.NVarChar).Value = txtCuongDo.Text;
+                            cmd.Parameters.Add("@cotlieumax", SqlDbType.NVarChar).Value = txtCotLieuMax.Text;
+                            cmd.Parameters.Add("@dosut", SqlDbType.NVarChar).Value = txtDoSut.Text;
+                            cmd.Parameters.Add("@tongsl", SqlDbType.Decimal).Value = Convert.ToDecimal(txtTongKhoiLuong.Text);
+                            
+                            int newId = Convert.ToInt32(cmd.ExecuteScalar());
+                            
+                            // Load lại dữ liệu
+                            LoadData();
+                            
+                            MessageBox.Show("Thêm cấp phối thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }
+                    else
+                    {
+                        // Cập nhật
+                        int id = Convert.ToInt32(dgvCapPhoi.CurrentRow.Cells["ID"].Value);
+                        
+                        using (var cmd = new SqlCommand(@"
+                        UPDATE CAUPHOI 
+                        SET STT = @stt, MACBETONG = @macbt, CUONGDO = @cuongdo, 
+                            COTLIEUMAX = @cotlieumax, DOSUT = @dosut, TONGSLVATTU = @tongsl
+                        WHERE MACAUPHOI = @id", conn))
+                        {
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                            cmd.Parameters.Add("@stt", SqlDbType.Int).Value = stt;
+                            cmd.Parameters.Add("@macbt", SqlDbType.NVarChar).Value = txtMacBT.Text;
+                            cmd.Parameters.Add("@cuongdo", SqlDbType.NVarChar).Value = txtCuongDo.Text;
+                            cmd.Parameters.Add("@cotlieumax", SqlDbType.NVarChar).Value = txtCotLieuMax.Text;
+                            cmd.Parameters.Add("@dosut", SqlDbType.NVarChar).Value = txtDoSut.Text;
+                            cmd.Parameters.Add("@tongsl", SqlDbType.Decimal).Value = Convert.ToDecimal(txtTongKhoiLuong.Text);
+                            
+                            cmd.ExecuteNonQuery();
+                            
+                            // Load lại dữ liệu
+                            LoadData();
+                            
+                            MessageBox.Show("Cập nhật cấp phối thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi lưu dữ liệu cấp phối: " + ex.Message);
+            }
+        }
+        
+        private int GetNextSTT()
+        {
+            try
+            {
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT ISNULL(MAX(STT), 0) + 1 FROM CAUPHOI", conn))
+                    {
+                        return Convert.ToInt32(cmd.ExecuteScalar());
+                    }
+                }
+            }
+            catch
+            {
+                return 1;
             }
         }
     }

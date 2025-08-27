@@ -1,8 +1,10 @@
 using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
 using FontAwesome.Sharp;
+using QuanLyTram.DAL;
 
 namespace QuanLyTram.Forms
 {
@@ -10,39 +12,32 @@ namespace QuanLyTram.Forms
     {
         private enum EditMode { None, Add, Edit }
         private EditMode _mode = EditMode.None;
-
         private Panel pnlActions;
         private IconButton btnThemMoi, btnCapNhat;
         private IconButton btnLuu, btnHuy;
-
         private DataGridView dgv;
-
         private GroupBox grpInfo;
         private Label lblSTT, lblTenCua, lblHeSo, lblDonVi;
         private TextBox txtSTT, txtTenCua, txtHeSo, txtDonVi;
-
         private Color BgBeige = Color.FromArgb(245, 245, 220); 
         private Color PanelWhite = Color.FromArgb(245, 245, 255);
         private Font FTitle => new Font(new FontFamily("Segoe UI"), 11.5f, FontStyle.Bold);
         private Font FText => new Font(new FontFamily("Segoe UI"), 10f, FontStyle.Regular);
-
         private DataTable dtData;
-
+        
         public Kho_CuaVatLieuForm()
         {
             Text = "CỬA VẬT LIỆU";
             StartPosition = FormStartPosition.CenterScreen;
             ClientSize = new Size(1200, 720);
             BackColor = BgBeige;
-
             BuildActionBar();
             BuildMainArea();
             WireEvents();
-
-            InitData();
+            LoadData();
             ApplyMode(EditMode.None);
         }
-
+        
         private void BuildActionBar()
         {
             pnlActions = new Panel
@@ -53,7 +48,6 @@ namespace QuanLyTram.Forms
             };
             Controls.Add(pnlActions);
             pnlActions.BringToFront();
-
             btnThemMoi = new IconButton
             {
                 Text = "THÊM MỚI",
@@ -71,7 +65,6 @@ namespace QuanLyTram.Forms
                 Cursor = Cursors.Hand
             };
             btnThemMoi.FlatAppearance.BorderSize = 0;
-
             btnCapNhat = new IconButton
             {
                 Text = "CẬP NHẬT",
@@ -89,11 +82,10 @@ namespace QuanLyTram.Forms
                 Cursor = Cursors.Hand
             };
             btnCapNhat.FlatAppearance.BorderSize = 0;
-
             pnlActions.Controls.Add(btnThemMoi);
             pnlActions.Controls.Add(btnCapNhat);
         }
-
+        
         private void BuildMainArea()
         {
             var main = new Panel
@@ -104,7 +96,6 @@ namespace QuanLyTram.Forms
             };
             Controls.Add(main);
             main.BringToFront();
-
             var lblGridTitle = new Label
             {
                 Text = "DỮ LIỆU CỬA VẬT LIỆU",
@@ -114,7 +105,6 @@ namespace QuanLyTram.Forms
                 Location = new Point(20, 8)
             };
             main.Controls.Add(lblGridTitle);
-
             dgv = new DataGridView
             {
                 Location = new Point(20, lblGridTitle.Bottom + 8),
@@ -130,7 +120,6 @@ namespace QuanLyTram.Forms
                 RowHeadersVisible = true
             };
             main.Controls.Add(dgv);
-
             grpInfo = new GroupBox
             {
                 Text = "THÔNG TIN CỬA",
@@ -142,7 +131,6 @@ namespace QuanLyTram.Forms
                 Padding = new Padding(18)
             };
             main.Controls.Add(grpInfo);
-
             lblSTT = new Label
             {
                 Text = "Số thứ tự:",
@@ -157,7 +145,6 @@ namespace QuanLyTram.Forms
                 Location = new Point(20, 75),
                 Width = 340
             };
-
             lblTenCua = new Label
             {
                 Text = "Tên cửa vật liệu:",
@@ -172,7 +159,6 @@ namespace QuanLyTram.Forms
                 Location = new Point(20, 155),
                 Width = 340
             };
-
             lblHeSo = new Label
             {
                 Text = "Hệ số quy đổi (Kg):",
@@ -187,7 +173,6 @@ namespace QuanLyTram.Forms
                 Location = new Point(20, 235),
                 Width = 340
             };
-
             lblDonVi = new Label
             {
                 Text = "Đơn vị tính:",
@@ -202,7 +187,6 @@ namespace QuanLyTram.Forms
                 Location = new Point(20, 315),
                 Width = 340
             };
-
             btnLuu = new IconButton
             {
                 Text = " LƯU",
@@ -220,7 +204,6 @@ namespace QuanLyTram.Forms
                 Cursor = Cursors.Hand
             };
             btnLuu.FlatAppearance.BorderSize = 0;
-
             btnHuy = new IconButton
             {
                 Text = " HỦY",
@@ -238,7 +221,6 @@ namespace QuanLyTram.Forms
                 Cursor = Cursors.Hand
             };
             btnHuy.FlatAppearance.BorderSize = 0;
-
             grpInfo.Controls.Add(lblSTT);
             grpInfo.Controls.Add(txtSTT);
             grpInfo.Controls.Add(lblTenCua);
@@ -250,14 +232,13 @@ namespace QuanLyTram.Forms
             grpInfo.Controls.Add(btnLuu);
             grpInfo.Controls.Add(btnHuy);
         }
-
+        
         private void WireEvents()
         {
             btnThemMoi.Click += (s, e) => { ApplyMode(EditMode.Add); txtSTT.Focus(); };
             btnCapNhat.Click += (s, e) => { if (dgv.CurrentRow != null) ApplyMode(EditMode.Edit); };
             btnLuu.Click += (s, e) => SaveCurrent();
             btnHuy.Click += (s, e) => ApplyMode(EditMode.None);
-
             dgv.SelectionChanged += (s, e) =>
             {
                 if (_mode == EditMode.None && dgv.CurrentRow != null)
@@ -269,37 +250,53 @@ namespace QuanLyTram.Forms
                 }
             };
         }
-
-        private void InitData()
+        
+        private void LoadData()
         {
-            dtData = new DataTable();
-            dtData.Columns.Add("STT");
-            dtData.Columns.Add("Tên trạm");
-            dtData.Columns.Add("Loại vật liệu");
-            dtData.Columns.Add("Tên cửa vật liệu");
-            dtData.Columns.Add("Hệ số quy đổi");
-            dtData.Columns.Add("Đơn vị tính");
-
-            dtData.Rows.Add("1", "Trạm A", "Xi măng", "Cửa số 1", "1.00", "Bao");
-            dtData.Rows.Add("2", "Trạm B", "Cát", "Cửa số 2", "0.80", "Khối");
-
-            dgv.DataSource = dtData;
+            try
+            {
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT MACUA, STT, TENTRAM, LOAIVATTU, TENCUA, HESOQUYDOI, DONVITINH FROM CUA_VATTU", conn))
+                    {
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            dtData = new DataTable();
+                            adapter.Fill(dtData);
+                            
+                            // Đổi tên cột để hiển thị
+                            dtData.Columns["MACUA"].ColumnName = "ID";
+                            dtData.Columns["STT"].ColumnName = "STT";
+                            dtData.Columns["TENTRAM"].ColumnName = "Tên trạm";
+                            dtData.Columns["LOAIVATTU"].ColumnName = "Loại vật liệu";
+                            dtData.Columns["TENCUA"].ColumnName = "Tên cửa vật liệu";
+                            dtData.Columns["HESOQUYDOI"].ColumnName = "Hệ số quy đổi";
+                            dtData.Columns["DONVITINH"].ColumnName = "Đơn vị tính";
+                            
+                            dgv.DataSource = dtData;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải dữ liệu cửa vật liệu: " + ex.Message);
+            }
+            
             dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
-
             if (dgv.Rows.Count > 0)
                 dgv.CurrentCell = dgv.Rows[0].Cells[0];
         }
-
+        
         private void ApplyMode(EditMode mode)
         {
             _mode = mode;
             bool editing = mode != EditMode.None;
-
             UpdateButtonState(btnThemMoi, !editing, Color.FromArgb(110, 170, 60));
             UpdateButtonState(btnCapNhat, !editing && dgv.CurrentRow != null, Color.FromArgb(70, 130, 180));
             UpdateButtonState(btnLuu, editing, Color.FromArgb(90, 90, 150));
             UpdateButtonState(btnHuy, editing, Color.FromArgb(180, 50, 50));
-
             if (mode == EditMode.Add)
             {
                 txtSTT.Text = txtTenCua.Text = txtHeSo.Text = txtDonVi.Text = "";
@@ -319,7 +316,7 @@ namespace QuanLyTram.Forms
                 txtDonVi.Text = dgv.CurrentRow.Cells["Đơn vị tính"].Value.ToString();
             }
         }
-
+        
         private void UpdateButtonState(IconButton btn, bool enabled, Color normalColor)
         {
             btn.BackColor = enabled ? normalColor : Color.FromArgb(200, 200, 200);
@@ -327,14 +324,13 @@ namespace QuanLyTram.Forms
             btn.ForeColor = enabled ? Color.White : inactiveColor;
             btn.IconColor = btn.ForeColor;
         }
-
+        
         private void SaveCurrent()
         {
             var stt = txtSTT.Text.Trim();
             var tenCua = txtTenCua.Text.Trim();
             var heSo = txtHeSo.Text.Trim();
             var donVi = txtDonVi.Text.Trim();
-
             if (string.IsNullOrWhiteSpace(tenCua))
             {
                 MessageBox.Show("Vui lòng nhập Tên cửa.", "Thiếu thông tin",
@@ -342,28 +338,107 @@ namespace QuanLyTram.Forms
                 txtTenCua.Focus();
                 return;
             }
-
-            if (_mode == EditMode.Add)
+            
+            try
             {
-                DataRow newRow = dtData.NewRow();
-                newRow["STT"] = stt;
-                newRow["Tên trạm"] = "Trạm mới";
-                newRow["Loại vật liệu"] = "Chưa rõ";
-                newRow["Tên cửa vật liệu"] = tenCua;
-                newRow["Hệ số quy đổi"] = heSo;
-                newRow["Đơn vị tính"] = donVi;
-                dtData.Rows.Add(newRow);
-                dgv.CurrentCell = dgv.Rows[dgv.Rows.Count - 1].Cells[0];
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    decimal hesoValue = 0;
+                    decimal.TryParse(heSo, out hesoValue);
+                    
+                    if (_mode == EditMode.Add)
+                    {
+                        // Nếu STT trống, lấy giá trị tiếp theo
+                        int sttValue = 0;
+                        if (!int.TryParse(stt, out sttValue))
+                        {
+                            sttValue = GetNextSTT();
+                        }
+                        
+                        using (var cmd = new SqlCommand(@"
+                        INSERT INTO CUA_VATTU (STT, TENTRAM, LOAIVATTU, TENCUA, HESOQUYDOI, DONVITINH)
+                        VALUES (@stt, @tentram, @loaivt, @tencua, @heso, @donvi);
+                        SELECT SCOPE_IDENTITY();", conn))
+                        {
+                            cmd.Parameters.Add("@stt", SqlDbType.Int).Value = sttValue;
+                            cmd.Parameters.Add("@tentram", SqlDbType.NVarChar).Value = "Trạm mới"; // Giá trị mặc định
+                            cmd.Parameters.Add("@loaivt", SqlDbType.NVarChar).Value = "Chưa rõ"; // Giá trị mặc định
+                            cmd.Parameters.Add("@tencua", SqlDbType.NVarChar).Value = tenCua;
+                            cmd.Parameters.Add("@heso", SqlDbType.Decimal).Value = hesoValue;
+                            cmd.Parameters.Add("@donvi", SqlDbType.NVarChar).Value = donVi;
+                            
+                            int newId = Convert.ToInt32(cmd.ExecuteScalar());
+                            
+                            // Thêm vào DataTable
+                            DataRow newRow = dtData.NewRow();
+                            newRow["ID"] = newId;
+                            newRow["STT"] = sttValue;
+                            newRow["Tên trạm"] = "Trạm mới";
+                            newRow["Loại vật liệu"] = "Chưa rõ";
+                            newRow["Tên cửa vật liệu"] = tenCua;
+                            newRow["Hệ số quy đổi"] = hesoValue;
+                            newRow["Đơn vị tính"] = donVi;
+                            dtData.Rows.Add(newRow);
+                            
+                            // Cập nhật DataGridView
+                            dgv.DataSource = dtData;
+                            dgv.CurrentCell = dgv.Rows[dgv.Rows.Count - 1].Cells[0];
+                        }
+                    }
+                    else if (_mode == EditMode.Edit && dgv.CurrentRow != null)
+                    {
+                        int maCua = Convert.ToInt32(dgv.CurrentRow.Cells["ID"].Value);
+                        
+                        using (var cmd = new SqlCommand(@"
+                        UPDATE CUA_VATTU 
+                        SET STT = @stt, TENTRAM = @tentram, LOAIVATTU = @loaivt, 
+                            TENCUA = @tencua, HESOQUYDOI = @heso, DONVITINH = @donvi
+                        WHERE MACUA = @maCua", conn))
+                        {
+                            cmd.Parameters.Add("@maCua", SqlDbType.Int).Value = maCua;
+                            cmd.Parameters.Add("@stt", SqlDbType.Int).Value = int.Parse(stt);
+                            cmd.Parameters.Add("@tentram", SqlDbType.NVarChar).Value = "Trạm cập nhật"; // Giá trị mặc định
+                            cmd.Parameters.Add("@loaivt", SqlDbType.NVarChar).Value = "Chưa rõ"; // Giá trị mặc định
+                            cmd.Parameters.Add("@tencua", SqlDbType.NVarChar).Value = tenCua;
+                            cmd.Parameters.Add("@heso", SqlDbType.Decimal).Value = hesoValue;
+                            cmd.Parameters.Add("@donvi", SqlDbType.NVarChar).Value = donVi;
+                            
+                            cmd.ExecuteNonQuery();
+                            
+                            // Cập nhật DataTable
+                            dgv.CurrentRow.Cells["STT"].Value = stt;
+                            dgv.CurrentRow.Cells["Tên cửa vật liệu"].Value = tenCua;
+                            dgv.CurrentRow.Cells["Hệ số quy đổi"].Value = hesoValue;
+                            dgv.CurrentRow.Cells["Đơn vị tính"].Value = donVi;
+                        }
+                    }
+                }
+                ApplyMode(EditMode.None);
             }
-            else if (_mode == EditMode.Edit && dgv.CurrentRow != null)
+            catch (Exception ex)
             {
-                dgv.CurrentRow.Cells["STT"].Value = stt;
-                dgv.CurrentRow.Cells["Tên cửa vật liệu"].Value = tenCua;
-                dgv.CurrentRow.Cells["Hệ số quy đổi"].Value = heSo;
-                dgv.CurrentRow.Cells["Đơn vị tính"].Value = donVi;
+                MessageBox.Show("Lỗi khi lưu dữ liệu cửa vật liệu: " + ex.Message);
             }
-
-            ApplyMode(EditMode.None);
+        }
+        
+        private int GetNextSTT()
+        {
+            try
+            {
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT ISNULL(MAX(STT), 0) + 1 FROM CUA_VATTU", conn))
+                    {
+                        return Convert.ToInt32(cmd.ExecuteScalar());
+                    }
+                }
+            }
+            catch
+            {
+                return 1;
+            }
         }
     }
 }
