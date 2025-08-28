@@ -173,7 +173,7 @@ namespace QuanLyTram.Forms
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new SqlCommand("SELECT MACAUPHOI, STT, MACBETONG, CUONGDO, COTLIEUMAX, DOSUT, TONGSLVATTU FROM CAUPHOI", conn))
+                    using (var cmd = new SqlCommand("SELECT MACAPPHOI, STT, MACBETONG, CUONGDO, COTLIEUMAX, DOSUT, TONGSLVATTU FROM CAPPHOI", conn))
                     {
                         using (var adapter = new SqlDataAdapter(cmd))
                         {
@@ -181,7 +181,7 @@ namespace QuanLyTram.Forms
                             adapter.Fill(dtCapPhoi);
                             
                             // Đổi tên cột để hiển thị
-                            dtCapPhoi.Columns["MACAUPHOI"].ColumnName = "ID";
+                            dtCapPhoi.Columns["MACAPPHOI"].ColumnName = "ID";
                             dtCapPhoi.Columns["STT"].ColumnName = "STT";
                             dtCapPhoi.Columns["MACBETONG"].ColumnName = "MacBT";
                             dtCapPhoi.Columns["CUONGDO"].ColumnName = "CuongDo";
@@ -257,7 +257,7 @@ namespace QuanLyTram.Forms
                     {
                         // Thêm mới
                         using (var cmd = new SqlCommand(@"
-                        INSERT INTO CAUPHOI (STT, MACBETONG, CUONGDO, COTLIEUMAX, DOSUT, TONGSLVATTU)
+                        INSERT INTO CAPPHOI (STT, MACBETONG, CUONGDO, COTLIEUMAX, DOSUT, TONGSLVATTU)
                         VALUES (@stt, @macbt, @cuongdo, @cotlieumax, @dosut, @tongsl);
                         SELECT SCOPE_IDENTITY();", conn))
                         {
@@ -282,10 +282,10 @@ namespace QuanLyTram.Forms
                         int id = Convert.ToInt32(dgvCapPhoi.CurrentRow.Cells["ID"].Value);
                         
                         using (var cmd = new SqlCommand(@"
-                        UPDATE CAUPHOI 
+                        UPDATE CAPPHOI 
                         SET STT = @stt, MACBETONG = @macbt, CUONGDO = @cuongdo, 
                             COTLIEUMAX = @cotlieumax, DOSUT = @dosut, TONGSLVATTU = @tongsl
-                        WHERE MACAUPHOI = @id", conn))
+                        WHERE MACAPPHOI = @id", conn))
                         {
                             cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
                             cmd.Parameters.Add("@stt", SqlDbType.Int).Value = stt;
@@ -318,7 +318,7 @@ namespace QuanLyTram.Forms
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new SqlCommand("SELECT ISNULL(MAX(STT), 0) + 1 FROM CAUPHOI", conn))
+                    using (var cmd = new SqlCommand("SELECT ISNULL(MAX(STT), 0) + 1 FROM CAPPHOI", conn))
                     {
                         return Convert.ToInt32(cmd.ExecuteScalar());
                     }

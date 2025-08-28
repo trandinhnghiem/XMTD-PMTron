@@ -149,13 +149,14 @@ namespace QuanLyTram.Forms
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new SqlCommand("SELECT MATRAM, TENTRAM, CHUTRAM, DIADIEM, CONGSUAT, DIENTHOAI, TRANGTHAI FROM TRAM", conn))
+                    using (var cmd = new SqlCommand(
+                        "SELECT MATRAM, TENTRAM, CHUTRAM, DIADIEM, CONGSUAT, DIENTHOAI, TRANGTHAI, LOAICAPPHOI FROM TRAM", conn))
                     {
                         using (var adapter = new SqlDataAdapter(cmd))
                         {
                             dtTram = new DataTable();
                             adapter.Fill(dtTram);
-                            
+
                             // Đổi tên cột để hiển thị
                             dtTram.Columns["MATRAM"].ColumnName = "Mã trạm";
                             dtTram.Columns["TENTRAM"].ColumnName = "Tên trạm";
@@ -164,7 +165,8 @@ namespace QuanLyTram.Forms
                             dtTram.Columns["CONGSUAT"].ColumnName = "Công suất";
                             dtTram.Columns["DIENTHOAI"].ColumnName = "Số điện thoại";
                             dtTram.Columns["TRANGTHAI"].ColumnName = "Trạng thái";
-                            
+                            dtTram.Columns["LOAICAPPHOI"].ColumnName = "Loại cấp phối";
+
                             dgvTram.DataSource = dtTram;
                         }
                     }
@@ -174,13 +176,14 @@ namespace QuanLyTram.Forms
             {
                 MessageBox.Show("Lỗi khi tải dữ liệu trạm: " + ex.Message);
             }
-            
+
             if (dgvTram.Rows.Count > 0)
             {
                 dgvTram.CurrentCell = dgvTram.Rows[0].Cells[0];
                 LoadRowToForm(dgvTram.Rows[0]);
             }
         }
+
         
         private void LoadRowToForm(DataGridViewRow row)
         {
@@ -190,7 +193,7 @@ namespace QuanLyTram.Forms
             txtSoDienThoai.Text = row.Cells["Số điện thoại"].Value.ToString();
             txtCongSuat.Text = row.Cells["Công suất"].Value.ToString();
             
-            // Set radio button based on LOAICAUPHOI
+            // Set radio button based on LOAICAPPHOI
             string loaiCapPhoi = "Trạm đang tồn tại"; // Default value
             if (row.Cells["Loại cấp phối"] != null && row.Cells["Loại cấp phối"].Value != null)
             {
@@ -249,8 +252,8 @@ namespace QuanLyTram.Forms
                     {
                         // Thêm mới
                         using (var cmd = new SqlCommand(@"
-                        INSERT INTO TRAM (TENTRAM, CHUTRAM, DIADIEM, CONGSUAT, DIENTHOAI, TRANGTHAI, LOAICAUPHOI)
-                        VALUES (@tentram, @chutram, @diadiem, @congsuat, @dienthoai, @trangthai, @loaicauphoi);
+                        INSERT INTO TRAM (TENTRAM, CHUTRAM, DIADIEM, CONGSUAT, DIENTHOAI, TRANGTHAI, LOAICAPPHOI)
+                        VALUES (@tentram, @chutram, @diadiem, @congsuat, @dienthoai, @trangthai, @loaiCAPPHOI);
                         SELECT SCOPE_IDENTITY();", conn))
                         {
                             cmd.Parameters.Add("@tentram", SqlDbType.NVarChar).Value = txtTenTram.Text;
@@ -259,7 +262,7 @@ namespace QuanLyTram.Forms
                             cmd.Parameters.Add("@congsuat", SqlDbType.NVarChar).Value = txtCongSuat.Text;
                             cmd.Parameters.Add("@dienthoai", SqlDbType.NVarChar).Value = txtSoDienThoai.Text;
                             cmd.Parameters.Add("@trangthai", SqlDbType.NVarChar).Value = "Online";
-                            cmd.Parameters.Add("@loaicauphoi", SqlDbType.NVarChar).Value = loaiCapPhoi;
+                            cmd.Parameters.Add("@loaiCAPPHOI", SqlDbType.NVarChar).Value = loaiCapPhoi;
                             
                             int newId = Convert.ToInt32(cmd.ExecuteScalar());
                             
@@ -290,7 +293,7 @@ namespace QuanLyTram.Forms
                         using (var cmd = new SqlCommand(@"
                         UPDATE TRAM 
                         SET TENTRAM = @tentram, CHUTRAM = @chutram, DIADIEM = @diadiem, 
-                            CONGSUAT = @congsuat, DIENTHOAI = @dienthoai, LOAICAUPHOI = @loaicauphoi
+                            CONGSUAT = @congsuat, DIENTHOAI = @dienthoai, LOAICAPPHOI = @loaiCAPPHOI
                         WHERE MATRAM = @matram", conn))
                         {
                             cmd.Parameters.Add("@matram", SqlDbType.Int).Value = maTram;
@@ -299,7 +302,7 @@ namespace QuanLyTram.Forms
                             cmd.Parameters.Add("@diadiem", SqlDbType.NVarChar).Value = txtDiaDiem.Text;
                             cmd.Parameters.Add("@congsuat", SqlDbType.NVarChar).Value = txtCongSuat.Text;
                             cmd.Parameters.Add("@dienthoai", SqlDbType.NVarChar).Value = txtSoDienThoai.Text;
-                            cmd.Parameters.Add("@loaicauphoi", SqlDbType.NVarChar).Value = loaiCapPhoi;
+                            cmd.Parameters.Add("@loaiCAPPHOI", SqlDbType.NVarChar).Value = loaiCapPhoi;
                             
                             cmd.ExecuteNonQuery();
                             

@@ -276,7 +276,7 @@ namespace QuanLyTram.Forms
                         {
                             while (reader.Read())
                             {
-                                cbKhachHang.Items.Add(new { Value = reader["MAKACH"], Display = reader["TENKHACH"].ToString() });
+                                cbKhachHang.Items.Add(new { Value = reader["MAKHACH"], Display = reader["TENKHACH"].ToString() });
                             }
                         }
                     }

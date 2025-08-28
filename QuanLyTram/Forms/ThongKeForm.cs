@@ -368,7 +368,7 @@ namespace QuanLyTram.Forms
                     
                     // Load mác bê tông
                     cbMacBeTong.Items.Add("Tất cả");
-                    using (var cmd = new SqlCommand("SELECT DISTINCT MACBETONG FROM CAUPHOI", conn))
+                    using (var cmd = new SqlCommand("SELECT DISTINCT MACBETONG FROM CAPPHOI", conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -429,7 +429,7 @@ namespace QuanLyTram.Forms
                 FROM DONHANG dh
                 LEFT JOIN KHACHHANG kh ON dh.MAKHACH = kh.MAKHACH
                 LEFT JOIN CONGTRINH ct ON dh.MACONGTRINH = ct.MACONGTRINH
-                LEFT JOIN CAUPHOI cp ON dh.MADONHANG = cp.MACAUPHOI
+                LEFT JOIN CAPPHOI cp ON dh.MADONHANG = cp.MACAPPHOI
                 LEFT JOIN XE x ON dh.MAXE = x.MAXE
                 WHERE 1=1";
                 
