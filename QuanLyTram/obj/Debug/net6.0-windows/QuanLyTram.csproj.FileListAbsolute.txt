@@ -25,20 +25,16 @@ D:\QUANLYTRAM\QuanLyTram\obj\Debug\net6.0-windows\QuanLyTram.pdb
 D:\QUANLYTRAM\QuanLyTram\obj\Debug\net6.0-windows\QuanLyTram.genruntimeconfig.cache
 D:\QUANLYTRAM\QuanLyTram\obj\Debug\net6.0-windows\ref\QuanLyTram.dll
 D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\QuanLyTram.exe
-D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\QuanLyTram.dll.config
-D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\QuanLyTram.deps.json
-D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\QuanLyTram.runtimeconfig.json
 D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\QuanLyTram.dll
-D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\QuanLyTram.pdb
 D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\FontAwesome.Sharp.dll
 D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\System.Configuration.ConfigurationManager.dll
+D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\runtimes\win-x64\native\sni.dll
+D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\runtimes\win\lib\net6.0\System.Data.SqlClient.dll
 D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\System.Data.SqlClient.dll
 D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\System.Security.Cryptography.ProtectedData.dll
 D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\runtimes\win-arm64\native\sni.dll
-D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\runtimes\win-x64\native\sni.dll
 D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\runtimes\win-x86\native\sni.dll
 D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\runtimes\unix\lib\net6.0\System.Data.SqlClient.dll
-D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\runtimes\win\lib\net6.0\System.Data.SqlClient.dll
 D:\QUANLYTRAM - v2\QuanLyTram\obj\Debug\net6.0-windows\QuanLyTram.csproj.AssemblyReference.cache
 D:\QUANLYTRAM - v2\QuanLyTram\obj\Debug\net6.0-windows\QuanLyTram.GeneratedMSBuildEditorConfig.editorconfig
 D:\QUANLYTRAM - v2\QuanLyTram\obj\Debug\net6.0-windows\QuanLyTram.AssemblyInfoInputs.cache
@@ -48,5 +44,9 @@ D:\QUANLYTRAM - v2\QuanLyTram\obj\Debug\net6.0-windows\QuanLyTram.csproj.CopyCom
 D:\QUANLYTRAM - v2\QuanLyTram\obj\Debug\net6.0-windows\QuanLyTram.dll
 D:\QUANLYTRAM - v2\QuanLyTram\obj\Debug\net6.0-windows\refint\QuanLyTram.dll
 D:\QUANLYTRAM - v2\QuanLyTram\obj\Debug\net6.0-windows\QuanLyTram.pdb
+D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\QuanLyTram.dll.config
+D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\QuanLyTram.deps.json
+D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\QuanLyTram.runtimeconfig.json
+D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\QuanLyTram.pdb
 D:\QUANLYTRAM - v2\QuanLyTram\obj\Debug\net6.0-windows\QuanLyTram.genruntimeconfig.cache
 D:\QUANLYTRAM - v2\QuanLyTram\obj\Debug\net6.0-windows\ref\QuanLyTram.dll

@@ -257,10 +257,10 @@ GO
 -- Thêm dữ liệu mẫu cho bảng NGUOIDUNG
 INSERT INTO NGUOIDUNG (USERNAME, PASSWORD, HOTEN, CAPDO, QUYEN) 
 VALUES 
-(N'admin', N'123456', N'Administrator', N'Quản lý', N'Danh mục, Mác bê tông, Thống kê, Cài đặt, Kho'),
-(N'user1', N'123456', N'Người dùng 1', N'Vận hành', N'Danh mục, Mác bê tông'),
+(N'admin', N'123456', N'Administrator', N'Quản lý', N'Danh mục, Cấp phối, Thống kê, Cài đặt, Kho, Đặt hàng, In phiếu'),
+(N'user1', N'123456', N'Người dùng 1', N'Vận hành', N'Danh mục, Cấp phối'),
 (N'user2', N'123456', N'Người dùng 2', N'Vận hành', N'Thống kê, Kho'),
-(N'quanly', N'123456', N'Quản lý hệ thống', N'Quản lý', N'Danh mục, Mác bê tông, Thống kê, Cài đặt'),
+(N'quanly', N'123456', N'Quản lý hệ thống', N'Quản lý', N'Danh mục, Cấp phối, Thống kê, Cài đặt'),
 (N'kho', N'123456', N'Nhân viên kho', N'Vận hành', N'Kho')
 GO
 

@@ -21,7 +21,8 @@ namespace QuanLyTram.Forms
         private TextBox txtTenTK, txtHoTen, txtDiaChi, txtEmail, txtMatKhau;
         private ComboBox cmbCapDo;
         private CheckBox chkSelectAll;
-        private CheckBox chkDanhMuc, chkMacBeTong, chkThongKe, chkCaiDat, chkKho;
+        private CheckBox chkDanhMuc, chkCapPhoi, chkThongKe, chkCaiDat, chkKho, chkDatHang, chkInPhieu;
+
         
         private Color BgLavender = Color.FromArgb(230, 220, 250);
         private Color PanelWhite = Color.FromArgb(245, 245, 255);
@@ -312,31 +313,49 @@ namespace QuanLyTram.Forms
                 AutoSize = true
             };
 
-            chkMacBeTong = new CheckBox
+            chkInPhieu = new CheckBox
             {
-                Text = "Mác bê tông",
+                Text = "In phiếu",
                 Font = new Font("Segoe UI", 9.5f, FontStyle.Regular),
                 ForeColor = Color.Black,
-                Location = new Point(0, 25),
+                Location = new Point(0, 25), // Vị trí mới cho checkbox In phiếu
                 AutoSize = true
-            };
+            }; 
 
-            chkThongKe = new CheckBox
-            {
-                Text = "Thống kê",
-                Font = new Font("Segoe UI", 9.5f, FontStyle.Regular),
-                ForeColor = Color.Black,
-                Location = new Point(0, 50),
-                AutoSize = true
-            };
-
-            // Cột phải - 2 quyền
             chkCaiDat = new CheckBox
             {
                 Text = "Cài đặt",
                 Font = new Font("Segoe UI", 9.5f, FontStyle.Regular),
                 ForeColor = Color.Black,
-                Location = new Point(180, 0), // Tăng khoảng cách giữa 2 cột
+                Location = new Point(0, 50), // Tăng khoảng cách giữa 2 cột
+                AutoSize = true
+            };
+
+            // Cột giữa - 2 quyền
+            chkDatHang = new CheckBox
+            {
+                Text = "Đặt hàng",
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Regular),
+                ForeColor = Color.Black,
+                Location = new Point(115, 0), // Vị trí mới cho checkbox Đặt hàng
+                AutoSize = true
+            };
+            chkThongKe = new CheckBox
+            {
+                Text = "Thống kê",
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Regular),
+                ForeColor = Color.Black,
+                Location = new Point(115, 25),
+                AutoSize = true
+            };
+
+            // Cột phải
+            chkCapPhoi = new CheckBox
+            {
+                Text = "Cấp phối",
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Regular),
+                ForeColor = Color.Black,
+                Location = new Point(220, 0),
                 AutoSize = true
             };
 
@@ -345,11 +364,12 @@ namespace QuanLyTram.Forms
                 Text = "Kho",
                 Font = new Font("Segoe UI", 9.5f, FontStyle.Regular),
                 ForeColor = Color.Black,
-                Location = new Point(180, 25), // Tăng khoảng cách giữa 2 cột
+                Location = new Point(220, 25), // Tăng khoảng cách giữa 2 cột
                 AutoSize = true
             };
 
-            pnlQuyen.Controls.AddRange(new Control[] { chkDanhMuc, chkMacBeTong, chkThongKe, chkCaiDat, chkKho });
+
+            pnlQuyen.Controls.AddRange(new Control[] { chkDanhMuc, chkCapPhoi, chkThongKe, chkCaiDat, chkKho, chkDatHang, chkInPhieu });
 
             // Nút Lưu và Hủy - điều chỉnh lại vị trí
             btnLuu = new IconButton
@@ -399,7 +419,7 @@ namespace QuanLyTram.Forms
                 lblQuyenTruyCap, chkSelectAll, pnlQuyen, btnLuu, btnHuy
             });
         }
-        
+
         private void WireEvents()
         {
             btnThemMoi.Click += (s, e) =>
@@ -407,7 +427,7 @@ namespace QuanLyTram.Forms
                 ApplyMode(EditMode.Add);
                 txtTenTK.Focus();
             };
-            
+
             btnCapNhat.Click += (s, e) =>
             {
                 if (dgv.CurrentRow != null)
@@ -415,7 +435,7 @@ namespace QuanLyTram.Forms
                     ApplyMode(EditMode.Edit);
                 }
             };
-            
+
             btnXoa.Click += (s, e) =>
             {
                 if (dgv.CurrentRow != null)
@@ -426,19 +446,19 @@ namespace QuanLyTram.Forms
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Question
                     );
-                    
+
                     if (result == DialogResult.Yes)
                     {
                         DeleteAccount();
                     }
                 }
             };
-            
+
             btnLuu.Click += (s, e) => SaveCurrent();
-            
+
             btnHuy.Click += (s, e) =>
             {
-                if (txtTenTK.Text != _originalTenTK || txtHoTen.Text != _originalHoTen || 
+                if (txtTenTK.Text != _originalTenTK || txtHoTen.Text != _originalHoTen ||
                     txtDiaChi.Text != _originalDiaChi || txtEmail.Text != _originalEmail ||
                     txtMatKhau.Text != _originalMatKhau || cmbCapDo.Text != _originalCapDo ||
                     GetSelectedPermissions() != _originalQuyen)
@@ -454,7 +474,7 @@ namespace QuanLyTram.Forms
                 }
                 ApplyMode(EditMode.None);
             };
-            
+
             dgv.SelectionChanged += (s, e) =>
             {
                 if (_mode == EditMode.None && dgv.CurrentRow != null)
@@ -465,13 +485,13 @@ namespace QuanLyTram.Forms
                     txtEmail.Text = dgv.CurrentRow.Cells["Email"].Value.ToString();
                     txtMatKhau.Text = dgv.CurrentRow.Cells["Mật khẩu"].Value.ToString();
                     cmbCapDo.Text = dgv.CurrentRow.Cells["Cấp độ"].Value.ToString();
-                    
+
                     // Xử lý quyền truy cập
                     string permissions = dgv.CurrentRow.Cells["Quyền truy cập"].Value.ToString();
                     SetPermissionsFromString(permissions);
                 }
             };
-            
+
             // Sửa lại sự kiện cho checkbox "Chọn tất cả"
             chkSelectAll.CheckedChanged += (s, e) =>
             {
@@ -481,19 +501,23 @@ namespace QuanLyTram.Forms
                 {
                     bool isChecked = chkSelectAll.Checked;
                     chkDanhMuc.Checked = isChecked;
-                    chkMacBeTong.Checked = isChecked;
+                    chkCapPhoi.Checked = isChecked;
                     chkThongKe.Checked = isChecked;
                     chkCaiDat.Checked = isChecked;
                     chkKho.Checked = isChecked;
+                    chkDatHang.Checked = isChecked;
+                    chkInPhieu.Checked = isChecked;
                 }
             };
 
             // Sửa lại sự kiện cho các checkbox quyền riêng lẻ
             chkDanhMuc.CheckedChanged += UpdateSelectAllCheckBox;
-            chkMacBeTong.CheckedChanged += UpdateSelectAllCheckBox;
+            chkCapPhoi.CheckedChanged += UpdateSelectAllCheckBox;
             chkThongKe.CheckedChanged += UpdateSelectAllCheckBox;
             chkCaiDat.CheckedChanged += UpdateSelectAllCheckBox;
             chkKho.CheckedChanged += UpdateSelectAllCheckBox;
+            chkDatHang.CheckedChanged += UpdateSelectAllCheckBox;
+            chkInPhieu.CheckedChanged += UpdateSelectAllCheckBox;
         }
         
         private void UpdateSelectAllCheckBox(object sender, EventArgs e)
@@ -502,8 +526,9 @@ namespace QuanLyTram.Forms
             if (!chkSelectAll.Focused)
             {
                 // Cập nhật trạng thái của checkbox "Chọn tất cả" dựa trên các checkbox con
-                bool allChecked = chkDanhMuc.Checked && chkMacBeTong.Checked && 
-                                chkThongKe.Checked && chkCaiDat.Checked && chkKho.Checked;
+                bool allChecked = chkDanhMuc.Checked && chkCapPhoi.Checked && 
+                                chkThongKe.Checked && chkCaiDat.Checked && chkKho.Checked &&
+                                chkDatHang.Checked && chkInPhieu.Checked;
                 
                 // Ch cập nhật nếu trạng thái thay đổi
                 if (allChecked != chkSelectAll.Checked)
@@ -574,10 +599,12 @@ namespace QuanLyTram.Forms
             cmbCapDo.Enabled = editing;
             chkSelectAll.Enabled = editing;
             chkDanhMuc.Enabled = editing;
-            chkMacBeTong.Enabled = editing;
+            chkCapPhoi.Enabled = editing;
             chkThongKe.Enabled = editing;
             chkCaiDat.Enabled = editing;
             chkKho.Enabled = editing;
+            chkDatHang.Enabled = editing;
+            chkInPhieu.Enabled = editing;
             
             if (mode == EditMode.Add)
             {
@@ -587,15 +614,17 @@ namespace QuanLyTram.Forms
                 txtEmail.Text = string.Empty;
                 txtMatKhau.Text = string.Empty;
                 cmbCapDo.SelectedIndex = 0;
-                
+
                 // Bỏ chọn tất cả quyền
                 chkSelectAll.Checked = false;
                 chkDanhMuc.Checked = false;
-                chkMacBeTong.Checked = false;
+                chkCapPhoi.Checked = false;
                 chkThongKe.Checked = false;
                 chkCaiDat.Checked = false;
                 chkKho.Checked = false;
-                
+                chkDatHang.Checked = false;
+                chkInPhieu.Checked = false;
+
                 _originalTenTK = "";
                 _originalHoTen = "";
                 _originalDiaChi = "";
@@ -603,7 +632,7 @@ namespace QuanLyTram.Forms
                 _originalMatKhau = "";
                 _originalCapDo = "";
                 _originalQuyen = "";
-                
+
                 txtTenTK.Focus();
             }
             else if (mode == EditMode.Edit && dgv.CurrentRow != null)
@@ -614,11 +643,11 @@ namespace QuanLyTram.Forms
                 txtEmail.Text = dgv.CurrentRow.Cells["Email"].Value.ToString();
                 txtMatKhau.Text = dgv.CurrentRow.Cells["Mật khẩu"].Value.ToString();
                 cmbCapDo.Text = dgv.CurrentRow.Cells["Cấp độ"].Value.ToString();
-                
+
                 // Xử lý quyền truy cập
                 string permissions = dgv.CurrentRow.Cells["Quyền truy cập"].Value.ToString();
                 SetPermissionsFromString(permissions);
-                
+
                 _originalTenTK = txtTenTK.Text;
                 _originalHoTen = txtHoTen.Text;
                 _originalDiaChi = txtDiaChi.Text;
@@ -626,7 +655,7 @@ namespace QuanLyTram.Forms
                 _originalMatKhau = txtMatKhau.Text;
                 _originalCapDo = cmbCapDo.Text;
                 _originalQuyen = GetSelectedPermissions();
-                
+
                 txtTenTK.Focus();
                 txtTenTK.SelectAll();
             }
@@ -638,11 +667,11 @@ namespace QuanLyTram.Forms
                 txtEmail.Text = dgv.CurrentRow.Cells["Email"].Value.ToString();
                 txtMatKhau.Text = dgv.CurrentRow.Cells["Mật khẩu"].Value.ToString();
                 cmbCapDo.Text = dgv.CurrentRow.Cells["Cấp độ"].Value.ToString();
-                
+
                 // Xử lý quyền truy cập
                 string permissions = dgv.CurrentRow.Cells["Quyền truy cập"].Value.ToString();
                 SetPermissionsFromString(permissions);
-                
+
                 _originalTenTK = txtTenTK.Text;
                 _originalHoTen = txtHoTen.Text;
                 _originalDiaChi = txtDiaChi.Text;
@@ -669,10 +698,10 @@ namespace QuanLyTram.Forms
                 if (permissions != "") permissions += ", ";
                 permissions += "Danh mục";
             }
-            if (chkMacBeTong.Checked)
+            if (chkCapPhoi.Checked)
             {
                 if (permissions != "") permissions += ", ";
-                permissions += "Mác bê tông";
+                permissions += "Cấp phối";
             }
             if (chkThongKe.Checked)
             {
@@ -689,6 +718,16 @@ namespace QuanLyTram.Forms
                 if (permissions != "") permissions += ", ";
                 permissions += "Kho";
             }
+            if (chkDatHang.Checked)
+            {
+                if (permissions != "") permissions += ", ";
+                permissions += "Đặt hàng";
+            }   
+            if (chkInPhieu.Checked)
+            {
+                if (permissions != "") permissions += ", ";
+                permissions += "In phiếu";
+            }
             return permissions;
         }
         
@@ -696,10 +735,12 @@ namespace QuanLyTram.Forms
         {
             // Bỏ chọn tất cả trước
             chkDanhMuc.Checked = false;
-            chkMacBeTong.Checked = false;
+            chkCapPhoi.Checked = false;
             chkThongKe.Checked = false;
             chkCaiDat.Checked = false;
             chkKho.Checked = false;
+            chkDatHang.Checked = false;
+            chkInPhieu.Checked = false;
             
             if (string.IsNullOrEmpty(permissions))
             {
@@ -716,8 +757,8 @@ namespace QuanLyTram.Forms
                     case "Danh mục":
                         chkDanhMuc.Checked = true;
                         break;
-                    case "Mác bê tông":
-                        chkMacBeTong.Checked = true;
+                    case "Cấp phối":
+                        chkCapPhoi.Checked = true;
                         break;
                     case "Thống kê":
                         chkThongKe.Checked = true;
@@ -728,12 +769,19 @@ namespace QuanLyTram.Forms
                     case "Kho":
                         chkKho.Checked = true;
                         break;
+                    case "Đặt hàng":
+                        chkDatHang.Checked = true;
+                        break;
+                    case "In phiếu":
+                        chkInPhieu.Checked = true;
+                        break;  
                 }
             }
             
             // Cập nhật checkbox "Chọn tất cả" sau khi đã thiết lập tất cả các checkbox con
-            bool allChecked = chkDanhMuc.Checked && chkMacBeTong.Checked && 
-                            chkThongKe.Checked && chkCaiDat.Checked && chkKho.Checked;
+            bool allChecked = chkDanhMuc.Checked && chkCapPhoi.Checked && 
+                            chkThongKe.Checked && chkCaiDat.Checked && chkKho.Checked &&
+                            chkDatHang.Checked && chkInPhieu.Checked;
             chkSelectAll.Checked = allChecked;
         }
         private void SaveCurrent()
@@ -866,7 +914,7 @@ namespace QuanLyTram.Forms
                         
                         // Cập nhật DataGridView
                         dgv.DataSource = dtData;
-                        
+
                         if (dgv.Rows.Count > 0)
                             dgv.CurrentCell = dgv.Rows[0].Cells[0];
                         else
@@ -877,14 +925,16 @@ namespace QuanLyTram.Forms
                             txtEmail.Text = "";
                             txtMatKhau.Text = "";
                             cmbCapDo.SelectedIndex = -1;
-                            
+
                             // Bỏ chọn tất cả quyền
                             chkSelectAll.Checked = false;
                             chkDanhMuc.Checked = false;
-                            chkMacBeTong.Checked = false;
+                            chkCapPhoi.Checked = false;
                             chkThongKe.Checked = false;
                             chkCaiDat.Checked = false;
                             chkKho.Checked = false;
+                            chkDatHang.Checked = false;
+                            chkInPhieu.Checked = false;
                         }
                     }
                 }

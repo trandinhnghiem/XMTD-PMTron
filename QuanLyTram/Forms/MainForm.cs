@@ -266,7 +266,7 @@ namespace QuanLyTram.Forms
                     case "Danh mục":
                         btnDanhMuc.Enabled = true;
                         break;
-                    case "Mác bê tông":
+                    case "Cấp phối":
                         btnCapPhoi.Enabled = true;
                         break;
                     case "Thống kê":
@@ -277,6 +277,12 @@ namespace QuanLyTram.Forms
                         break;
                     case "Kho":
                         btnKho.Enabled = true;
+                        break;
+                    case "Đặt hàng":
+                        btnDatHang.Enabled = true;
+                        break;
+                    case "In phiếu":
+                        btnInPhieu.Enabled = true;
                         break;
                 }
             }
