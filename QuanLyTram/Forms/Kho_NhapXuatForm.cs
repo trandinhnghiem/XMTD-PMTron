@@ -3,13 +3,13 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using FontAwesome.Sharp; // Thêm thư viện FontAwesome
 using QuanLyTram.DAL;
-
 namespace QuanLyTram.Forms
 {
     public class Kho_NhapXuatForm : Form
     {
-        private Button btnThemMoi, btnCapNhat, btnLuu, btnInPhieu;
+        private IconButton btnThemMoi, btnCapNhat, btnLuu, btnInPhieu; // Thay đổi từ Button sang IconButton
         private ComboBox cbTram, cbNhapXuat, cbDonVi, cbPhuongTien, cbDonViVC, cbNhaCungCap;
         private TextBox txtVatLieu, txtSoPhieu, txtSoHoaDon, txtSLNhapXuat, txtQuyDoi, txtLaiXe, txtSoLuongTon;
         private DateTimePicker dtpNgay;
@@ -26,51 +26,94 @@ namespace QuanLyTram.Forms
             Font btnFont = new Font("Segoe UI", 10, FontStyle.Bold);
             
             // ================== Thanh nút chức năng ==================
-            btnThemMoi = new Button()
+            btnThemMoi = new IconButton()
             {
-                Text = " THÊM MỚI",
+                Text = "THÊM MỚI",
                 Width = 150,
                 Height = 50,
-                Location = new Point(20, 20),
-                BackColor = Color.LightGreen,
-                Font = btnFont,
-                Image = SystemIcons.Application.ToBitmap(),
-                TextImageRelation = TextImageRelation.ImageBeforeText
+                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(46,204,113), // Màu xanh lá
+                FlatStyle = FlatStyle.Flat,
+                IconChar = IconChar.PlusCircle,
+                IconColor = Color.White,
+                IconFont = IconFont.Auto,
+                IconSize = 28,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(15, 0, 0, 0),
+                Cursor = Cursors.Hand
             };
-            btnCapNhat = new Button()
+            btnThemMoi.FlatAppearance.BorderSize = 0;
+            btnThemMoi.Location = new Point(20, 20);
+            
+            btnCapNhat = new IconButton()
             {
-                Text = " CẬP NHẬT",
+                Text = "CẬP NHẬT",
                 Width = 150,
                 Height = 50,
-                Location = new Point(190, 20),
-                BackColor = Color.Khaki,
-                Font = btnFont,
-                Image = SystemIcons.Information.ToBitmap(),
-                TextImageRelation = TextImageRelation.ImageBeforeText
+                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(65, 131, 215), // Màu xanh dương
+                FlatStyle = FlatStyle.Flat,
+                IconChar = IconChar.Save,
+                IconColor = Color.White,
+                IconFont = IconFont.Auto,
+                IconSize = 28,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(15, 0, 0, 0),
+                Cursor = Cursors.Hand
             };
-            btnLuu = new Button()
+            btnCapNhat.FlatAppearance.BorderSize = 0;
+            btnCapNhat.Location = new Point(190, 20);
+            
+            btnLuu = new IconButton()
             {
-                Text = " LƯU",
+                Text = "LƯU",
                 Width = 150,
                 Height = 50,
-                Location = new Point(360, 20),
-                BackColor = Color.LightSkyBlue,
-                Font = btnFont,
-                Image = SystemIcons.Shield.ToBitmap(),
-                TextImageRelation = TextImageRelation.ImageBeforeText
+                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                ForeColor = Color.White,
+                BackColor = Color.MediumPurple, // Màu tím
+                FlatStyle = FlatStyle.Flat,
+                IconChar = IconChar.Save,
+                IconColor = Color.White,
+                IconFont = IconFont.Auto,
+                IconSize = 28,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(15, 0, 0, 0),
+                Cursor = Cursors.Hand
             };
-            btnInPhieu = new Button()
+            btnLuu.FlatAppearance.BorderSize = 0;
+            btnLuu.Location = new Point(360, 20);
+            
+            btnInPhieu = new IconButton()
             {
-                Text = " IN PHIẾU",
+                Text = "IN PHIẾU",
                 Width = 150,
                 Height = 50,
-                Location = new Point(530, 20),
-                BackColor = Color.LightGray,
-                Enabled = false,
-                Font = btnFont,
-                Image = SystemIcons.Application.ToBitmap(),
-                TextImageRelation = TextImageRelation.ImageBeforeText
+                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(238,180,34), 
+                FlatStyle = FlatStyle.Flat,
+                IconChar = IconChar.Print,
+                IconColor = Color.White,
+                IconFont = IconFont.Auto,
+                IconSize = 28,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(15, 0, 0, 0),
+                Cursor = Cursors.Hand,
             };
+            btnInPhieu.FlatAppearance.BorderSize = 0;
+            btnInPhieu.Location = new Point(530, 20);
+            
             this.Controls.AddRange(new Control[] { btnThemMoi, btnCapNhat, btnLuu, btnInPhieu });
             
             // ================== GroupBox Thông tin nhập xuất ==================

@@ -6,7 +6,6 @@ using System.Windows.Forms;
 using QuanLyTram.DAL;
 using QuanLyTram.Properties; // dùng Settings thủ công
 
-
 namespace QuanLyTram.Forms
 {
     public class LoginForm : Form
@@ -172,29 +171,47 @@ namespace QuanLyTram.Forms
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
+                    
+                    // Lấy thông tin người dùng và quyền truy cập
                     using (var cmd = new SqlCommand(@"
-                        SELECT COUNT(*) 
+                        SELECT ID, USERNAME, HOTEN, CAPDO, QUYEN 
                         FROM NGUOIDUNG
                         WHERE USERNAME = @u 
                         AND PASSWORD = @p", conn))
                     {
                         cmd.Parameters.Add("@u", SqlDbType.NVarChar, 50).Value = tenDangNhap;
                         cmd.Parameters.Add("@p", SqlDbType.NVarChar, 50).Value = matKhau;
-                        int count = (int)cmd.ExecuteScalar();
-                        if (count > 0)
+                        
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            // Ghi nhớ đăng nhập
-                            SaveLogin();
-
-                            MessageBox.Show("Đăng nhập thành công!");
-                            this.Hide();
-                            MainForm mainForm = new MainForm();
-                            mainForm.Show();
-                        }
-                        else
-                        {
-                            MessageBox.Show("Sai tên đăng nhập hoặc mật khẩu!", "Lỗi đăng nhập",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            if (reader.Read())
+                            {
+                                // Lấy thông tin người dùng
+                                int userId = reader.GetInt32(0);
+                                string username = reader.GetString(1);
+                                string hoten = reader.GetString(2);
+                                string capdo = reader.GetString(3);
+                                string quyen = reader.IsDBNull(4) ? "" : reader.GetString(4);
+                                
+                                // Cập nhật thời gian đăng nhập cuối
+                                UpdateLastLogin(userId);
+                                
+                                // Ghi nhớ đăng nhập
+                                SaveLogin();
+                                
+                                MessageBox.Show("Đăng nhập thành công!");
+                                this.Hide();
+                                
+                                // Truyền thông tin người dùng và quyền truy cập cho MainForm
+                                MainForm mainForm = new MainForm();
+                                mainForm.SetUserInfo(userId, username, hoten, capdo, quyen);
+                                mainForm.Show();
+                            }
+                            else
+                            {
+                                MessageBox.Show("Sai tên đăng nhập hoặc mật khẩu!", "Lỗi đăng nhập",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
                         }
                     }
                 }
@@ -202,6 +219,32 @@ namespace QuanLyTram.Forms
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi kết nối cơ sở dữ liệu: " + ex.Message, "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        
+        // Cập nhật thời gian đăng nhập cuối
+        private void UpdateLastLogin(int userId)
+        {
+            try
+            {
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand(@"
+                        UPDATE NGUOIDUNG 
+                        SET DANGNHAPCUOI = @thoigian 
+                        WHERE ID = @id", conn))
+                    {
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
+                        cmd.Parameters.Add("@thoigian", SqlDbType.DateTime).Value = DateTime.Now;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi cập nhật thời gian đăng nhập: " + ex.Message, "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

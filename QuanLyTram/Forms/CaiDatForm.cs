@@ -1,346 +1,194 @@
 using System;
-using System.Data;
-using System.Data.SqlClient;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using QuanLyTram.DAL;
+using Timer = System.Windows.Forms.Timer;
 
 namespace QuanLyTram.Forms
 {
     public class CaiDatForm : Form
     {
-        private Button btnThemMoi, btnCapNhat, btnLuu;
-        private TextBox txtMaTram, txtTenTram, txtDiaDiem, txtSoDienThoai, txtCongSuat;
-        private RadioButton rdTonTai, rdPhoiMe, rdPhoiChuan;
-        private DataGridView dgvTram;
-        private DataTable dtTram;
-
+        private Panel pnlTabs;
+        private Button tabChung, tabTaiKhoan, tabCuaVatLieu, tabKieuDongBo;
+        private Panel mainContent;
+        private Form _currentChild;
+        private List<Button> _allTabs;
+        private Panel activeIndicator;
+        
+        // Fade animation
+        private Timer fadeTimer;
+        private Form nextChild;
+        private Button nextTab;
+        private double fadeStep = 1; // càng lớn càng nhanh
+        
         public CaiDatForm()
         {
-            this.Text = "CÀI ĐẶT HỆ THỐNG";
-            this.Size = new Size(1250, 750);
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.BackColor = Color.Beige;
-            Font btnFont = new Font("Segoe UI", 10, FontStyle.Bold);
+            Text = "CÀI ĐẶT HỆ THỐNG";
+            StartPosition = FormStartPosition.CenterScreen;
+            ClientSize = new Size(1200, 720);
+            BackColor = Color.FromArgb(215, 215, 255);
+            MaximizeBox = false;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             
-            // ===== Nút chức năng =====
-            btnThemMoi = new Button()
-            {
-                Text = " THÊM MỚI",
-                Width = 150,
-                Height = 50,
-                BackColor = Color.LightGreen,
-                Font = btnFont,
-                FlatStyle = FlatStyle.Standard,
-                Image = SystemIcons.Application.ToBitmap(),
-                TextImageRelation = TextImageRelation.ImageBeforeText
-            };
+            BuildTabs();
+            BuildMainContent();
             
-            btnCapNhat = new Button()
-            {
-                Text = " CẬP NHẬT",
-                Width = 150,
-                Height = 50,
-                BackColor = Color.Khaki,
-                Font = btnFont,
-                FlatStyle = FlatStyle.Standard,
-                Image = SystemIcons.Information.ToBitmap(),
-                TextImageRelation = TextImageRelation.ImageBeforeText
-            };
-            
-            btnLuu = new Button()
-            {
-                Text = " LƯU",
-                Width = 150,
-                Height = 50,
-                BackColor = Color.LightSkyBlue,
-                Font = btnFont,
-                FlatStyle = FlatStyle.Standard,
-                Image = SystemIcons.Shield.ToBitmap(),
-                TextImageRelation = TextImageRelation.ImageBeforeText
-            };
-            
-            // ===== Panel chứa 2 GroupBox trên =====
-            Panel topPanel = new Panel()
-            {
-                Location = new Point(20, 20),
-                Size = new Size(1180, 180)
-            };
-            
-            // ===== GroupBox Thông tin trạm (trái) =====
-            GroupBox groupInfoLeft = new GroupBox()
-            {
-                Text = "THÔNG TIN TRẠM",
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                Size = new Size(580, 180),
-                Location = new Point(0, 0)
-            };
-            
-            Label lblMaTram = new Label() { Text = "Mã trạm:", Location = new Point(20, 30), AutoSize = true };
-            txtMaTram = new TextBox() { Location = new Point(120, 25), Width = 200 };
-            Label lblTenTram = new Label() { Text = "Tên trạm:", Location = new Point(20, 60), AutoSize = true };
-            txtTenTram = new TextBox() { Location = new Point(120, 55), Width = 200 };
-            Label lblDiaDiem = new Label() { Text = "Địa điểm:", Location = new Point(20, 90), AutoSize = true };
-            txtDiaDiem = new TextBox() { Location = new Point(120, 85), Width = 200 };
-            
-            groupInfoLeft.Controls.AddRange(new Control[] { lblMaTram, txtMaTram, lblTenTram, txtTenTram, lblDiaDiem, txtDiaDiem });
-            
-            // ===== GroupBox Đường dẫn chương trình (phải) =====
-            GroupBox groupInfoRight = new GroupBox()
-            {
-                Text = "ĐƯỜNG DẪN CHƯƠNG TRÌNH",
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                Size = new Size(580, 180),
-                Location = new Point(600, 0)
-            };
-            
-            Label lblSoDienThoai = new Label() { Text = "Số điện thoại:", Location = new Point(20, 30), AutoSize = true };
-            txtSoDienThoai = new TextBox() { Location = new Point(140, 25), Width = 250 };
-            Label lblCongSuat = new Label() { Text = "Công suất:", Location = new Point(20, 60), AutoSize = true };
-            txtCongSuat = new TextBox() { Location = new Point(140, 55), Width = 250 };
-            rdTonTai = new RadioButton() { Text = "Trạm đang tồn tại", Location = new Point(20, 90), AutoSize = true };
-            rdPhoiMe = new RadioButton() { Text = "Theo cấp phối từng mẻ", Location = new Point(20, 120), AutoSize = true };
-            rdPhoiChuan = new RadioButton() { Text = "Theo cấp phối chuẩn", Location = new Point(20, 150), AutoSize = true };
-            
-            groupInfoRight.Controls.AddRange(new Control[] { lblSoDienThoai, txtSoDienThoai, lblCongSuat, txtCongSuat, rdTonTai, rdPhoiMe, rdPhoiChuan });
-            
-            topPanel.Controls.AddRange(new Control[] { groupInfoLeft, groupInfoRight });
-            this.Controls.Add(topPanel);
-            
-            // ===== Label tiêu đề DataGridView =====
-            Label dgvTitle = new Label()
-            {
-                Text = "DANH SÁCH TRẠM TRỘN",
-                Font = new Font("Segoe UI", 12, FontStyle.Bold),
-                Location = new Point(20, 220),
-                AutoSize = true
-            };
-            this.Controls.Add(dgvTitle);
-            
-            // ===== DataGridView =====
-            dgvTram = new DataGridView()
-            {
-                Location = new Point(20, 250),
-                Size = new Size(1180, 300),
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
-            };
-            this.Controls.Add(dgvTram);
-            
-            // Nút chức năng dưới DataGridView
-            btnThemMoi.Location = new Point(20, 570);
-            btnCapNhat.Location = new Point(190, 570);
-            btnLuu.Location = new Point(360, 570);
-            this.Controls.AddRange(new Control[] { btnThemMoi, btnCapNhat, btnLuu });
-            
-            // Load dữ liệu
-            LoadData();
-            
-            // Đăng ký sự kiện
-            btnThemMoi.Click += BtnThemMoi_Click;
-            btnCapNhat.Click += BtnCapNhat_Click;
-            btnLuu.Click += BtnLuu_Click;
-            dgvTram.SelectionChanged += DgvTram_SelectionChanged;
+            // Mặc định mở CÀI ĐẶT CHUNG
+            OpenChild(new CaiDat_ChungForm(), tabChung, firstLoad: true);
         }
         
-        private void LoadData()
+        private void BuildTabs()
         {
-            try
+            pnlTabs = new Panel
             {
-                using (var conn = DatabaseHelper.GetConnection())
-                {
-                    conn.Open();
-                    using (var cmd = new SqlCommand(
-                        "SELECT MATRAM, TENTRAM, CHUTRAM, DIADIEM, CONGSUAT, DIENTHOAI, TRANGTHAI, LOAICAPPHOI FROM TRAM", conn))
-                    {
-                        using (var adapter = new SqlDataAdapter(cmd))
-                        {
-                            dtTram = new DataTable();
-                            adapter.Fill(dtTram);
-
-                            // Đổi tên cột để hiển thị
-                            dtTram.Columns["MATRAM"].ColumnName = "Mã trạm";
-                            dtTram.Columns["TENTRAM"].ColumnName = "Tên trạm";
-                            dtTram.Columns["CHUTRAM"].ColumnName = "Chủ trạm";
-                            dtTram.Columns["DIADIEM"].ColumnName = "Địa điểm";
-                            dtTram.Columns["CONGSUAT"].ColumnName = "Công suất";
-                            dtTram.Columns["DIENTHOAI"].ColumnName = "Số điện thoại";
-                            dtTram.Columns["TRANGTHAI"].ColumnName = "Trạng thái";
-                            dtTram.Columns["LOAICAPPHOI"].ColumnName = "Loại cấp phối";
-
-                            dgvTram.DataSource = dtTram;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi tải dữ liệu trạm: " + ex.Message);
-            }
-
-            if (dgvTram.Rows.Count > 0)
-            {
-                dgvTram.CurrentCell = dgvTram.Rows[0].Cells[0];
-                LoadRowToForm(dgvTram.Rows[0]);
-            }
-        }
-
-        
-        private void LoadRowToForm(DataGridViewRow row)
-        {
-            txtMaTram.Text = row.Cells["Mã trạm"].Value.ToString();
-            txtTenTram.Text = row.Cells["Tên trạm"].Value.ToString();
-            txtDiaDiem.Text = row.Cells["Địa điểm"].Value.ToString();
-            txtSoDienThoai.Text = row.Cells["Số điện thoại"].Value.ToString();
-            txtCongSuat.Text = row.Cells["Công suất"].Value.ToString();
+                Dock = DockStyle.Top,
+                Height = 55,
+                BackColor = Color.FromArgb(238, 238, 238)
+            };
+            Controls.Add(pnlTabs);
             
-            // Set radio button based on LOAICAPPHOI
-            string loaiCapPhoi = "Trạm đang tồn tại"; // Default value
-            if (row.Cells["Loại cấp phối"] != null && row.Cells["Loại cấp phối"].Value != null)
+            tabChung = MakeTab("CÀI ĐẶT CHUNG");
+            tabTaiKhoan = MakeTab("TÀI KHOẢN");
+            tabCuaVatLieu = MakeTab("CỬA VẬT LIỆU");
+            tabKieuDongBo = MakeTab("KIỂU ĐỒNG BỘ");
+            
+            _allTabs = new List<Button> { tabChung, tabTaiKhoan, tabCuaVatLieu, tabKieuDongBo };
+            
+            int x = 14;
+            foreach (var b in _allTabs)
             {
-                loaiCapPhoi = row.Cells["Loại cấp phối"].Value.ToString();
+                b.Location = new Point(x, 8);
+                pnlTabs.Controls.Add(b);
+                x += b.Width + 10;
             }
             
-            if (loaiCapPhoi == "Trạm đang tồn tại")
-                rdTonTai.Checked = true;
-            else if (loaiCapPhoi == "Theo cấp phối từng mẻ")
-                rdPhoiMe.Checked = true;
-            else if (loaiCapPhoi == "Theo cấp phối chuẩn")
-                rdPhoiChuan.Checked = true;
-        }
-        
-        private void BtnThemMoi_Click(object sender, EventArgs e)
-        {
-            // Clear form
-            txtMaTram.Text = "";
-            txtTenTram.Text = "";
-            txtDiaDiem.Text = "";
-            txtSoDienThoai.Text = "";
-            txtCongSuat.Text = "";
-            rdTonTai.Checked = true;
-            txtMaTram.Focus();
-        }
-        
-        private void BtnCapNhat_Click(object sender, EventArgs e)
-        {
-            if (dgvTram.CurrentRow != null)
+            activeIndicator = new Panel
             {
-                LoadRowToForm(dgvTram.CurrentRow);
-            }
+                Height = 4,
+                BackColor = Color.DimGray,
+                Visible = false
+            };
+            pnlTabs.Controls.Add(activeIndicator);
+            
+            tabChung.Click += (s, e) => OpenChild(new CaiDat_ChungForm(), tabChung);
+            tabTaiKhoan.Click += (s, e) => OpenChild(new CaiDat_TaiKhoanForm(), tabTaiKhoan);
+            tabCuaVatLieu.Click += (s, e) => OpenChild(new CaiDat_VatLieuForm(), tabCuaVatLieu);
+            tabKieuDongBo.Click += (s, e) => OpenChild(new CaiDat_DongBoForm(), tabKieuDongBo);
         }
         
-        private void BtnLuu_Click(object sender, EventArgs e)
+        private Button MakeTab(string text)
         {
-            if (string.IsNullOrWhiteSpace(txtTenTram.Text))
+            var b = new Button
             {
-                MessageBox.Show("Vui lòng nhập Tên trạm.", "Thiếu thông tin", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtTenTram.Focus();
+                Text = text,
+                Font = new Font("Segoe UI", 10.5f, FontStyle.Regular),
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Padding = new Padding(16, 6, 16, 6),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(230, 230, 230),
+                Cursor = Cursors.Hand
+            };
+            b.FlatAppearance.BorderColor = Color.Gainsboro;
+            b.FlatAppearance.BorderSize = 1;
+            return b;
+        }
+        
+        private void BuildMainContent()
+        {
+            mainContent = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.White
+            };
+            Controls.Add(mainContent);
+            mainContent.BringToFront();
+        }
+        
+        private void OpenChild(Form child, Button senderTab, bool firstLoad = false)
+        {
+            if (_currentChild == null || firstLoad)
+            {
+                _currentChild = child;
+                child.TopLevel = false;
+                child.FormBorderStyle = FormBorderStyle.None;
+                child.Dock = DockStyle.Fill;
+                mainContent.Controls.Clear();
+                mainContent.Controls.Add(child);
+                child.Show();
+                SetActiveTab(senderTab);
                 return;
             }
             
-            try
+            if (fadeTimer != null && fadeTimer.Enabled)
+                return; // đang fade, tránh bấm liên tục gây lỗi
+                
+            // Chuẩn bị fade
+            nextChild = child;
+            nextTab = senderTab;
+            nextChild.TopLevel = false;
+            nextChild.FormBorderStyle = FormBorderStyle.None;
+            nextChild.Dock = DockStyle.Fill;
+            nextChild.Opacity = 0.0;
+            mainContent.Controls.Add(nextChild);
+            nextChild.Show();
+            
+            fadeTimer = new Timer();
+            fadeTimer.Interval = 10; // tick nhanh để mượt
+            fadeTimer.Tick += FadeTimer_Tick;
+            fadeTimer.Start();
+        }
+        
+        private void FadeTimer_Tick(object sender, EventArgs e)
+        {
+            if (_currentChild != null)
             {
-                using (var conn = DatabaseHelper.GetConnection())
-                {
-                    conn.Open();
-                    
-                    string loaiCapPhoi = rdTonTai.Checked ? "Trạm đang tồn tại" : 
-                                          rdPhoiMe.Checked ? "Theo cấp phối từng mẻ" : 
-                                          "Theo cấp phối chuẩn";
-                    
-                    // Kiểm tra xem là thêm mới hay cập nhật
-                    if (string.IsNullOrWhiteSpace(txtMaTram.Text))
-                    {
-                        // Thêm mới
-                        using (var cmd = new SqlCommand(@"
-                        INSERT INTO TRAM (TENTRAM, CHUTRAM, DIADIEM, CONGSUAT, DIENTHOAI, TRANGTHAI, LOAICAPPHOI)
-                        VALUES (@tentram, @chutram, @diadiem, @congsuat, @dienthoai, @trangthai, @loaiCAPPHOI);
-                        SELECT SCOPE_IDENTITY();", conn))
-                        {
-                            cmd.Parameters.Add("@tentram", SqlDbType.NVarChar).Value = txtTenTram.Text;
-                            cmd.Parameters.Add("@chutram", SqlDbType.NVarChar).Value = txtTenTram.Text; // Giả sử chủ trạm = tên trạm
-                            cmd.Parameters.Add("@diadiem", SqlDbType.NVarChar).Value = txtDiaDiem.Text;
-                            cmd.Parameters.Add("@congsuat", SqlDbType.NVarChar).Value = txtCongSuat.Text;
-                            cmd.Parameters.Add("@dienthoai", SqlDbType.NVarChar).Value = txtSoDienThoai.Text;
-                            cmd.Parameters.Add("@trangthai", SqlDbType.NVarChar).Value = "Online";
-                            cmd.Parameters.Add("@loaiCAPPHOI", SqlDbType.NVarChar).Value = loaiCapPhoi;
-                            
-                            int newId = Convert.ToInt32(cmd.ExecuteScalar());
-                            
-                            // Thêm vào DataTable
-                            DataRow newRow = dtTram.NewRow();
-                            newRow["Mã trạm"] = newId;
-                            newRow["Tên trạm"] = txtTenTram.Text;
-                            newRow["Chủ trạm"] = txtTenTram.Text;
-                            newRow["Địa điểm"] = txtDiaDiem.Text;
-                            newRow["Công suất"] = txtCongSuat.Text;
-                            newRow["Số điện thoại"] = txtSoDienThoai.Text;
-                            newRow["Trạng thái"] = "Online";
-                            newRow["Loại cấp phối"] = loaiCapPhoi;
-                            dtTram.Rows.Add(newRow);
-                            
-                            // Cập nhật DataGridView
-                            dgvTram.DataSource = dtTram;
-                            dgvTram.CurrentCell = dgvTram.Rows[dgvTram.Rows.Count - 1].Cells[0];
-                            
-                            MessageBox.Show("Thêm trạm thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                    }
-                    else
-                    {
-                        // Cập nhật
-                        int maTram = Convert.ToInt32(txtMaTram.Text);
-                        
-                        using (var cmd = new SqlCommand(@"
-                        UPDATE TRAM 
-                        SET TENTRAM = @tentram, CHUTRAM = @chutram, DIADIEM = @diadiem, 
-                            CONGSUAT = @congsuat, DIENTHOAI = @dienthoai, LOAICAPPHOI = @loaiCAPPHOI
-                        WHERE MATRAM = @matram", conn))
-                        {
-                            cmd.Parameters.Add("@matram", SqlDbType.Int).Value = maTram;
-                            cmd.Parameters.Add("@tentram", SqlDbType.NVarChar).Value = txtTenTram.Text;
-                            cmd.Parameters.Add("@chutram", SqlDbType.NVarChar).Value = txtTenTram.Text; // Giả sử chủ trạm = tên trạm
-                            cmd.Parameters.Add("@diadiem", SqlDbType.NVarChar).Value = txtDiaDiem.Text;
-                            cmd.Parameters.Add("@congsuat", SqlDbType.NVarChar).Value = txtCongSuat.Text;
-                            cmd.Parameters.Add("@dienthoai", SqlDbType.NVarChar).Value = txtSoDienThoai.Text;
-                            cmd.Parameters.Add("@loaiCAPPHOI", SqlDbType.NVarChar).Value = loaiCapPhoi;
-                            
-                            cmd.ExecuteNonQuery();
-                            
-                            // Cập nhật DataTable
-                            foreach (DataRow row in dtTram.Rows)
-                            {
-                                if (Convert.ToInt32(row["Mã trạm"]) == maTram)
-                                {
-                                    row["Tên trạm"] = txtTenTram.Text;
-                                    row["Chủ trạm"] = txtTenTram.Text;
-                                    row["Địa điểm"] = txtDiaDiem.Text;
-                                    row["Công suất"] = txtCongSuat.Text;
-                                    row["Số điện thoại"] = txtSoDienThoai.Text;
-                                    row["Loại cấp phối"] = loaiCapPhoi;
-                                    break;
-                                }
-                            }
-                            
-                            // Cập nhật DataGridView
-                            dgvTram.DataSource = dtTram;
-                            
-                            MessageBox.Show("Cập nhật trạm thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                    }
-                }
+                _currentChild.Opacity -= fadeStep;
+                if (_currentChild.Opacity < 0) _currentChild.Opacity = 0;
             }
-            catch (Exception ex)
+            
+            if (nextChild != null)
             {
-                MessageBox.Show("Lỗi khi lưu dữ liệu trạm: " + ex.Message);
+                nextChild.Opacity += fadeStep;
+                if (nextChild.Opacity > 1) nextChild.Opacity = 1;
+            }
+            
+            if ((_currentChild == null || _currentChild.Opacity <= 0) && (nextChild != null && nextChild.Opacity >= 1))
+            {
+                fadeTimer.Stop();
+                fadeTimer.Tick -= FadeTimer_Tick;
+                fadeTimer.Dispose();
+                fadeTimer = null;
+                
+                if (_currentChild != null)
+                {
+                    mainContent.Controls.Remove(_currentChild);
+                    _currentChild.Close();
+                    _currentChild.Dispose();
+                }
+                
+                _currentChild = nextChild;
+                nextChild = null;
+                SetActiveTab(nextTab);
             }
         }
         
-        private void DgvTram_SelectionChanged(object sender, EventArgs e)
+        private void SetActiveTab(Button active)
         {
-            if (dgvTram.CurrentRow != null)
+            foreach (var btn in _allTabs)
             {
-                LoadRowToForm(dgvTram.CurrentRow);
+                btn.BackColor = Color.FromArgb(230, 230, 230);
+                btn.Font = new Font("Segoe UI", 10.5f, FontStyle.Regular);
             }
+            
+            active.BackColor = Color.LightGray;
+            active.Font = new Font("Segoe UI", 10.5f, FontStyle.Bold);
+            
+            activeIndicator.Width = active.Width;
+            activeIndicator.Left = active.Left;
+            activeIndicator.Top = pnlTabs.Height - activeIndicator.Height;
+            activeIndicator.Visible = true;
+            activeIndicator.BringToFront();
         }
     }
 }

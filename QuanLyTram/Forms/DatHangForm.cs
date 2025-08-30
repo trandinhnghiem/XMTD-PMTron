@@ -3,13 +3,13 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using FontAwesome.Sharp; // Thêm thư viện FontAwesome
 using QuanLyTram.DAL;
-
 namespace QuanLyTram.Forms
 {
     public class DatHangForm : Form
     {
-        private Button btnThemMoi, btnCapNhat, btnXoa, btnLuu;
+        private IconButton btnThemMoi, btnCapNhat, btnXoa, btnLuu; // Thay đổi từ Button sang IconButton
         private DateTimePicker dtpNgay;
         private TextBox txtMaDon, txtKyHieu, txtSoPhieu, txtDatHang, txtTichLuy;
         private ComboBox cbTramTron, cbKhachHang, cbDiaDiem, cbKinhDoanh;
@@ -17,7 +17,6 @@ namespace QuanLyTram.Forms
         private DataGridView dgvDonHang;
         private DataTable dtDonHang;
         private bool isAddingNew = false;
-
         public DatHangForm()
         {
             this.Text = "QUẢN LÝ ĐƠN ĐẶT HÀNG";
@@ -26,58 +25,76 @@ namespace QuanLyTram.Forms
             this.BackColor = Color.Beige;
             MaximizeBox = false;
             FormBorderStyle = FormBorderStyle.FixedSingle;
-            Font btnFont = new Font("Segoe UI", 10, FontStyle.Bold);
+            Font btnFont = new Font("Segoe UI", 11, FontStyle.Bold); // Tăng cỡ font cho button
             
             // Nút Thêm mới
-            btnThemMoi = new Button()
+            btnThemMoi = new IconButton()
             {
-                Text = " THÊM MỚI",
+                Text = "THÊM MỚI",
                 Width = 150,
                 Height = 50,
-                Padding = new Padding(16,0,0,0),
-                Location = new Point(20, 20),
-                BackColor = Color.LightGreen,
                 Font = btnFont,
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(46,204,113),
                 FlatStyle = FlatStyle.Flat,
-                Image = SystemIcons.Application.ToBitmap(),
-                TextImageRelation = TextImageRelation.ImageBeforeText
+                IconChar = IconChar.PlusCircle,
+                IconColor = Color.White,
+                IconFont = IconFont.Auto,
+                IconSize = 28,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(15, 0, 0, 0),
+                Cursor = Cursors.Hand
             };
             btnThemMoi.FlatAppearance.BorderSize = 0;
-            btnThemMoi.FlatAppearance.MouseOverBackColor = Color.FromArgb(152, 251, 152);
+            btnThemMoi.Location = new Point(20, 20);
             
             // Nút Cập nhật
-            btnCapNhat = new Button()
+            btnCapNhat = new IconButton()
             {
-                Text = " CẬP NHẬT",
+                Text = "CẬP NHẬT",
                 Width = 150,
                 Height = 50,
-                Padding = new Padding(16,0,0,0),
-                Location = new Point(190, 20),
-                BackColor = Color.Khaki,
                 Font = btnFont,
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(65, 131, 215),
                 FlatStyle = FlatStyle.Flat,
-                Image = SystemIcons.Information.ToBitmap(),
-                TextImageRelation = TextImageRelation.ImageBeforeText
+                IconChar = IconChar.Save,
+                IconColor = Color.White,
+                IconFont = IconFont.Auto,
+                IconSize = 28,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(15, 0, 0, 0),
+                Cursor = Cursors.Hand
             };
             btnCapNhat.FlatAppearance.BorderSize = 0;
-            btnCapNhat.FlatAppearance.MouseOverBackColor = Color.FromArgb(255 ,246 ,143);
+            btnCapNhat.Location = new Point(190, 20);
             
             // Nút Xóa
-            btnXoa = new Button()
+            btnXoa = new IconButton()
             {
-                Text = " XÓA",
+                Text = "XÓA",
                 Width = 150,
                 Height = 50,
-                Padding = new Padding(16,0,0,0),
-                Location = new Point(360, 20),
-                BackColor = Color.LightCoral,
                 Font = btnFont,
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(231, 76, 60),
                 FlatStyle = FlatStyle.Flat,
-                Image = SystemIcons.Error.ToBitmap(),
-                TextImageRelation = TextImageRelation.ImageBeforeText
+                IconChar = IconChar.Trash,
+                IconColor = Color.White,
+                IconFont = IconFont.Auto,
+                IconSize = 28,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(25, 0, 0, 0),
+                Cursor = Cursors.Hand
             };
             btnXoa.FlatAppearance.BorderSize = 0;
-            btnXoa.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 123, 115);
+            btnXoa.Location = new Point(360, 20);
             
             this.Controls.Add(btnThemMoi);
             this.Controls.Add(btnCapNhat);
@@ -126,21 +143,27 @@ namespace QuanLyTram.Forms
             chkHoatDong = new CheckBox() { Text = "Hoạt động", Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.Black, Location = new Point(500, 190), AutoSize = true };
             
             // Nút Lưu
-            btnLuu = new Button()
+            btnLuu = new IconButton()
             {
-                Text = " LƯU",
+                Text = "LƯU",
                 Width = 120,
                 Height = 40,
-                Padding = new Padding(12,0,0,0),
-                Location = new Point(730, 215),
-                BackColor = Color.LightSkyBlue,
-                ForeColor = Color.Black,
+                Font = btnFont,
+                BackColor = Color.MediumPurple,
+                ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Image = SystemIcons.Shield.ToBitmap(),
-                TextImageRelation = TextImageRelation.ImageBeforeText
+                IconChar = IconChar.Save,
+                IconColor = Color.White,
+                IconFont = IconFont.Auto,
+                IconSize = 28,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(15, 0, 0, 0),
+                Cursor = Cursors.Hand
             };
             btnLuu.FlatAppearance.BorderSize = 0;
-            btnLuu.FlatAppearance.MouseOverBackColor =  Color.FromArgb(176 ,226,255);
+            btnLuu.Location = new Point(730, 215);
             
             groupInfo.Controls.AddRange(new Control[] {
                 lblNgay, dtpNgay, lblMaDon, txtMaDon, lblKyHieu, txtKyHieu, lblSoPhieu, txtSoPhieu,

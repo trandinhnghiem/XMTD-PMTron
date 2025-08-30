@@ -3,15 +3,15 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using FontAwesome.Sharp; // Thêm thư viện FontAwesome
 using QuanLyTram.DAL;
-
 namespace QuanLyTram.Forms
 {
     public class Kho_LichSuForm : Form
     {
         private DateTimePicker dtpFrom, dtpTo;
         private ComboBox cbSoTram, cbNhapXuat, cbVatLieu;
-        private Button btnXem, btnExcel;
+        private IconButton btnXem, btnExcel; // Thay đổi từ Button sang IconButton
         private TextBox txtKhoiLuongTon;
         private DataGridView dgv;
         private DataTable _table;
@@ -84,20 +84,48 @@ namespace QuanLyTram.Forms
                 FlowDirection = FlowDirection.LeftToRight,
                 AutoSize = true
             };
-            btnXem = new Button
+            btnXem = new IconButton
             {
                 Text = "XEM",
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                BackColor = Color.LightGreen,
-                AutoSize = true
+                Width = 100,
+                Height = 30,
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(65, 131, 215), // Màu xanh dương
+                FlatStyle = FlatStyle.Flat,
+                IconChar = IconChar.Search,
+                IconColor = Color.White,
+                IconFont = IconFont.Auto,
+                IconSize = 15,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(15, 0, 0, 0),
+                Cursor = Cursors.Hand
             };
-            btnExcel = new Button
+            btnXem.FlatAppearance.BorderSize = 0;
+            
+            btnExcel = new IconButton
             {
-                Text = "Excel",
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                BackColor = Color.LightBlue,
-                AutoSize = true
+                Text = "EXCEL",
+                Width = 100,
+                Height = 30,
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(110, 170, 60),
+                FlatStyle = FlatStyle.Flat,
+                IconChar = IconChar.FileExcel,
+                IconColor = Color.White,
+                IconFont = IconFont.Auto,
+                IconSize = 15,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(15, 0, 0, 0),
+                Cursor = Cursors.Hand
             };
+            btnExcel.FlatAppearance.BorderSize = 0;
+            
             pnlButtons.Controls.Add(btnXem);
             pnlButtons.Controls.Add(btnExcel);
             // thêm panel nút vào cột 3, hàng 2

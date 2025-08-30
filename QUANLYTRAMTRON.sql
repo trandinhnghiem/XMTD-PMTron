@@ -14,7 +14,8 @@ CREATE TABLE NGUOIDUNG (
     DIACHI NVARCHAR(200),
     CAPDO NVARCHAR(20) CHECK (CAPDO IN (N'Quản lý', N'Vận hành')),
     EMAIL NVARCHAR(100),
-    DANGNHAPCUOI DATETIME
+    DANGNHAPCUOI DATETIME,
+	QUYEN NVARCHAR(MAX) NULL
 )
 GO
 
@@ -254,8 +255,13 @@ CREATE TABLE CHITIET_VATTU_THONGKE (
 GO
 
 -- Thêm dữ liệu mẫu cho bảng NGUOIDUNG
-INSERT INTO NGUOIDUNG (USERNAME, PASSWORD, HOTEN, CAPDO) 
-VALUES (N'admin', N'123456', N'Administrator', N'Quản lý')
+INSERT INTO NGUOIDUNG (USERNAME, PASSWORD, HOTEN, CAPDO, QUYEN) 
+VALUES 
+(N'admin', N'123456', N'Administrator', N'Quản lý', N'Danh mục, Mác bê tông, Thống kê, Cài đặt, Kho'),
+(N'user1', N'123456', N'Người dùng 1', N'Vận hành', N'Danh mục, Mác bê tông'),
+(N'user2', N'123456', N'Người dùng 2', N'Vận hành', N'Thống kê, Kho'),
+(N'quanly', N'123456', N'Quản lý hệ thống', N'Quản lý', N'Danh mục, Mác bê tông, Thống kê, Cài đặt'),
+(N'kho', N'123456', N'Nhân viên kho', N'Vận hành', N'Kho')
 GO
 
 -- Thêm dữ liệu mẫu cho bảng TRAM

@@ -15,6 +15,14 @@ namespace QuanLyTram.Forms
         private TextBox txtChuTram, txtDiaDiem, txtCongSuat, txtSoDienThoai;
         private TableLayoutPanel tlpToolbar;
         private Form currentChildForm;
+        
+        // Thông tin người dùng và quyền truy cập
+        private int userId;
+        private string username;
+        private string hoten;
+        private string capdo;
+        private string quyen;
+        private Button btnDanhMuc, btnDatHang, btnCapPhoi, btnInPhieu, btnThongKe, btnKho, btnCaiDat;
 
         public MainForm()
         {
@@ -41,35 +49,32 @@ namespace QuanLyTram.Forms
             tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 60));
             tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 60));
 
-            var menuItems = new (string Text, Type FormType)[]
-            {
-                ("DANH MỤC", typeof(DanhMucForm)),
-                ("ĐẶT HÀNG", typeof(DatHangForm)),
-                ("CẤP PHỐI", typeof(CapPhoiForm)),
-                ("IN PHIẾU", typeof(InPhieuForm)),
-                ("THỐNG KÊ", typeof(ThongKeForm)),
-                ("KHO", typeof(KhoForm)),
-                ("CÀI ĐẶT", typeof(CaiDatForm))
-            };
+            // Tạo các nút menu
+            btnDanhMuc = MakeBigButton("DANH MỤC");
+            btnDatHang = MakeBigButton("ĐẶT HÀNG");
+            btnCapPhoi = MakeBigButton("CẤP PHỐI");
+            btnInPhieu = MakeBigButton("IN PHIẾU");
+            btnThongKe = MakeBigButton("THỐNG KÊ");
+            btnKho = MakeBigButton("KHO");
+            btnCaiDat = MakeBigButton("CÀI ĐẶT");
+            
+            // Thêm sự kiện click cho các nút menu
+            btnDanhMuc.Click += (s, e) => OpenForm(typeof(DanhMucForm));
+            btnDatHang.Click += (s, e) => OpenForm(typeof(DatHangForm));
+            btnCapPhoi.Click += (s, e) => OpenForm(typeof(CapPhoiForm));
+            btnInPhieu.Click += (s, e) => OpenForm(typeof(InPhieuForm));
+            btnThongKe.Click += (s, e) => OpenForm(typeof(ThongKeForm));
+            btnKho.Click += (s, e) => OpenForm(typeof(KhoForm));
+            btnCaiDat.Click += (s, e) => OpenForm(typeof(CaiDatForm));
 
-            int col = 0;
-            foreach (var (text, formType) in menuItems)
-            {
-                Button btn = MakeBigButton(text);
-                btn.Click += (s, e) =>
-                {
-                    if (currentChildForm != null && !currentChildForm.IsDisposed)
-                        currentChildForm.Close();
-
-                    var form = (Form)Activator.CreateInstance(formType);
-                    form.StartPosition = FormStartPosition.CenterScreen;
-
-                    currentChildForm = form;
-                    form.FormClosed += (s2, e2) => { currentChildForm = null; };
-                    form.Show();
-                };
-                tlpToolbar.Controls.Add(btn, col++, 0);
-            }
+            // Thêm các nút vào toolbar
+            tlpToolbar.Controls.Add(btnDanhMuc, 0, 0);
+            tlpToolbar.Controls.Add(btnDatHang, 1, 0);
+            tlpToolbar.Controls.Add(btnCapPhoi, 2, 0);
+            tlpToolbar.Controls.Add(btnInPhieu, 3, 0);
+            tlpToolbar.Controls.Add(btnThongKe, 4, 0);
+            tlpToolbar.Controls.Add(btnKho, 5, 0);
+            tlpToolbar.Controls.Add(btnCaiDat, 6, 0);
 
             // --- Nút Logout ---
             IconButton btnLogout = new IconButton
@@ -149,8 +154,8 @@ namespace QuanLyTram.Forms
                 }
             };
 
-            tlpToolbar.Controls.Add(btnLogout, col++, 0);
-            tlpToolbar.Controls.Add(btnExit, col++, 0);
+            tlpToolbar.Controls.Add(btnLogout, 7, 0);
+            tlpToolbar.Controls.Add(btnExit, 8, 0);
 
             Controls.Add(tlpToolbar);
 
@@ -220,6 +225,75 @@ namespace QuanLyTram.Forms
             Controls.Add(tlpToolbar);
 
             Load += MainForm_Load;
+        }
+        
+        // Phương thức thiết lập thông tin người dùng và quyền truy cập
+        public void SetUserInfo(int userId, string username, string hoten, string capdo, string quyen)
+        {
+            this.userId = userId;
+            this.username = username;
+            this.hoten = hoten;
+            this.capdo = capdo;
+            this.quyen = quyen;
+            
+            // Cập nhật quyền truy cập cho các nút menu
+            UpdateMenuPermissions();
+        }
+        
+        // Cập nhật trạng thái các nút menu dựa trên quyền truy cập
+        private void UpdateMenuPermissions()
+        {
+            // Mặc định disable tất cả các nút
+            btnDanhMuc.Enabled = false;
+            btnDatHang.Enabled = false;
+            btnCapPhoi.Enabled = false;
+            btnInPhieu.Enabled = false;
+            btnThongKe.Enabled = false;
+            btnKho.Enabled = false;
+            btnCaiDat.Enabled = false;
+            
+            // Phân tách chuỗi quyền thành mảng
+            if (string.IsNullOrEmpty(quyen))
+                return;
+                
+            string[] permissions = quyen.Split(new string[] { ", " }, StringSplitOptions.None);
+            
+            // Enable các nút tương ứng với quyền
+            foreach (string permission in permissions)
+            {
+                switch (permission)
+                {
+                    case "Danh mục":
+                        btnDanhMuc.Enabled = true;
+                        break;
+                    case "Mác bê tông":
+                        btnCapPhoi.Enabled = true;
+                        break;
+                    case "Thống kê":
+                        btnThongKe.Enabled = true;
+                        break;
+                    case "Cài đặt":
+                        btnCaiDat.Enabled = true;
+                        break;
+                    case "Kho":
+                        btnKho.Enabled = true;
+                        break;
+                }
+            }
+        }
+        
+        // Mở form dựa trên quyền truy cập
+        private void OpenForm(Type formType)
+        {
+            if (currentChildForm != null && !currentChildForm.IsDisposed)
+                currentChildForm.Close();
+
+            var form = (Form)Activator.CreateInstance(formType);
+            form.StartPosition = FormStartPosition.CenterScreen;
+
+            currentChildForm = form;
+            form.FormClosed += (s, e) => { currentChildForm = null; };
+            form.Show();
         }
 
         private void LoadTramData()

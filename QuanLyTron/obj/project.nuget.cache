@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "zfWRNznTsli4vd3IfTLfO8NrW11o0AJ39jckZU8NPI1Fs/PIUVIUMFoJN6sY4JD25wxliTWHU3ilUZGwrn8rlA==",
+  "dgSpecHash": "J4vHqJKPrRZD+oSt0LZQfVXD+NA4dYuaLrh+TGXpk7kP+Edc6dLwlwGyTiFgMZ6iPmhVTh4Knn0PtW768vDwOw==",
   "success": true,
-  "projectFilePath": "D:\\QUANLYTRAM - Dự phòng\\QuanLyTron\\QuanLyTron.csproj",
+  "projectFilePath": "D:\\QUANLYTRAM - v2\\QuanLyTron\\QuanLyTron.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\XMTD-IT\\.nuget\\packages\\fontawesome.sharp\\6.6.0\\fontawesome.sharp.6.6.0.nupkg.sha512",
     "C:\\Users\\XMTD-IT\\.nuget\\packages\\runtime.native.system.data.sqlclient.sni\\4.4.0\\runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512",
