@@ -444,3 +444,120 @@ VALUES
 (N'Mẫu 3', N'Chi tiết'),
 (N'Mẫu 4', N'Tổng hợp')
 GO
+
+
+-- Thêm dữ liệu mẫu cho bảng PHIEUXUAT
+INSERT INTO PHIEUXUAT (SOPHIEU, NGAYXUAT, MADONHANG, MAXE, MAKHACH, MACONGTRINH, MACBETONG, KHOILUONG, THOIGIANTRON, GHICHU, MATRAM, THOIGIANBATDAU, THOIGIANKETTHUC, THIETBIBOM, SUDUNGBOM) 
+VALUES 
+(N'PX001', '2025-07-01 08:30:00', 1, 1, 2, 9, N'C30R28-10±2', 7.5, '2025-07-01 08:45:00', N'Phiếu xuất đầu tiên', 1, '2025-07-01 08:30:00', '2025-07-01 09:15:00', N'Bơm nước 3HP', 1),
+(N'PX002', '2025-07-02 09:15:00', 2, 2, 3, 10, N'C20R28-12±2', 6.0, '2025-07-02 09:30:00', N'Phiếu xuất thứ hai', 1, '2025-07-02 09:15:00', '2025-07-02 10:00:00', N'Bơm công nghiệp 5HP', 1),
+(N'PX003', '2025-07-03 10:20:00', 3, 3, 4, 11, N'C25R28-14±2', 8.0, '2025-07-03 10:35:00', N'Phiếu xuất thứ ba', 2, '2025-07-03 10:20:00', '2025-07-03 11:10:00', N'Máy trộn bê tông', 0),
+(N'PX004', '2025-07-04 14:10:00', 4, 4, 5, 12, N'C35R28-10±2', 7.0, '2025-07-04 14:25:00', N'Phiếu xuất thứ tư', 2, '2025-07-04 14:10:00', '2025-07-04 14:55:00', N'Máy đầm', 0),
+(N'PX005', '2025-07-05 15:30:00', 5, 5, 6, 13, N'C40R28-16±2', 7.5, '2025-07-05 15:45:00', N'Phiếu xuất thứ năm', 3, '2025-07-05 15:30:00', '2025-07-05 16:15:00', N'Máy bơm bê tông', 1),
+(N'PX006', '2025-07-06 08:45:00', 6, 6, 7, 14, N'C25R14-12±2', 6.5, '2025-07-06 09:00:00', N'Phiếu xuất thứ sáu', 3, '2025-07-06 08:45:00', '2025-07-06 09:30:00', N'Máy bơm bê tông', 1),
+(N'PX007', '2025-07-07 09:30:00', 7, 7, 8, 15, N'C30R14-10±2', 8.0, '2025-07-07 09:45:00', N'Phiếu xuất thứ bảy', 4, '2025-07-07 09:30:00', '2025-07-07 10:15:00', N'Máy trộn bê tông', 0),
+(N'PX008', '2025-07-08 10:15:00', 8, 8, 9, 16, N'C20R14-14±2', 7.0, '2025-07-08 10:30:00', N'Phiếu xuất thứ tám', 4, '2025-07-08 10:15:00', '2025-07-08 11:00:00', N'Máy nâng', 0),
+(N'PX009', '2025-07-09 13:20:00', 1, 9, 2, 9, N'C30R28-10±2', 7.5, '2025-07-09 13:35:00', N'Phiếu xuất thứ chín', 5, '2025-07-09 13:20:00', '2025-07-09 14:05:00', N'Bơm nước 3HP', 1),
+(N'PX010', '2025-07-10 14:45:00', 2, 10, 3, 10, N'C20R28-12±2', 6.0, '2025-07-10 15:00:00', N'Phiếu xuất thứ mười', 5, '2025-07-10 14:45:00', '2025-07-10 15:30:00', N'Bơm công nghiệp 5HP', 1)
+GO
+
+-- Thêm dữ liệu mẫu cho bảng CHITIETPHIEUXUAT
+-- Chi tiết cho phiếu PX001
+INSERT INTO CHITIETPHIEUXUAT (MAPHIEUXUAT, MAVATTU, SOLUONG, GHICHU) 
+VALUES 
+(1, 1, 450, N'Xi măng PCB 40'),
+(1, 2, 1.2, N'Cát vàng'),
+(1, 3, 1.8, N'Đá 1-2'),
+(1, 4, 180, N'Nước sạch'),
+(1, 5, 7.5, N'Phụ gia siêu dẻo')
+GO
+
+-- Chi tiết cho phiếu PX002
+INSERT INTO CHITIETPHIEUXUAT (MAPHIEUXUAT, MAVATTU, SOLUONG, GHICHU) 
+VALUES 
+(2, 1, 360, N'Xi măng PCB 40'),
+(2, 2, 1.0, N'Cát vàng'),
+(2, 3, 1.5, N'Đá 1-2'),
+(2, 4, 150, N'Nước sạch'),
+(2, 6, 6.0, N'Phụ gia chậm đông kết')
+GO
+
+-- Chi tiết cho phiếu PX003
+INSERT INTO CHITIETPHIEUXUAT (MAPHIEUXUAT, MAVATTU, SOLUONG, GHICHU) 
+VALUES 
+(3, 1, 480, N'Xi măng PCB 40'),
+(3, 2, 1.3, N'Cát vàng'),
+(3, 3, 1.9, N'Đá 1-2'),
+(3, 4, 190, N'Nước sạch'),
+(3, 5, 8.0, N'Phụ gia siêu dẻo')
+GO
+
+-- Chi tiết cho phiếu PX004
+INSERT INTO CHITIETPHIEUXUAT (MAPHIEUXUAT, MAVATTU, SOLUONG, GHICHU) 
+VALUES 
+(4, 1, 420, N'Xi măng PCB 40'),
+(4, 2, 1.1, N'Cát vàng'),
+(4, 3, 1.7, N'Đá 1-2'),
+(4, 4, 170, N'Nước sạch'),
+(4, 7, 7.0, N'Phụ gia chống thấm')
+GO
+
+-- Chi tiết cho phiếu PX005
+INSERT INTO CHITIETPHIEUXUAT (MAPHIEUXUAT, MAVATTU, SOLUONG, GHICHU) 
+VALUES 
+(5, 1, 450, N'Xi măng PCB 40'),
+(5, 2, 1.2, N'Cát vàng'),
+(5, 3, 1.8, N'Đá 1-2'),
+(5, 4, 180, N'Nước sạch'),
+(5, 8, 7.5, N'Phụ gia khoáng hoạt tính')
+GO
+
+-- Chi tiết cho phiếu PX006
+INSERT INTO CHITIETPHIEUXUAT (MAPHIEUXUAT, MAVATTU, SOLUONG, GHICHU) 
+VALUES 
+(6, 1, 390, N'Xi măng PCB 40'),
+(6, 2, 1.0, N'Cát vàng'),
+(6, 3, 1.6, N'Đá 1-2'),
+(6, 4, 160, N'Nước sạch'),
+(6, 5, 6.5, N'Phụ gia cuốn khí')
+GO
+
+-- Chi tiết cho phiếu PX007
+INSERT INTO CHITIETPHIEUXUAT (MAPHIEUXUAT, MAVATTU, SOLUONG, GHICHU) 
+VALUES 
+(7, 1, 480, N'Xi măng PCB 40'),
+(7, 2, 1.3, N'Cát vàng'),
+(7, 3, 1.9, N'Đá 1-2'),
+(7, 4, 190, N'Nước sạch'),
+(7, 5, 8.0, N'Phụ gia tăng nhanh đông kết')
+GO
+
+-- Chi tiết cho phiếu PX008
+INSERT INTO CHITIETPHIEUXUAT (MAPHIEUXUAT, MAVATTU, SOLUONG, GHICHU) 
+VALUES 
+(8, 1, 420, N'Xi măng PCB 40'),
+(8, 2, 1.1, N'Cát vàng'),
+(8, 3, 1.7, N'Đá 1-2'),
+(8, 4, 170, N'Nước sạch'),
+(8, 5, 7.0, N'Phụ gia giảm co ngót')
+GO
+
+-- Chi tiết cho phiếu PX009
+INSERT INTO CHITIETPHIEUXUAT (MAPHIEUXUAT, MAVATTU, SOLUONG, GHICHU) 
+VALUES 
+(9, 1, 450, N'Xi măng PCB 40'),
+(9, 2, 1.2, N'Cát vàng'),
+(9, 3, 1.8, N'Đá 1-2'),
+(9, 4, 180, N'Nước sạch'),
+(9, 5, 7.5, N'Phụ gia siêu dẻo')
+GO
+
+-- Chi tiết cho phiếu PX010
+INSERT INTO CHITIETPHIEUXUAT (MAPHIEUXUAT, MAVATTU, SOLUONG, GHICHU) 
+VALUES 
+(10, 1, 360, N'Xi măng PCB 40'),
+(10, 2, 1.0, N'Cát vàng'),
+(10, 3, 1.5, N'Đá 1-2'),
+(10, 4, 150, N'Nước sạch'),
+(10, 6, 6.0, N'Phụ gia chậm đông kết')
+GO

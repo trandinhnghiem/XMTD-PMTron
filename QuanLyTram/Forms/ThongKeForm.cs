@@ -3,7 +3,11 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using System.IO;
+using System.Linq;
+using ClosedXML.Excel;
 using QuanLyTram.DAL;
+using System.Drawing.Printing;
 
 namespace QuanLyTram.Forms
 {
@@ -221,19 +225,11 @@ namespace QuanLyTram.Forms
             };
             dgv.ColumnHeadersDefaultCellStyle.BackColor = Color.SteelBlue;
             dgv.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            dgv.DefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Regular);
+            dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+            dgv.DefaultCellStyle.Font = new Font("Segoe UI", 8, FontStyle.Regular);
             dgv.DefaultCellStyle.ForeColor = Color.Black;
             dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(240, 248, 255);
             detailGroup.Controls.Add(dgv);
-            
-            dgv.Columns.Add("madon", "Mã đơn");
-            dgv.Columns.Add("khachhang", "Khách hàng");
-            dgv.Columns.Add("ngaylap", "Ngày lập");
-            dgv.Columns.Add("hangmuc", "Hạng mục");
-            dgv.Columns.Add("macbetong", "Mác bê tông");
-            dgv.Columns.Add("xetroi", "Xe trộn");
-            dgv.Columns.Add("soluong", "Số lượng (m³)");
             
             // ================== TỔNG ==================
             var totalGroup = new GroupBox
@@ -261,8 +257,8 @@ namespace QuanLyTram.Forms
             };
             materialGrid.ColumnHeadersDefaultCellStyle.BackColor = Color.SteelBlue;
             materialGrid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            materialGrid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            materialGrid.DefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Regular);
+            materialGrid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+            materialGrid.DefaultCellStyle.Font = new Font("Segoe UI", 8, FontStyle.Regular);
             materialGrid.DefaultCellStyle.ForeColor = Color.Black;
             materialGrid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(240, 248, 255);
             materialGrid.Columns.Add("vatlieu", "Vật liệu");
@@ -271,15 +267,12 @@ namespace QuanLyTram.Forms
             materialGrid.Columns.Add("ximang", "Xi măng (KG)");
             materialGrid.Columns.Add("nuoc", "Nước (KG)");
             materialGrid.Columns.Add("phugia", "Phụ gia (KG)");
-            materialGrid.Rows.Add("Đơn hàng DH001", "500", "400", "300", "150", "20");
-            materialGrid.Rows.Add("Đơn hàng DH002", "300", "250", "200", "100", "15");
-            materialGrid.Rows.Add("Đơn hàng DH003", "400", "350", "250", "120", "18");
             totalLayout.Controls.Add(materialGrid, 0, 0);
             
             var totalBox = new GroupBox { Text = "TỔNG", Dock = DockStyle.Fill, Font = new Font("Segoe UI", 11, FontStyle.Bold) };
             var lblTong = new Label
             {
-                Text = "30 m3\n2000 kg",
+                Text = "0 m3\n0 kg",
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Font = new Font("Segoe UI", 12, FontStyle.Bold),
@@ -289,29 +282,84 @@ namespace QuanLyTram.Forms
             totalLayout.Controls.Add(totalBox, 1, 0);
             
             var exportPanel = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, Padding = new Padding(5), WrapContents = false };
-            void AddExportButton(string text)
+            Button btnIn = new Button
             {
-                exportPanel.Controls.Add(new Button
-                {
-                    Text = text,
-                    Width = 100,
-                    Height = 40,
-                    BackColor = Color.SteelBlue,
-                    ForeColor = Color.White,
-                    FlatStyle = FlatStyle.Flat,
-                    Font = new Font("Segoe UI", 10, FontStyle.Bold)
-                });
-            }
-            AddExportButton("In");
-            AddExportButton("Xuất XLSX");
-            AddExportButton("Xuất CSV");
+                Text = "In",
+                Width = 100,
+                Height = 40,
+                BackColor = Color.SteelBlue,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            
+            Button btnXuatExcel = new Button
+            {
+                Text = "Xuất XLSX",
+                Width = 100,
+                Height = 40,
+                BackColor = Color.SteelBlue,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            
+            Button btnXuatCSV = new Button
+            {
+                Text = "Xuất CSV",
+                Width = 100,
+                Height = 40,
+                BackColor = Color.SteelBlue,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            
+            exportPanel.Controls.Add(btnIn);
+            exportPanel.Controls.Add(btnXuatExcel);
+            exportPanel.Controls.Add(btnXuatCSV);
             totalLayout.Controls.Add(exportPanel, 2, 0);
             
             // Đăng ký sự kiện
             btnXem.Click += (s, e) => {
-                LoadStatisticsData(dgv, dtpFrom.Value, dtpTo.Value, cbTram, chkTatCa.Checked, 
+                LoadStatisticsData(dgv, materialGrid, lblTong, dtpFrom.Value, dtpTo.Value, cbTram, chkTatCa.Checked, 
                                     cbHangMuc, cbKhachHang, cbKinhDoanh, cbMacBeTong, cbXeTron, cbKyHieuDon,
                                     radSoChuyen.Checked, radChiTiet.Checked, radTong.Checked);
+            };
+            
+            // Xử lý sự kiện in và xuất
+            btnIn.Click += (s, e) => {
+                PrintData(dgv, materialGrid, lblTong.Text, detailGroup.Text);
+            };
+            
+            btnXuatExcel.Click += (s, e) => {
+                ExportToExcel(dgv, materialGrid, lblTong.Text, detailGroup.Text);
+            };
+            
+            btnXuatCSV.Click += (s, e) => {
+                ExportToCSV(dgv, materialGrid, lblTong.Text, detailGroup.Text);
+            };
+            
+            // Xử lý sự kiện thay đổi RadioButton
+            radSoChuyen.CheckedChanged += (s, e) => {
+                if (radSoChuyen.Checked)
+                {
+                    detailGroup.Text = "THỐNG KÊ SỐ CHUYẾN";
+                }
+            };
+            
+            radChiTiet.CheckedChanged += (s, e) => {
+                if (radChiTiet.Checked)
+                {
+                    detailGroup.Text = "THỐNG KÊ CHI TIẾT";
+                }
+            };
+            
+            radTong.CheckedChanged += (s, e) => {
+                if (radTong.Checked)
+                {
+                    detailGroup.Text = "THỐNG KÊ TỔNG HỢP";
+                }
             };
         }
         
@@ -340,30 +388,34 @@ namespace QuanLyTram.Forms
                     
                     // Load khách hàng
                     cbKhachHang.Items.Add("Tất cả");
-                    using (var cmd = new SqlCommand("SELECT TENKHACH FROM KHACHHANG", conn))
+                    using (var cmd = new SqlCommand("SELECT MAKHACH, TENKHACH FROM KHACHHANG", conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                cbKhachHang.Items.Add(reader["TENKHACH"].ToString());
+                                cbKhachHang.Items.Add(new { Value = reader["MAKHACH"], Display = reader["TENKHACH"].ToString() });
                             }
                         }
                     }
+                    cbKhachHang.DisplayMember = "Display";
+                    cbKhachHang.ValueMember = "Value";
                     if (cbKhachHang.Items.Count > 0) cbKhachHang.SelectedIndex = 0;
                     
                     // Load kinh doanh
                     cbKinhDoanh.Items.Add("Tất cả");
-                    using (var cmd = new SqlCommand("SELECT TENKINHDOANH FROM KINHDOANH", conn))
+                    using (var cmd = new SqlCommand("SELECT MAKINHDOANH, TENKINHDOANH FROM KINHDOANH", conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                cbKinhDoanh.Items.Add(reader["TENKINHDOANH"].ToString());
+                                cbKinhDoanh.Items.Add(new { Value = reader["MAKINHDOANH"], Display = reader["TENKINHDOANH"].ToString() });
                             }
                         }
                     }
+                    cbKinhDoanh.DisplayMember = "Display";
+                    cbKinhDoanh.ValueMember = "Value";
                     if (cbKinhDoanh.Items.Count > 0) cbKinhDoanh.SelectedIndex = 0;
                     
                     // Load mác bê tông
@@ -382,16 +434,18 @@ namespace QuanLyTram.Forms
                     
                     // Load xe trộn
                     cbXeTron.Items.Add("Tất cả");
-                    using (var cmd = new SqlCommand("SELECT BIENSO FROM XE", conn))
+                    using (var cmd = new SqlCommand("SELECT MAXE, BIENSO FROM XE", conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                cbXeTron.Items.Add(reader["BIENSO"].ToString());
+                                cbXeTron.Items.Add(new { Value = reader["MAXE"], Display = reader["BIENSO"].ToString() });
                             }
                         }
                     }
+                    cbXeTron.DisplayMember = "Display";
+                    cbXeTron.ValueMember = "Value";
                     if (cbXeTron.Items.Count > 0) cbXeTron.SelectedIndex = 0;
                     
                     // Load ký hiệu đơn
@@ -415,38 +469,44 @@ namespace QuanLyTram.Forms
             }
         }
         
-        private void LoadStatisticsData(DataGridView dgv, DateTime fromDate, DateTime toDate, 
+        private void LoadStatisticsData(DataGridView dgv, DataGridView materialGrid, Label lblTong, DateTime fromDate, DateTime toDate, 
                                         ComboBox cbTram, bool allStations, ComboBox cbHangMuc, ComboBox cbKhachHang, 
                                         ComboBox cbKinhDoanh, ComboBox cbMacBeTong, ComboBox cbXeTron, ComboBox cbKyHieuDon,
                                         bool soChuyen, bool chiTiet, bool tong)
         {
             try
             {
+                // Xóa dữ liệu cũ
+                dgv.DataSource = null;
+                dgv.Columns.Clear();
+                materialGrid.Rows.Clear();
+                
                 // Xây dựng câu truy vấn động dựa trên bộ lọc
                 string query = @"
-                SELECT dh.MADONHANG, kh.TENKHACH, dh.NGAYDAT, ct.HANGMUC, cp.MACBETONG, 
-                       x.BIENSO, dh.KHOILUONG
-                FROM DONHANG dh
+                SELECT px.MAPHIEUXUAT, dh.MADONHANG, kh.TENKHACH, px.NGAYXUAT, ct.HANGMUC, px.MACBETONG, 
+                       x.BIENSO, px.KHOILUONG, px.SOPHIEU, kd.TENKINHDOANH
+                FROM PHIEUXUAT px
+                INNER JOIN DONHANG dh ON px.MADONHANG = dh.MADONHANG
                 LEFT JOIN KHACHHANG kh ON dh.MAKHACH = kh.MAKHACH
                 LEFT JOIN CONGTRINH ct ON dh.MACONGTRINH = ct.MACONGTRINH
-                LEFT JOIN CAPPHOI cp ON dh.MADONHANG = cp.MACAPPHOI
-                LEFT JOIN XE x ON dh.MAXE = x.MAXE
+                LEFT JOIN KINHDOANH kd ON dh.MAKINHDOANH = kd.MAKINHDOANH
+                LEFT JOIN XE x ON px.MAXE = x.MAXE
                 WHERE 1=1";
                 
                 // Thêm điều kiện lọc
                 if (!allStations && cbTram.SelectedIndex >= 0)
                 {
-                    query += " AND dh.MATRAM = @maTram";
+                    query += " AND px.MATRAM = @maTram";
                 }
                 
                 if (fromDate != DateTime.MinValue)
                 {
-                    query += " AND CAST(dh.NGAYDAT AS DATE) >= @fromDate";
+                    query += " AND CAST(px.NGAYXUAT AS DATE) >= @fromDate";
                 }
                 
                 if (toDate != DateTime.MinValue)
                 {
-                    query += " AND CAST(dh.NGAYDAT AS DATE) <= @toDate";
+                    query += " AND CAST(px.NGAYXUAT AS DATE) <= @toDate";
                 }
                 
                 if (cbHangMuc.SelectedIndex > 0) // Không phải "Tất cả"
@@ -456,7 +516,7 @@ namespace QuanLyTram.Forms
                 
                 if (cbKhachHang.SelectedIndex > 0) // Không phải "Tất cả"
                 {
-                    query += " AND kh.TENKHACH = @khachHang";
+                    query += " AND dh.MAKHACH = @khachHang";
                 }
                 
                 if (cbKinhDoanh.SelectedIndex > 0) // Không phải "Tất cả"
@@ -466,12 +526,12 @@ namespace QuanLyTram.Forms
                 
                 if (cbMacBeTong.SelectedIndex > 0) // Không phải "Tất cả"
                 {
-                    query += " AND cp.MACBETONG = @macBeTong";
+                    query += " AND px.MACBETONG = @macBeTong";
                 }
                 
                 if (cbXeTron.SelectedIndex > 0) // Không phải "Tất cả"
                 {
-                    query += " AND x.BIENSO = @bienSo";
+                    query += " AND px.MAXE = @bienSo";
                 }
                 
                 if (cbKyHieuDon.SelectedIndex > 0) // Không phải "Tất cả"
@@ -479,7 +539,7 @@ namespace QuanLyTram.Forms
                     query += " AND dh.KYHIEUDON = @kyHieuDon";
                 }
                 
-                query += " ORDER BY dh.NGAYDAT DESC";
+                query += " ORDER BY px.NGAYXUAT DESC";
                 
                 DataTable dt = new DataTable();
                 
@@ -511,7 +571,7 @@ namespace QuanLyTram.Forms
                         
                         if (cbKhachHang.SelectedIndex > 0)
                         {
-                            cmd.Parameters.Add("@khachHang", SqlDbType.NVarChar).Value = cbKhachHang.SelectedItem.ToString();
+                            cmd.Parameters.Add("@khachHang", SqlDbType.Int).Value = (cbKhachHang.SelectedItem as dynamic).Value;
                         }
                         
                         if (cbKinhDoanh.SelectedIndex > 0)
@@ -526,7 +586,7 @@ namespace QuanLyTram.Forms
                         
                         if (cbXeTron.SelectedIndex > 0)
                         {
-                            cmd.Parameters.Add("@bienSo", SqlDbType.NVarChar).Value = cbXeTron.SelectedItem.ToString();
+                            cmd.Parameters.Add("@bienSo", SqlDbType.Int).Value = (cbXeTron.SelectedItem as dynamic).Value;
                         }
                         
                         if (cbKyHieuDon.SelectedIndex > 0)
@@ -541,42 +601,559 @@ namespace QuanLyTram.Forms
                     }
                 }
                 
-                // Đổi tên cột để hiển thị
-                dt.Columns["MADONHANG"].ColumnName = "madon";
-                dt.Columns["TENKHACH"].ColumnName = "khachhang";
-                dt.Columns["NGAYDAT"].ColumnName = "ngaylap";
-                dt.Columns["HANGMUC"].ColumnName = "hangmuc";
-                dt.Columns["MACBETONG"].ColumnName = "macbetong";
-                dt.Columns["BIENSO"].ColumnName = "xetroi";
-                dt.Columns["KHOILUONG"].ColumnName = "soluong";
-                
-                // Hiển thị dữ liệu
-                dgv.DataSource = dt;
-                dgv.Columns["ngaylap"].DefaultCellStyle.Format = "dd/MM/yyyy";
+                // Hiển thị dữ liệu theo chế độ thống kê
+                if (soChuyen)
+                {
+                    // Thống kê số chuyến
+                    dgv.Columns.Add("stt", "STT");
+                    dgv.Columns.Add("sophieu", "Số phiếu");
+                    dgv.Columns.Add("ngayxuat", "Ngày xuất");
+                    dgv.Columns.Add("khachhang", "Khách hàng");
+                    dgv.Columns.Add("hangmuc", "Hạng mục");
+                    dgv.Columns.Add("macbetong", "Mác bê tông");
+                    dgv.Columns.Add("bienso", "Xe trộn");
+                    dgv.Columns.Add("khoiluong", "Khối lượng (m³)");
+                    
+                    int stt = 1;
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        dgv.Rows.Add(
+                            stt++,
+                            row["SOPHIEU"].ToString(),
+                            Convert.ToDateTime(row["NGAYXUAT"]).ToString("dd/MM/yyyy"),
+                            row["TENKHACH"].ToString(),
+                            row["HANGMUC"].ToString(),
+                            row["MACBETONG"].ToString(),
+                            row["BIENSO"].ToString(),
+                            row["KHOILUONG"].ToString()
+                        );
+                    }
+                }
+                else if (chiTiet)
+                {
+                    // Thống kê chi tiết
+                    dgv.Columns.Add("stt", "STT");
+                    dgv.Columns.Add("sophieu", "Số phiếu");
+                    dgv.Columns.Add("ngayxuat", "Ngày xuất");
+                    dgv.Columns.Add("mado", "Mã đơn");
+                    dgv.Columns.Add("khachhang", "Khách hàng");
+                    dgv.Columns.Add("hangmuc", "Hạng mục");
+                    dgv.Columns.Add("macbetong", "Mác bê tông");
+                    dgv.Columns.Add("bienso", "Xe trộn");
+                    dgv.Columns.Add("kinhdoanh", "Kinh doanh");
+                    dgv.Columns.Add("khoiluong", "Khối lượng (m³)");
+                    
+                    int stt = 1;
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        dgv.Rows.Add(
+                            stt++,
+                            row["SOPHIEU"].ToString(),
+                            Convert.ToDateTime(row["NGAYXUAT"]).ToString("dd/MM/yyyy"),
+                            row["MADONHANG"].ToString(),
+                            row["TENKHACH"].ToString(),
+                            row["HANGMUC"].ToString(),
+                            row["MACBETONG"].ToString(),
+                            row["BIENSO"].ToString(),
+                            row["TENKINHDOANH"].ToString(),
+                            row["KHOILUONG"].ToString()
+                        );
+                    }
+                }
+                else if (tong)
+                {
+                    // Thống kê tổng hợp
+                    dgv.Columns.Add("stt", "STT");
+                    dgv.Columns.Add("nhom", "Nhóm");
+                    dgv.Columns.Add("soluong", "Số lượng (m³)");
+                    dgv.Columns.Add("tyle", "Tỷ lệ (%)");
+                    
+                    // Tính tổng khối lượng
+                    decimal totalQuantity = 0;
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        decimal quantity = 0;
+                        decimal.TryParse(row["KHOILUONG"].ToString(), out quantity);
+                        totalQuantity += quantity;
+                    }
+                    
+                    // Nhóm theo khách hàng
+                    var groups = dt.AsEnumerable()
+                        .GroupBy(r => r.Field<string>("TENKHACH"))
+                        .Select(g => new { 
+                            Name = g.Key, 
+                            Quantity = g.Sum(r => r.Field<decimal?>("KHOILUONG") ?? 0) 
+                        })
+                        .ToList();
+                    
+                    int stt = 1;
+                    foreach (var group in groups)
+                    {
+                        decimal percentage = totalQuantity > 0 ? (group.Quantity / totalQuantity) * 100 : 0;
+                        dgv.Rows.Add(
+                            stt++,
+                            group.Name,
+                            group.Quantity,
+                            percentage.ToString("N2")
+                        );
+                    }
+                }
                 
                 // Tính toán tổng
-                decimal totalQuantity = 0;
+                decimal totalKhoiLuong = 0;
                 foreach (DataRow row in dt.Rows)
                 {
                     decimal quantity = 0;
-                    decimal.TryParse(row["soluong"].ToString(), out quantity);
-                    totalQuantity += quantity;
+                    decimal.TryParse(row["KHOILUONG"].ToString(), out quantity);
+                    totalKhoiLuong += quantity;
                 }
                 
                 // Cập nhật label tổng
-                var totalBox = dgv.Parent.Parent.Controls.Find("totalBox", true).FirstOrDefault() as GroupBox;
-                if (totalBox != null)
+                lblTong.Text = $"{dt.Rows.Count} chuyến\n{totalKhoiLuong:N2} m³";
+                
+                // Load dữ liệu vật liệu
+                LoadMaterialData(materialGrid, dt);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải dữ liệu thống kê: " + ex.Message);
+            }
+        }
+        
+        private void LoadMaterialData(DataGridView materialGrid, DataTable dt)
+        {
+            try
+            {
+                // Xóa dữ liệu cũ
+                materialGrid.Rows.Clear();
+                
+                // Lấy danh sách các phiếu xuất từ DataTable
+                var phieuXuatIds = dt.AsEnumerable().Select(r => r.Field<int>("MAPHIEUXUAT")).ToList();
+                
+                if (phieuXuatIds.Count == 0) return;
+                
+                // Tạo câu truy vấn để lấy thông tin vật liệu
+                string query = @"
+                SELECT ct.MAPHIEUXUAT, v.TENVATTU, ct.SOLUONG
+                FROM CHITIETPHIEUXUAT ct
+                INNER JOIN VATTU v ON ct.MAVATTU = v.MAVATTU
+                WHERE ct.MAPHIEUXUAT IN (" + string.Join(",", phieuXuatIds) + ")";
+                
+                DataTable materialData = new DataTable();
+                
+                using (var conn = DatabaseHelper.GetConnection())
                 {
-                    var lblTong = totalBox.Controls[0] as Label;
-                    if (lblTong != null)
+                    conn.Open();
+                    using (var cmd = new SqlCommand(query, conn))
                     {
-                        lblTong.Text = $"{dt.Rows.Count} đơn\n{totalQuantity} m³";
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            adapter.Fill(materialData);
+                        }
+                    }
+                }
+                
+                // Nhóm vật liệu theo loại
+                var materials = materialData.AsEnumerable()
+                    .GroupBy(r => r.Field<string>("TENVATTU"))
+                    .Select(g => new { 
+                        Name = g.Key, 
+                        TotalQuantity = g.Sum(r => r.Field<decimal?>("SOLUONG") ?? 0) 
+                    })
+                    .ToList();
+                
+                // Thêm dữ liệu vào DataGridView
+                foreach (var material in materials)
+                {
+                    string materialName = material.Name.ToLower();
+                    string displayValue = material.TotalQuantity.ToString("N2");
+                    
+                    // Xác định cột tương ứng
+                    if (materialName.Contains("ximăng") || materialName.Contains("xi măng"))
+                    {
+                        materialGrid.Rows.Add("Xi măng", "", "", displayValue, "", "");
+                    }
+                    else if (materialName.Contains("cát"))
+                    {
+                        materialGrid.Rows.Add("Cát", displayValue, "", "", "", "");
+                    }
+                    else if (materialName.Contains("đá"))
+                    {
+                        materialGrid.Rows.Add("Đá", "", displayValue, "", "", "");
+                    }
+                    else if (materialName.Contains("nước"))
+                    {
+                        materialGrid.Rows.Add("Nước", "", "", "", displayValue, "");
+                    }
+                    else if (materialName.Contains("phụ gia"))
+                    {
+                        materialGrid.Rows.Add("Phụ gia", "", "", "", "", displayValue);
+                    }
+                    else
+                    {
+                        // Các vật liệu khác
+                        materialGrid.Rows.Add(material.Name, "", "", "", "", displayValue);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi tải dữ liệu thống kê: " + ex.Message);
+                MessageBox.Show("Lỗi khi tải dữ liệu vật liệu: " + ex.Message);
+            }
+        }
+        
+        private void PrintData(DataGridView dgvMain, DataGridView dgvMaterial, string totalText, string reportTitle)
+        {
+            try
+            {
+                // Tạo đối tượng PrintDocument
+                PrintDialog printDialog = new PrintDialog();
+                PrintDocument printDocument = new PrintDocument();
+                
+                // Thiết lập sự kiện in
+                printDocument.PrintPage += (sender, e) => {
+                    // Thiết lập font và màu
+                    Font titleFont = new Font("Segoe UI", 16, FontStyle.Bold);
+                    Font headerFont = new Font("Segoe UI", 12, FontStyle.Bold);
+                    Font contentFont = new Font("Segoe UI", 10);
+                    Font footerFont = new Font("Segoe UI", 8);
+                    
+                    // Vị trí bắt đầu in
+                    float yPos = e.MarginBounds.Top;
+                    float xPos = e.MarginBounds.Left;
+                    float centerPos = e.MarginBounds.Width / 2 + e.MarginBounds.Left;
+                    
+                    // In tiêu đề
+                    e.Graphics.DrawString(reportTitle, titleFont, Brushes.Black, centerPos, yPos, new StringFormat { Alignment = StringAlignment.Center });
+                    yPos += titleFont.GetHeight(e.Graphics) + 20;
+                    
+                    // In ngày in
+                    e.Graphics.DrawString("Ngày in: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm"), contentFont, Brushes.Black, xPos, yPos);
+                    yPos += contentFont.GetHeight(e.Graphics) + 20;
+                    
+                    // In bảng dữ liệu chính
+                    float tableWidth = e.MarginBounds.Width;
+                    float colWidth = tableWidth / dgvMain.Columns.Count;
+                    
+                    // In header
+                    foreach (DataGridViewColumn col in dgvMain.Columns)
+                    {
+                        e.Graphics.DrawString(col.HeaderText, headerFont, Brushes.Black, xPos, yPos);
+                        xPos += colWidth;
+                    }
+                    
+                    xPos = e.MarginBounds.Left;
+                    yPos += headerFont.GetHeight(e.Graphics) + 5;
+                    
+                    // Vẽ đường kẻ
+                    e.Graphics.DrawLine(Pens.Black, e.MarginBounds.Left, yPos, e.MarginBounds.Right, yPos);
+                    yPos += 5;
+                    
+                    // In dữ liệu
+                    foreach (DataGridViewRow row in dgvMain.Rows)
+                    {
+                        foreach (DataGridViewCell cell in row.Cells)
+                        {
+                            e.Graphics.DrawString(cell.Value?.ToString() ?? "", contentFont, Brushes.Black, xPos, yPos);
+                            xPos += colWidth;
+                        }
+                        xPos = e.MarginBounds.Left;
+                        yPos += contentFont.GetHeight(e.Graphics) + 2;
+                    }
+                    
+                    // Vẽ đường kẻ cuối bảng
+                    e.Graphics.DrawLine(Pens.Black, e.MarginBounds.Left, yPos, e.MarginBounds.Right, yPos);
+                    yPos += 20;
+                    
+                    // In bảng vật liệu
+                    e.Graphics.DrawString("THỐNG KÊ VẬT LIỆU", headerFont, Brushes.Black, centerPos, yPos, new StringFormat { Alignment = StringAlignment.Center });
+                    yPos += headerFont.GetHeight(e.Graphics) + 10;
+                    
+                    // In header bảng vật liệu
+                    float materialColWidth = tableWidth / dgvMaterial.Columns.Count;
+                    foreach (DataGridViewColumn col in dgvMaterial.Columns)
+                    {
+                        e.Graphics.DrawString(col.HeaderText, headerFont, Brushes.Black, xPos, yPos);
+                        xPos += materialColWidth;
+                    }
+                    
+                    xPos = e.MarginBounds.Left;
+                    yPos += headerFont.GetHeight(e.Graphics) + 5;
+                    
+                    // Vẽ đường kẻ
+                    e.Graphics.DrawLine(Pens.Black, e.MarginBounds.Left, yPos, e.MarginBounds.Right, yPos);
+                    yPos += 5;
+                    
+                    // In dữ liệu vật liệu
+                    foreach (DataGridViewRow row in dgvMaterial.Rows)
+                    {
+                        foreach (DataGridViewCell cell in row.Cells)
+                        {
+                            e.Graphics.DrawString(cell.Value?.ToString() ?? "", contentFont, Brushes.Black, xPos, yPos);
+                            xPos += materialColWidth;
+                        }
+                        xPos = e.MarginBounds.Left;
+                        yPos += contentFont.GetHeight(e.Graphics) + 2;
+                    }
+                    
+                    // Vẽ đường kẻ cuối bảng vật liệu
+                    e.Graphics.DrawLine(Pens.Black, e.MarginBounds.Left, yPos, e.MarginBounds.Right, yPos);
+                    yPos += 20;
+                    
+                    // In tổng
+                    string[] totalLines = totalText.Split('\n');
+                    foreach (string line in totalLines)
+                    {
+                        e.Graphics.DrawString(line, headerFont, Brushes.Black, centerPos, yPos, new StringFormat { Alignment = StringAlignment.Center });
+                        yPos += headerFont.GetHeight(e.Graphics) + 5;
+                    }
+                    
+                    // In footer
+                    yPos = e.MarginBounds.Bottom - 20;
+                    };
+                
+                printDialog.Document = printDocument;
+                
+                if (printDialog.ShowDialog() == DialogResult.OK)
+                {
+                    printDocument.Print();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi in dữ liệu: " + ex.Message);
+            }
+        }
+        
+        private void ExportToExcel(DataGridView dgvMain, DataGridView dgvMaterial, string totalText, string reportTitle)
+        {
+            try
+            {
+                // Tạo dialog lưu file
+                SaveFileDialog saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "Excel Files|*.xlsx",
+                    Title = "Xuất file Excel",
+                    FileName = $"ThongKe_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}.xlsx"
+                };
+                
+                if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                    return;
+                
+                // Tạo workbook mới
+                using (var workbook = new XLWorkbook())
+                {
+                    // Tạo worksheet cho dữ liệu chính
+                    var worksheet = workbook.Worksheets.Add("Thống kê");
+                    
+                    // Thiết lập tiêu đề
+                    worksheet.Cell(1, 1).Value = reportTitle;
+                    worksheet.Cell(1, 1).Style.Font.Bold = true;
+                    worksheet.Cell(1, 1).Style.Font.FontSize = 16;
+                    worksheet.Range(1, 1, 1, dgvMain.Columns.Count).Merge();
+                    
+                    // Thêm ngày xuất
+                    worksheet.Cell(2, 1).Value = "Ngày xuất: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+                    worksheet.Range(2, 1, 2, dgvMain.Columns.Count).Merge();
+                    
+                    // Thêm header
+                    int colIndex = 1;
+                    foreach (DataGridViewColumn col in dgvMain.Columns)
+                    {
+                        worksheet.Cell(4, colIndex).Value = col.HeaderText;
+                        worksheet.Cell(4, colIndex).Style.Font.Bold = true;
+                        worksheet.Cell(4, colIndex).Style.Fill.BackgroundColor = XLColor.SteelBlue;
+                        worksheet.Cell(4, colIndex).Style.Font.FontColor = XLColor.White;
+                        colIndex++;
+                    }
+                    
+                    // Thêm dữ liệu
+                    int rowIndex = 5;
+                    foreach (DataGridViewRow row in dgvMain.Rows)
+                    {
+                        colIndex = 1;
+                        foreach (DataGridViewCell cell in row.Cells)
+                        {
+                            worksheet.Cell(rowIndex, colIndex).Value = cell.Value?.ToString();
+                            colIndex++;
+                        }
+                        rowIndex++;
+                    }
+                    
+                    // Tạo worksheet cho vật liệu
+                    var materialWorksheet = workbook.Worksheets.Add("Vật liệu");
+                    
+                    // Tiêu đề
+                    materialWorksheet.Cell(1, 1).Value = "THỐNG KÊ VẬT LIỆU";
+                    materialWorksheet.Cell(1, 1).Style.Font.Bold = true;
+                    materialWorksheet.Cell(1, 1).Style.Font.FontSize = 14;
+                    materialWorksheet.Range(1, 1, 1, dgvMaterial.Columns.Count).Merge();
+                    
+                    // Header vật liệu
+                    colIndex = 1;
+                    foreach (DataGridViewColumn col in dgvMaterial.Columns)
+                    {
+                        materialWorksheet.Cell(3, colIndex).Value = col.HeaderText;
+                        materialWorksheet.Cell(3, colIndex).Style.Font.Bold = true;
+                        materialWorksheet.Cell(3, colIndex).Style.Fill.BackgroundColor = XLColor.SteelBlue;
+                        materialWorksheet.Cell(3, colIndex).Style.Font.FontColor = XLColor.White;
+                        colIndex++;
+                    }
+                    
+                    // Dữ liệu vật liệu
+                    rowIndex = 4;
+                    foreach (DataGridViewRow row in dgvMaterial.Rows)
+                    {
+                        colIndex = 1;
+                        foreach (DataGridViewCell cell in row.Cells)
+                        {
+                            materialWorksheet.Cell(rowIndex, colIndex).Value = cell.Value?.ToString();
+                            colIndex++;
+                        }
+                        rowIndex++;
+                    }
+                    
+                    // Tạo worksheet cho tổng
+                    var totalWorksheet = workbook.Worksheets.Add("Tổng hợp");
+                    
+                    // Tiêu đề
+                    totalWorksheet.Cell(1, 1).Value = "THỐNG KÊ TỔNG";
+                    totalWorksheet.Cell(1, 1).Style.Font.Bold = true;
+                    totalWorksheet.Cell(1, 1).Style.Font.FontSize = 14;
+                    
+                    // Thêm thông tin tổng
+                    string[] totalLines = totalText.Split('\n');
+                    rowIndex = 3;
+                    foreach (string line in totalLines)
+                    {
+                        totalWorksheet.Cell(rowIndex, 1).Value = line;
+                        totalWorksheet.Cell(rowIndex, 1).Style.Font.Bold = true;
+                        rowIndex++;
+                    }
+                    
+                    // Auto-fit columns
+                    worksheet.Columns().AdjustToContents();
+                    materialWorksheet.Columns().AdjustToContents();
+                    totalWorksheet.Columns().AdjustToContents();
+                    
+                    // Lưu workbook
+                    workbook.SaveAs(saveFileDialog.FileName);
+                }
+                
+                MessageBox.Show("Xuất file Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                
+                // Mở file sau khi xuất
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = saveFileDialog.FileName,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi xuất file Excel: " + ex.Message);
+            }
+        }
+        
+        private void ExportToCSV(DataGridView dgvMain, DataGridView dgvMaterial, string totalText, string reportTitle)
+        {
+            try
+            {
+                // Tạo dialog lưu file
+                SaveFileDialog saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "CSV Files|*.csv",
+                    Title = "Xuất file CSV",
+                    FileName = $"ThongKe_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}.csv"
+                };
+                
+                if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                    return;
+                
+                // Tạo file CSV
+                using (var writer = new StreamWriter(saveFileDialog.FileName, false, System.Text.Encoding.UTF8))
+                {
+                    // Ghi tiêu đề
+                    writer.WriteLine(reportTitle);
+                    writer.WriteLine("Ngày xuất: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm"));
+                    writer.WriteLine();
+                    
+                    // Ghi header bảng chính
+                    for (int i = 0; i < dgvMain.Columns.Count; i++)
+                    {
+                        writer.Write(dgvMain.Columns[i].HeaderText);
+                        if (i < dgvMain.Columns.Count - 1)
+                            writer.Write(",");
+                    }
+                    writer.WriteLine();
+                    
+                    // Ghi dữ liệu bảng chính
+                    foreach (DataGridViewRow row in dgvMain.Rows)
+                    {
+                        for (int i = 0; i < row.Cells.Count; i++)
+                        {
+                            // Xử lý ký tự đặc biệt trong CSV
+                            string cellValue = row.Cells[i].Value?.ToString().Replace("\"", "\"\"") ?? "";
+                            writer.Write("\"" + cellValue + "\"");
+                            
+                            if (i < row.Cells.Count - 1)
+                                writer.Write(",");
+                        }
+                        writer.WriteLine();
+                    }
+                    
+                    writer.WriteLine();
+                    writer.WriteLine("THỐNG KÊ VẬT LIỆU");
+                    writer.WriteLine();
+                    
+                    // Ghi header bảng vật liệu
+                    for (int i = 0; i < dgvMaterial.Columns.Count; i++)
+                    {
+                        writer.Write(dgvMaterial.Columns[i].HeaderText);
+                        if (i < dgvMaterial.Columns.Count - 1)
+                            writer.Write(",");
+                    }
+                    writer.WriteLine();
+                    
+                    // Ghi dữ liệu bảng vật liệu
+                    foreach (DataGridViewRow row in dgvMaterial.Rows)
+                    {
+                        for (int i = 0; i < row.Cells.Count; i++)
+                        {
+                            // Xử lý ký tự đặc biệt trong CSV
+                            string cellValue = row.Cells[i].Value?.ToString().Replace("\"", "\"\"") ?? "";
+                            writer.Write("\"" + cellValue + "\"");
+                            
+                            if (i < row.Cells.Count - 1)
+                                writer.Write(",");
+                        }
+                        writer.WriteLine();
+                    }
+                    
+                    writer.WriteLine();
+                    writer.WriteLine("THỐNG KÊ TỔNG");
+                    writer.WriteLine();
+                    
+                    // Ghi thông tin tổng
+                    string[] totalLines = totalText.Split('\n');
+                    foreach (string line in totalLines)
+                    {
+                        writer.WriteLine(line);
+                    }
+                }
+                
+                MessageBox.Show("Xuất file CSV thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                
+                // Mở file sau khi xuất
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = saveFileDialog.FileName,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi xuất file CSV: " + ex.Message);
             }
         }
     }
