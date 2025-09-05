@@ -5,6 +5,9 @@ using System.Drawing;
 using System.Windows.Forms;
 using FontAwesome.Sharp; // Thêm thư viện FontAwesome
 using QuanLyTram.DAL;
+using System.IO;
+using System.Linq;
+
 namespace QuanLyTram.Forms
 {
     public class Kho_LichSuForm : Form
@@ -25,159 +28,183 @@ namespace QuanLyTram.Forms
             InitializeData();
         }
         
-        private void InitializeLayout()
-        {
-            var mainLayout = new TableLayoutPanel
+            private void InitializeLayout()
             {
-                Dock = DockStyle.Fill,
-                RowCount = 3,
-                ColumnCount = 1
-            };
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 140));   // bộ lọc
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 100));   // khối lượng tồn
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));    // bảng dữ liệu
-            // ========== Bộ lọc (GroupBox Thời gian thống kê) ==========
-            var gbFilter = new GroupBox
-            {
-                Text = "THỜI GIAN THỐNG KÊ",
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                ForeColor = Color.Red
-            };
-            var pnlFilter = new TableLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                ColumnCount = 4,  // giảm từ 6 cột xuống 4 cột
-                RowCount = 3,
-                Padding = new Padding(5)
-            };
-            pnlFilter.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));    // label
-            pnlFilter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35));// control
-            pnlFilter.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));    // label
-            pnlFilter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35));// control
-            dtpFrom = new DateTimePicker { Dock = DockStyle.Fill, Format = DateTimePickerFormat.Short, Font = new Font("Segoe UI", 10, FontStyle.Regular), CalendarForeColor = Color.Black };
-            dtpTo = new DateTimePicker { Dock = DockStyle.Fill, Format = DateTimePickerFormat.Short, Font = new Font("Segoe UI", 10, FontStyle.Regular), CalendarForeColor = Color.Black };
-            cbSoTram = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10, FontStyle.Regular), ForeColor = Color.Black };
-            cbNhapXuat = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10, FontStyle.Regular), ForeColor = Color.Black };
-            cbVatLieu = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10, FontStyle.Regular), ForeColor = Color.Black };
-            
-            // Load dữ liệu cho ComboBox
-            LoadComboBoxData();
-            
-            // Hàng 1: Từ ngày - Số trạm
-            pnlFilter.Controls.Add(new Label { Text = "Từ ngày:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10, FontStyle.Bold), ForeColor = Color.Black }, 0, 0);
-            pnlFilter.Controls.Add(dtpFrom, 1, 0);
-            pnlFilter.Controls.Add(new Label { Text = "Số trạm:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10, FontStyle.Bold), ForeColor = Color.Black }, 2, 0);
-            pnlFilter.Controls.Add(cbSoTram, 3, 0);
-            // Hàng 2: Đến ngày - Tên vật liệu
-            pnlFilter.Controls.Add(new Label { Text = "Đến ngày:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10, FontStyle.Bold), ForeColor = Color.Black }, 0, 1);
-            pnlFilter.Controls.Add(dtpTo, 1, 1);
-            pnlFilter.Controls.Add(new Label { Text = "Tên vật liệu:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10, FontStyle.Bold), ForeColor = Color.Black }, 2, 1);
-            pnlFilter.Controls.Add(cbVatLieu, 3, 1);
-            // Hàng 3: Nhập xuất + nút Xem, Excel
-            pnlFilter.Controls.Add(new Label { Text = "Nhập xuất:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10, FontStyle.Bold), ForeColor = Color.Black }, 0, 2);
-            pnlFilter.Controls.Add(cbNhapXuat, 1, 2);
-            // tạo panel chứa 2 nút
-            var pnlButtons = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                FlowDirection = FlowDirection.LeftToRight,
-                AutoSize = true
-            };
-            btnXem = new IconButton
-            {
-                Text = "XEM",
-                Width = 100,
-                Height = 30,
-                Font = new Font("Segoe UI", 9, FontStyle.Bold),
-                ForeColor = Color.White,
-                BackColor = Color.FromArgb(65, 131, 215), // Màu xanh dương
-                FlatStyle = FlatStyle.Flat,
-                IconChar = IconChar.Search,
-                IconColor = Color.White,
-                IconFont = IconFont.Auto,
-                IconSize = 15,
-                TextImageRelation = TextImageRelation.ImageBeforeText,
-                TextAlign = ContentAlignment.MiddleCenter,
-                ImageAlign = ContentAlignment.MiddleCenter,
-                Padding = new Padding(15, 0, 0, 0),
-                Cursor = Cursors.Hand
-            };
-            btnXem.FlatAppearance.BorderSize = 0;
-            
-            btnExcel = new IconButton
-            {
-                Text = "EXCEL",
-                Width = 100,
-                Height = 30,
-                Font = new Font("Segoe UI", 9, FontStyle.Bold),
-                ForeColor = Color.White,
-                BackColor = Color.FromArgb(110, 170, 60),
-                FlatStyle = FlatStyle.Flat,
-                IconChar = IconChar.FileExcel,
-                IconColor = Color.White,
-                IconFont = IconFont.Auto,
-                IconSize = 15,
-                TextImageRelation = TextImageRelation.ImageBeforeText,
-                TextAlign = ContentAlignment.MiddleCenter,
-                ImageAlign = ContentAlignment.MiddleCenter,
-                Padding = new Padding(15, 0, 0, 0),
-                Cursor = Cursors.Hand
-            };
-            btnExcel.FlatAppearance.BorderSize = 0;
-            
-            pnlButtons.Controls.Add(btnXem);
-            pnlButtons.Controls.Add(btnExcel);
-            // thêm panel nút vào cột 3, hàng 2
-            pnlFilter.Controls.Add(pnlButtons, 3, 2);
-            
-            gbFilter.Controls.Add(pnlFilter);
-            // ========== Khối lượng tồn ==========
-            var gbTon = new GroupBox
-            {
-                Text = "KHỐI LƯỢNG TỒN CÁC THÀNH PHẦN",
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                ForeColor = Color.Red
-            };
-            txtKhoiLuongTon = new TextBox
-            {
-                Dock = DockStyle.Fill,
-                Multiline = true,
-                BackColor = Color.White,
-                ReadOnly = true,
-                Font = new Font("Segoe UI", 10, FontStyle.Regular),
-                ForeColor = Color.Black,
-                Text = "Khối lượng tồn các thành phần..."
-            };
-            gbTon.Controls.Add(txtKhoiLuongTon);
-            // ========== Bảng dữ liệu ==========
-            var gbData = new GroupBox
-            {
-                Text = "LỊCH SỬ NHẬP XUẤT THỐNG KÊ",
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                ForeColor = Color.Red
-            };
-            dgv = new DataGridView
-            {
-                Dock = DockStyle.Fill,
-                BackgroundColor = Color.White,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                AllowUserToAddRows = false,
-                Font = new Font("Segoe UI", 10, FontStyle.Regular),
-                ForeColor = Color.Black
-            };
-            gbData.Controls.Add(dgv);
-            mainLayout.Controls.Add(gbFilter, 0, 0);
-            mainLayout.Controls.Add(gbTon, 0, 1);
-            mainLayout.Controls.Add(gbData, 0, 2);
-            this.Controls.Add(mainLayout);
-            
-            // Đăng ký sự kiện
-            btnXem.Click += BtnXem_Click;
-            btnExcel.Click += BtnExcel_Click;
-        }
+                var mainLayout = new Panel
+                {
+                    Dock = DockStyle.Fill,
+                    Padding = new Padding(16, 10, 16, 16),
+                    BackColor = Color.Beige
+                };
+                this.Controls.Add(mainLayout);
+                
+                // ========== Bộ lọc (GroupBox Thời gian thống kê) ==========
+                var gbFilter = new GroupBox
+                {
+                    Text = "THỜI GIAN THỐNG KÊ",
+                    Location = new Point(20, 8),
+                    Size = new Size(1210, 130),
+                    Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                    ForeColor = Color.Red
+                };
+                mainLayout.Controls.Add(gbFilter);
+                
+                var pnlFilter = new TableLayoutPanel
+                {
+                    Dock = DockStyle.Fill,
+                    ColumnCount = 4,  // giảm từ 6 cột xuống 4 cột
+                    RowCount = 3,
+                    Padding = new Padding(5)
+                };
+                pnlFilter.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));    // label
+                pnlFilter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35));// control
+                pnlFilter.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));    // label
+                pnlFilter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35));// control
+                dtpFrom = new DateTimePicker { Dock = DockStyle.Fill, Format = DateTimePickerFormat.Short, Font = new Font("Segoe UI", 10, FontStyle.Regular), CalendarForeColor = Color.Black };
+                dtpTo = new DateTimePicker { Dock = DockStyle.Fill, Format = DateTimePickerFormat.Short, Font = new Font("Segoe UI", 10, FontStyle.Regular), CalendarForeColor = Color.Black };
+                cbSoTram = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10, FontStyle.Regular), ForeColor = Color.Black };
+                cbNhapXuat = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10, FontStyle.Regular), ForeColor = Color.Black };
+                cbVatLieu = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10, FontStyle.Regular), ForeColor = Color.Black };
+                
+                // Load dữ liệu cho ComboBox
+                LoadComboBoxData();
+                
+                // Hàng 1: Từ ngày - Số trạm
+                pnlFilter.Controls.Add(new Label { Text = "Từ ngày:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10, FontStyle.Bold), ForeColor = Color.Black }, 0, 0);
+                pnlFilter.Controls.Add(dtpFrom, 1, 0);
+                pnlFilter.Controls.Add(new Label { Text = "Số trạm:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10, FontStyle.Bold), ForeColor = Color.Black }, 2, 0);
+                pnlFilter.Controls.Add(cbSoTram, 3, 0);
+                // Hàng 2: Đến ngày - Tên vật liệu
+                pnlFilter.Controls.Add(new Label { Text = "Đến ngày:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10, FontStyle.Bold), ForeColor = Color.Black }, 0, 1);
+                pnlFilter.Controls.Add(dtpTo, 1, 1);
+                pnlFilter.Controls.Add(new Label { Text = "Tên vật liệu:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10, FontStyle.Bold), ForeColor = Color.Black }, 2, 1);
+                pnlFilter.Controls.Add(cbVatLieu, 3, 1);
+                // Hàng 3: Nhập xuất + nút Xem, Excel
+                pnlFilter.Controls.Add(new Label { Text = "Nhập xuất:", Anchor = AnchorStyles.Left, AutoSize = true, Font = new Font("Segoe UI", 10, FontStyle.Bold), ForeColor = Color.Black }, 0, 2);
+                pnlFilter.Controls.Add(cbNhapXuat, 1, 2);
+                // tạo panel chứa 2 nút
+                var pnlButtons = new FlowLayoutPanel
+                {
+                    Dock = DockStyle.Fill,
+                    FlowDirection = FlowDirection.LeftToRight,
+                    AutoSize = true
+                };
+                btnXem = new IconButton
+                {
+                    Text = "XEM",
+                    Width = 100,
+                    Height = 30,
+                    Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                    ForeColor = Color.White,
+                    BackColor = Color.FromArgb(65, 131, 215), // Màu xanh dương
+                    FlatStyle = FlatStyle.Flat,
+                    IconChar = IconChar.Search,
+                    IconColor = Color.White,
+                    IconFont = IconFont.Auto,
+                    IconSize = 15,
+                    TextImageRelation = TextImageRelation.ImageBeforeText,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    ImageAlign = ContentAlignment.MiddleCenter,
+                    Padding = new Padding(15, 0, 0, 0),
+                    Cursor = Cursors.Hand
+                };
+                btnXem.FlatAppearance.BorderSize = 0;
+                
+                btnExcel = new IconButton
+                {
+                    Text = "EXCEL",
+                    Width = 100,
+                    Height = 30,
+                    Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                    ForeColor = Color.White,
+                    BackColor = Color.FromArgb(110, 170, 60),
+                    FlatStyle = FlatStyle.Flat,
+                    IconChar = IconChar.FileExcel,
+                    IconColor = Color.White,
+                    IconFont = IconFont.Auto,
+                    IconSize = 15,
+                    TextImageRelation = TextImageRelation.ImageBeforeText,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    ImageAlign = ContentAlignment.MiddleCenter,
+                    Padding = new Padding(15, 0, 0, 0),
+                    Cursor = Cursors.Hand
+                };
+                btnExcel.FlatAppearance.BorderSize = 0;
+                
+                pnlButtons.Controls.Add(btnXem);
+                pnlButtons.Controls.Add(btnExcel);
+                // thêm panel nút vào cột 3, hàng 2
+                pnlFilter.Controls.Add(pnlButtons, 3, 2);
+                
+                gbFilter.Controls.Add(pnlFilter);
+                
+                // ========== Khối lượng tồn ==========
+                var gbTon = new GroupBox
+                {
+                    Text = "KHỐI LƯỢNG TỒN CÁC THÀNH PHẦN",
+                    Location = new Point(20, gbFilter.Bottom + 10),
+                    Size = new Size(1210, 80),
+                    Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                    ForeColor = Color.Red
+                };
+                mainLayout.Controls.Add(gbTon);
+                
+                txtKhoiLuongTon = new TextBox
+                {
+                    Dock = DockStyle.Fill,
+                    Multiline = true,
+                    BackColor = Color.White,
+                    ReadOnly = true,
+                    Font = new Font("Segoe UI", 10, FontStyle.Regular),
+                    ForeColor = Color.Black,
+                    Text = "Khối lượng tồn các thành phần..."
+                };
+                gbTon.Controls.Add(txtKhoiLuongTon);
+                
+                // ========== Bảng dữ liệu ==========
+                var lblGridTitle = new Label
+                {
+                    Text = "LỊCH SỬ NHẬP XUẤT THỐNG KÊ",
+                    Font = new Font("Segoe UI", 10f, FontStyle.Bold),
+                    ForeColor = Color.Red,
+                    AutoSize = true,
+                    Location = new Point(20, gbTon.Bottom + 10)
+                };
+                mainLayout.Controls.Add(lblGridTitle);
+                
+                dgv = new DataGridView
+                {
+                    Location = new Point(20, lblGridTitle.Bottom + 8),
+                    Size = new Size(1210, 430),
+                    ReadOnly = true,
+                    MultiSelect = false,
+                    AllowUserToAddRows = false,
+                    AllowUserToDeleteRows = false,
+                    SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                    BackgroundColor = Color.White,
+                    BorderStyle = BorderStyle.FixedSingle,
+                    AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                    RowHeadersVisible = true
+                };
+                mainLayout.Controls.Add(dgv);
+                
+                // Thiết lập tiêu đề cột
+                dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+                dgv.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                
+                // Tạo các cột thủ công
+                dgv.Columns.Add(new DataGridViewTextBoxColumn { Name = "STT", HeaderText = "STT", Width = 50 });
+                dgv.Columns.Add(new DataGridViewTextBoxColumn { Name = "Ngay", HeaderText = "Ngày" });
+                dgv.Columns.Add(new DataGridViewTextBoxColumn { Name = "Tram", HeaderText = "Trạm" });
+                dgv.Columns.Add(new DataGridViewTextBoxColumn { Name = "VatLieu", HeaderText = "Vật liệu" });
+                dgv.Columns.Add(new DataGridViewTextBoxColumn { Name = "Loai", HeaderText = "Loại" });
+                dgv.Columns.Add(new DataGridViewTextBoxColumn { Name = "SoLuong", HeaderText = "Số lượng" });
+                dgv.Columns.Add(new DataGridViewTextBoxColumn { Name = "GhiChu", HeaderText = "Ghi chú" });
+                
+                // Đăng ký sự kiện
+                btnXem.Click += BtnXem_Click;
+                btnExcel.Click += BtnExcel_Click;
+            }
         
         private void LoadComboBoxData()
         {
@@ -193,9 +220,12 @@ namespace QuanLyTram.Forms
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
-                            while (reader.Read())
+                            DataTable dtTram = new DataTable();
+                            dtTram.Load(reader);
+                            
+                            foreach (DataRow row in dtTram.Rows)
                             {
-                                cbSoTram.Items.Add(new { Value = reader["MATRAM"], Display = reader["TENTRAM"].ToString() });
+                                cbSoTram.Items.Add(new { Value = row["MATRAM"], Display = row["TENTRAM"].ToString() });
                             }
                         }
                     }
@@ -215,9 +245,12 @@ namespace QuanLyTram.Forms
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
-                            while (reader.Read())
+                            DataTable dtVatTu = new DataTable();
+                            dtVatTu.Load(reader);
+                            
+                            foreach (DataRow row in dtVatTu.Rows)
                             {
-                                cbVatLieu.Items.Add(new { Value = reader["MAVATTU"], Display = reader["TENVATTU"].ToString() });
+                                cbVatLieu.Items.Add(new { Value = row["MAVATTU"], Display = row["TENVATTU"].ToString() });
                             }
                         }
                     }
@@ -235,24 +268,17 @@ namespace QuanLyTram.Forms
         private void InitializeData()
         {
             _table = new DataTable();
-            _table.Columns.Add("Ngày", typeof(DateTime));
-            _table.Columns.Add("Trạm", typeof(string));
-            _table.Columns.Add("Vật liệu", typeof(string));
-            _table.Columns.Add("Loại", typeof(string));
-            _table.Columns.Add("Số lượng", typeof(double));
-            _table.Columns.Add("Ghi chú", typeof(string));
             
             // Load dữ liệu mặc định
             LoadData();
-            
-            dgv.DataSource = _table;
         }
         
         private void LoadData()
         {
             try
             {
-                _table.Clear();
+                // Xóa dữ liệu hiện có trong DataGridView
+                dgv.Rows.Clear();
                 
                 using (var conn = DatabaseHelper.GetConnection())
                 {
@@ -324,13 +350,26 @@ namespace QuanLyTram.Forms
                         
                         using (var adapter = new SqlDataAdapter(cmd))
                         {
+                            _table = new DataTable();
                             adapter.Fill(_table);
+                            
+                            // Thêm dữ liệu vào DataGridView
+                            for (int i = 0; i < _table.Rows.Count; i++)
+                            {
+                                var row = _table.Rows[i];
+                                dgv.Rows.Add(
+                                    i + 1, // STT
+                                    Convert.ToDateTime(row["NGAYGIAODICH"]).ToString("dd/MM/yyyy"),
+                                    row["TENTRAM"],
+                                    row["TENVATTU"],
+                                    row["LOAIGIAODICH"],
+                                    row["SOLUONG"],
+                                    row["GHICHU"] ?? "" // Xử lý giá trị null
+                                );
+                            }
                         }
                     }
                 }
-                
-                // Cập nhật DataGridView
-                dgv.DataSource = _table;
                 
                 // Tính toán khối lượng tồn
                 CalculateInventory();
@@ -341,58 +380,50 @@ namespace QuanLyTram.Forms
             }
         }
         
-        private void CalculateInventory()
+private void CalculateInventory()
+{
+    try
+    {
+        using (var conn = DatabaseHelper.GetConnection())
         {
-            try
+            conn.Open();
+            
+            // Sử dụng một truy vấn duy nhất để tính tồn kho cho tất cả vật liệu
+            string query = @"
+            SELECT 
+                v.MAVATTU,
+                v.TENVATTU,
+                ISNULL(SUM(CASE WHEN k.LOAIGIAODICH = N'Nhập' THEN k.SOLUONG ELSE 0 END), 0) AS TongNhap,
+                ISNULL(SUM(CASE WHEN k.LOAIGIAODICH = N'Xuất' THEN k.SOLUONG ELSE 0 END), 0) AS TongXuat
+            FROM VATTU v
+            LEFT JOIN KHO k ON v.MAVATTU = k.MAVATTU
+            GROUP BY v.MAVATTU, v.TENVATTU
+            ORDER BY v.MAVATTU";
+            
+            using (var cmd = new SqlCommand(query, conn))
+            using (var reader = cmd.ExecuteReader())
             {
-                using (var conn = DatabaseHelper.GetConnection())
+                var inventoryText = "";
+                
+                while (reader.Read())
                 {
-                    conn.Open();
+                    string tenVatTu = reader["TENVATTU"].ToString();
+                    decimal tongNhap = Convert.ToDecimal(reader["TongNhap"]);
+                    decimal tongXuat = Convert.ToDecimal(reader["TongXuat"]);
+                    decimal tonKho = tongNhap - tongXuat;
                     
-                    // Lấy danh sách vật liệu
-                    var inventoryText = "";
-                    
-                    using (var cmd = new SqlCommand("SELECT MAVATTU, TENVATTU FROM VATTU", conn))
-                    {
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                int maVatTu = Convert.ToInt32(reader["MAVATTU"]);
-                                string tenVatTu = reader["TENVATTU"].ToString();
-                                
-                                // Tính tổng nhập
-                                decimal tongNhap = 0;
-                                using (var cmdNhap = new SqlCommand("SELECT ISNULL(SUM(SOLUONG), 0) FROM KHO WHERE MAVATTU = @maVatTu AND LOAIGIAODICH = 'Nhập'", conn))
-                                {
-                                    cmdNhap.Parameters.Add("@maVatTu", SqlDbType.Int).Value = maVatTu;
-                                    tongNhap = Convert.ToDecimal(cmdNhap.ExecuteScalar());
-                                }
-                                
-                                // Tính tổng xuất
-                                decimal tongXuat = 0;
-                                using (var cmdXuat = new SqlCommand("SELECT ISNULL(SUM(SOLUONG), 0) FROM KHO WHERE MAVATTU = @maVatTu AND LOAIGIAODICH = 'Xuất'", conn))
-                                {
-                                    cmdXuat.Parameters.Add("@maVatTu", SqlDbType.Int).Value = maVatTu;
-                                    tongXuat = Convert.ToDecimal(cmdXuat.ExecuteScalar());
-                                }
-                                
-                                // Tính tồn kho
-                                decimal tonKho = tongNhap - tongXuat;
-                                
-                                inventoryText += $"{tenVatTu}: {tonKho}\n";
-                            }
-                        }
-                    }
-                    
-                    txtKhoiLuongTon.Text = inventoryText;
+                    inventoryText += $"{tenVatTu}: {tonKho}\n";
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi tính toán tồn kho: " + ex.Message);
+                
+                txtKhoiLuongTon.Text = inventoryText;
             }
         }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show("Lỗi khi tính toán tồn kho: " + ex.Message);
+    }
+}
         
         private void BtnXem_Click(object sender, EventArgs e)
         {
@@ -401,8 +432,48 @@ namespace QuanLyTram.Forms
         
         private void BtnExcel_Click(object sender, EventArgs e)
         {
-            // Xuất dữ liệu ra Excel
-            MessageBox.Show("Chức năng xuất Excel đang được phát triển!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            try
+            {
+                // Tạo một tạm file Excel
+                string tempPath = Path.GetTempPath();
+                string fileName = $"LichSuNhapXuat_{DateTime.Now:ddMMyyyy_HHmmss}.xlsx";
+                string filePath = Path.Combine(tempPath, fileName);
+                
+                // Tạo file Excel và ghi dữ liệu
+                using (var writer = new StreamWriter(filePath))
+                {
+                    // Ghi tiêu đề
+                    writer.WriteLine("STT\tNgày\tTrạm\tVật liệu\tLoại\tSố lượng\tGhi chú");
+                    
+                    // Ghi dữ liệu
+                    for (int i = 0; i < dgv.Rows.Count; i++)
+                    {
+                        var row = dgv.Rows[i];
+                        writer.WriteLine(
+                            $"{row.Cells["STT"].Value}\t" +
+                            $"{row.Cells["Ngay"].Value}\t" +
+                            $"{row.Cells["Tram"].Value}\t" +
+                            $"{row.Cells["VatLieu"].Value}\t" +
+                            $"{row.Cells["Loai"].Value}\t" +
+                            $"{row.Cells["SoLuong"].Value}\t" +
+                            $"{row.Cells["GhiChu"].Value}"
+                        );
+                    }
+                }
+                
+                // Mở file Excel vừa tạo
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = filePath,
+                    UseShellExecute = true
+                });
+                
+                MessageBox.Show("Xuất dữ liệu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi xuất dữ liệu ra Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

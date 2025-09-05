@@ -120,7 +120,7 @@ GO
 CREATE TABLE KHO (
     MAKHO INT IDENTITY(1,1) PRIMARY KEY,
     NGAYGIAODICH DATETIME NOT NULL DEFAULT GETDATE(),
-    LOAIGIAODICH NVARCHAR(20) CHECK (LOAIGIAODICH IN ('Nhập', 'Xuất', 'Tịnh kho')),
+    LOAIGIAODICH NVARCHAR(20) CHECK (LOAIGIAODICH IN (N'Nhập', N'Xuất', N'Tịnh kho')),
     MAVATTU INT FOREIGN KEY REFERENCES VATTU(MAVATTU),
     SOPHIEU NVARCHAR(50),
     SOHOPDONG NVARCHAR(50),
@@ -355,7 +355,7 @@ VALUES
 (N'Doanh nghiệp Tư nhân Hòa Bình')
 GO
 
--- Thêm dữ liệu mẫu cho bảng CAUPHOI
+-- Thêm dữ liệu mẫu cho bảng CAPPHOI
 INSERT INTO CAPPHOI (STT, MACBETONG, CUONGDO, COTLIEUMAX, DOSUT) 
 VALUES 
 (1, N'C30R28-10±2', N'25', N'20', N'10±2'),
@@ -393,6 +393,33 @@ VALUES
 ('2025-07-24', N'A07', N'0', 40, 0, 8, N'KĐT MỚI NAM CẦN THƠ'),
 ('2025-07-30', N'A08', N'0', 12, 0, 9, N'KCN TRÀ NÓC 2, CẦN THƠ')
 GO
+
+
+-- Thêm dữ liệu mẫu cho bảng KHO với tiền tố N cho Unicode
+INSERT INTO KHO (NGAYGIAODICH, LOAIGIAODICH, MAVATTU, SOPHIEU, SOHOPDONG, SOLUONG, SOLUONGKG, PHUONGTIEN, LAIXE, DONVIVANCHUYEN, NHACUNGCAP, TONKHO, MATRAM) 
+VALUES 
+('2025-07-01', N'Nhập', 1, N'PN001', N'HD001', 100, 5000, N'Xe tải 5 tấn', N'Nguyễn Văn A', N'Công ty vận tải ABC', N'Công ty Xi măng Đồng Nai', 1500, 1),
+('2025-07-02', N'Nhập', 2, N'PN002', N'HD002', 50, 75000, N'Xe ben 10 tấn', N'Trần Văn B', N'Công ty vận tải XYZ', N'Công ty Cát Sông Đà', 2500, 1),
+('2025-07-03', N'Xuất', 1, N'PX001', NULL, 30, 1500, N'Xe mixer', N'Lê Văn C', N'Công ty vận tải ABC', NULL, 1470, 1),
+('2025-07-04', N'Xuất', 2, N'PX002', NULL, 20, 30000, N'Xe ben 8 tấn', N'Phạm Văn D', N'Công ty vận tải XYZ', NULL, 2480, 1),
+('2025-07-05', N'Nhập', 3, N'PN003', N'HD003', 80, 80, N'Xe tải 3 tấn', N'Ngô Văn E', N'Công ty vận tải DEF', N'Công ty Đá Hòa Phú', 80, 1),
+('2025-07-06', N'Tịnh kho', 1, N'TK001', NULL, 0, 0, NULL, NULL, NULL, NULL, 1470, 1),
+('2025-07-07', N'Nhập', 4, N'PN004', N'HD004', 10, 10, N'Xe tải 1.5 tấn', N'Văn Văn F', N'Công ty vận tải GHI', N'Công ty Nước sạch Sài Gòn', 10, 1),
+('2025-07-08', N'Xuất', 3, N'PX003', NULL, 5, 5, N'Xe tải 1 tấn', N'Hoàng Văn G', N'Công ty vận chuyển JKL', NULL, 75, 1),
+('2025-07-09', N'Nhập', 5, N'PN005', N'HD005', 20, 20, N'Xe tải 2 tấn', N'Đỗ Văn H', N'Công ty vận tải MNO', N'Công ty Phụ gia Hòa Bình', 20, 1),
+('2025-07-10', N'Xuất', 4, N'PX004', NULL, 2, 2, N'Xe máy', N'Nguyễn Thị I', N'Tự vận chuyển', NULL, 8, 1),
+('2025-07-11', N'Nhập', 1, N'PN006', N'HD006', 150, 7500, N'Xe tải 8 tấn', N'Trần Thị K', N'Công ty vận tải PQR', N'Công ty Xi măng Đồng Nai', 1508, 2),
+('2025-07-12', N'Nhập', 2, N'PN007', N'HD007', 60, 90000, N'Xe ben 15 tấn', N'Lê Văn L', N'Công ty vận tải STU', N'Công ty Cát Sông Đà', 2560, 2),
+('2025-07-13', N'Xuất', 1, N'PX005', NULL, 40, 2000, N'Xe mixer', N'Phạm Thị M', N'Công ty vận tải PQR', NULL, 1508, 2),
+('2025-07-14', N'Xuất', 2, N'PX006', NULL, 30, 45000, N'Xe ben 10 tấn', N'Ngô Văn N', N'Công ty vận tải STU', NULL, 2530, 2),
+('2025-07-15', N'Nhập', 3, N'PN008', N'HD008', 100, 100, N'Xe tải 5 tấn', N'Văn Văn O', N'Công ty vận tải VWX', N'Công ty Đá Hòa Phú', 100, 2),
+('2025-07-16', N'Tịnh kho', 1, N'TK002', NULL, 0, 0, NULL, NULL, NULL, NULL, 1508, 2),
+('2025-07-17', N'Nhập', 4, N'PN009', N'HD009', 15, 15, N'Xe tải 2 tấn', N'Hoàng Văn P', N'Công ty vận tải YZA', N'Công ty Nước sạch Sài Gòn', 15, 2),
+('2025-07-18', N'Xuất', 3, N'PX007', NULL, 8, 8, N'Xe tải 1.5 tấn', N'Đỗ Thị Q', N'Công ty vận chuyển BCD', NULL, 92, 2),
+('2025-07-19', N'Nhập', 5, N'PN010', N'HD010', 25, 25, N'Xe tải 3 tấn', N'Nguyễn Văn R', N'Công ty vận tải EFG', N'Công ty Phụ gia Hòa Bình', 25, 2),
+('2025-07-20', N'Xuất', 4, N'PX008', NULL, 3, 3, N'Xe máy', N'Trần Văn S', N'Tự vận chuyển', NULL, 12, 2)
+GO
+
 
 -- Thêm dữ liệu mẫu cho bảng CUA_VATTU
 INSERT INTO CUA_VATTU (STT, TENTRAM, LOAIVATTU, TENCUA, HESOQUYDOI, DONVITINH) 

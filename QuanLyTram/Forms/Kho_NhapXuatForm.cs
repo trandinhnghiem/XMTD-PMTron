@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using FontAwesome.Sharp; // Thêm thư viện FontAwesome
 using QuanLyTram.DAL;
+
 namespace QuanLyTram.Forms
 {
     public class Kho_NhapXuatForm : Form
@@ -128,19 +129,19 @@ namespace QuanLyTram.Forms
             int  txtW = 220;
             // Trạm
             Label lblTram = new Label() { Text = "Trạm:", Location = new Point(20, 35), AutoSize = true };
-            cbTram = new ComboBox() { Location = new Point(150, 30), Width = txtW };
+            cbTram = new ComboBox() { Location = new Point(140, 30), Width = txtW, DropDownStyle = ComboBoxStyle.DropDownList };
             // Nhập xuất
             Label lblNhapXuat = new Label() { Text = "Nhập/Xuất:", Location = new Point(20, 70), AutoSize = true };
-            cbNhapXuat = new ComboBox() { Location = new Point(150, 65), Width = txtW };
-            cbNhapXuat.Items.AddRange(new string[] { "Nhập vật liệu", "Xuất vật liệu" });
+            cbNhapXuat = new ComboBox() { Location = new Point(140, 65), Width = txtW, DropDownStyle = ComboBoxStyle.DropDownList };
+            cbNhapXuat.Items.AddRange(new string[] { "Nhập", "Xuất", "Tịnh kho" });
             // Tên VL
             Label lblVatLieu = new Label() { Text = "Tên vật liệu:", Location = new Point(20, 105), AutoSize = true };
-            txtVatLieu = new TextBox() { Location = new Point(150, 100), Width = txtW };
+            txtVatLieu = new TextBox() { Location = new Point(140, 100), Width = txtW };
             // Đơn vị
             Label lblDonVi = new Label() { Text = "Đơn vị:", Location = new Point(20, 140), AutoSize = true };
-            cbDonVi = new ComboBox() { Location = new Point(150, 135), Width = 100 };
-            Label lblQuyDoi = new Label() { Text = "Quy đổi:", Location = new Point(260, 140), AutoSize = true };
-            txtQuyDoi = new TextBox() { Location = new Point(320, 135), Width = 50 };
+            cbDonVi = new ComboBox() { Location = new Point(140, 135), Width = 80, DropDownStyle = ComboBoxStyle.DropDownList };
+            Label lblQuyDoi = new Label() { Text = "Quy đổi:", Location = new Point(230, 140), AutoSize = true };
+            txtQuyDoi = new TextBox() { Location = new Point(300, 135), Width = 60 };
             // Số phiếu
             Label lblSoPhieu = new Label() { Text = "Số phiếu:", Location = new Point(400, 35), AutoSize = true };
             txtSoPhieu = new TextBox() { Location = new Point(530, 30), Width = txtW };
@@ -160,23 +161,23 @@ namespace QuanLyTram.Forms
             Label lblSLNX = new Label() { Text = "SL nhập xuất:", Location = new Point(400, 140), AutoSize = true };
             txtSLNhapXuat = new TextBox() { Location = new Point(530, 135), Width = txtW };
             // Quy đổi về KG
-            Label lblQuyDoiKg = new Label() { Text = "Quy đổi về Kg:", Location = new Point(770, 35), AutoSize = true };
-            TextBox txtQuyDoiKg = new TextBox() { Location = new Point(900, 30), Width = txtW };
+            Label lblQuyDoiKg = new Label() { Text = "Quy đổi về Kg:", Location = new Point(780, 35), AutoSize = true };
+            TextBox txtQuyDoiKg = new TextBox() { Location = new Point(915, 30), Width = txtW, ReadOnly = true };
             // Phương tiện
-            Label lblPhuongTien = new Label() { Text = "Tên phương tiện:", Location = new Point(770, 70), AutoSize = true };
-            cbPhuongTien = new ComboBox() { Location = new Point(900, 65), Width = txtW };
+            Label lblPhuongTien = new Label() { Text = "Tên phương tiện:", Location = new Point(780, 70), AutoSize = true };
+            cbPhuongTien = new ComboBox() { Location = new Point(915, 65), Width = txtW };
             // Lái xe
-            Label lblLaiXe = new Label() { Text = "Tên lái xe:", Location = new Point(770, 105), AutoSize = true };
-            txtLaiXe = new TextBox() { Location = new Point(900, 100), Width = txtW };
+            Label lblLaiXe = new Label() { Text = "Tên lái xe:", Location = new Point(780, 105), AutoSize = true };
+            txtLaiXe = new TextBox() { Location = new Point(915, 100), Width = txtW };
             // Đơn vị VC
-            Label lblDonViVC = new Label() { Text = "Đơn vị vận chuyển:", Location = new Point(770, 140), AutoSize = true };
-            cbDonViVC = new ComboBox() { Location = new Point(900, 135), Width = txtW };
+            Label lblDonViVC = new Label() { Text = "Đơn vị vận chuyển:", Location = new Point(780, 140), AutoSize = true };
+            cbDonViVC = new ComboBox() { Location = new Point(915, 135), Width = txtW };
             // Nhà cung cấp
-            Label lblNCC = new Label() { Text = "Nhà cung cấp:", Location = new Point(770, 175), AutoSize = true };
-            cbNhaCungCap = new ComboBox() { Location = new Point(900, 170), Width = txtW };
+            Label lblNCC = new Label() { Text = "Nhà cung cấp:", Location = new Point(780, 175), AutoSize = true };
+            cbNhaCungCap = new ComboBox() { Location = new Point(915, 170), Width = txtW };
             // Số lượng tồn
             Label lblTon = new Label() { Text = "Số lượng tồn:", Location = new Point(400, 175), AutoSize = true };
-            txtSoLuongTon = new TextBox() { Location = new Point(530, 170), Width = txtW };
+            txtSoLuongTon = new TextBox() { Location = new Point(530, 170), Width = txtW, ReadOnly = true };
             
             groupInfo.Controls.AddRange(new Control[] {
                 lblTram, cbTram,
@@ -203,22 +204,29 @@ namespace QuanLyTram.Forms
                 Location = new Point(20, 310),
                 Size = new Size(1200, 350),
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                BackgroundColor = Color.White
+                BackgroundColor = Color.White,
+                AutoGenerateColumns = false, // Ngăn tự động tạo cột
+                AllowUserToAddRows = false,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                ReadOnly = true
             };
-            this.Controls.Add(dgvKho);
             
-            // Cột
-            dgvKho.Columns.Add("STT", "STT");
-            dgvKho.Columns.Add("SoPhieu", "Số phiếu");
-            dgvKho.Columns.Add("SoHoaDon", "Số hóa đơn");
-            dgvKho.Columns.Add("NhapXuat", "Nhập/Xuất");
-            dgvKho.Columns.Add("ThoiGian", "Thời gian");
-            dgvKho.Columns.Add("TenVatLieu", "Tên vật liệu");
-            dgvKho.Columns.Add("BienXe", "Biển xe");
-            dgvKho.Columns.Add("LaiXe", "Lái xe");
-            dgvKho.Columns.Add("DonViVC", "Đơn vị VC");
-            dgvKho.Columns.Add("NhaCungCap", "Nhà cung cấp");
-            dgvKho.Columns.Add("NhanVien", "Tên nhân viên");
+            // Tạo các cột thủ công
+            dgvKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "STT", HeaderText = "STT", Width = 50 });
+            dgvKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "SoPhieu", HeaderText = "Số phiếu" });
+            dgvKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "SoHoaDon", HeaderText = "Số hóa đơn" });
+            dgvKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "NhapXuat", HeaderText = "Nhập/Xuất" });
+            dgvKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "ThoiGian", HeaderText = "Thời gian" });
+            dgvKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "TenVatLieu", HeaderText = "Tên vật liệu" });
+            dgvKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "BienXe", HeaderText = "Phương tiện" });
+            dgvKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "LaiXe", HeaderText = "Lái xe" });
+            dgvKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "DonViVC", HeaderText = "Đơn vị VC" });
+            dgvKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "NhaCungCap", HeaderText = "Nhà cung cấp" });
+            
+            // Thêm cột ẩn để lưu MAKHO
+            dgvKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "MAKHO", HeaderText = "MAKHO", Visible = false });
+            
+            this.Controls.Add(dgvKho);
             
             // Load dữ liệu
             LoadData();
@@ -231,6 +239,9 @@ namespace QuanLyTram.Forms
             btnCapNhat.Click += BtnCapNhat_Click;
             btnLuu.Click += BtnLuu_Click;
             dgvKho.SelectionChanged += DgvKho_SelectionChanged;
+            cbDonVi.SelectedIndexChanged += CbDonVi_SelectedIndexChanged;
+            txtSLNhapXuat.TextChanged += TxtSLNhapXuat_TextChanged;
+            txtQuyDoi.TextChanged += TxtQuyDoi_TextChanged;
         }
         
         private void LoadData()
@@ -243,7 +254,7 @@ namespace QuanLyTram.Forms
                     using (var cmd = new SqlCommand(@"
                     SELECT k.MAKHO, k.SOPHIEU, k.SOHOPDONG, k.LOAIGIAODICH, k.NGAYGIAODICH, 
                            v.TENVATTU, k.PHUONGTIEN, k.LAIXE, k.DONVIVANCHUYEN, 
-                           k.NHACUNGCAP, k.SOLUONG, k.TONKHO
+                           k.NHACUNGCAP, k.SOLUONG, k.TONKHO, k.MAVATTU
                     FROM KHO k
                     JOIN VATTU v ON k.MAVATTU = v.MAVATTU
                     ORDER BY k.NGAYGIAODICH DESC", conn))
@@ -253,29 +264,27 @@ namespace QuanLyTram.Forms
                             dtKho = new DataTable();
                             adapter.Fill(dtKho);
                             
-                            // Đổi tên cột để hiển thị
-                            dtKho.Columns["MAKHO"].ColumnName = "ID";
-                            dtKho.Columns["SOPHIEU"].ColumnName = "SoPhieu";
-                            dtKho.Columns["SOHOPDONG"].ColumnName = "SoHoaDon";
-                            dtKho.Columns["LOAIGIAODICH"].ColumnName = "NhapXuat";
-                            dtKho.Columns["NGAYGIAODICH"].ColumnName = "ThoiGian";
-                            dtKho.Columns["TENVATTU"].ColumnName = "TenVatLieu";
-                            dtKho.Columns["PHUONGTIEN"].ColumnName = "BienXe";
-                            dtKho.Columns["LAIXE"].ColumnName = "LaiXe";
-                            dtKho.Columns["DONVIVANCHUYEN"].ColumnName = "DonViVC";
-                            dtKho.Columns["NHACUNGCAP"].ColumnName = "NhaCungCap";
-                            dtKho.Columns["SOLUONG"].ColumnName = "SoLuong";
-                            dtKho.Columns["TONKHO"].ColumnName = "TonKho";
+                            // Xóa dữ liệu hiện có trong DataGridView
+                            dgvKho.Rows.Clear();
                             
-                            // Thêm cột STT
-                            dtKho.Columns.Add("STT", typeof(int));
+                            // Thêm dữ liệu vào DataGridView
                             for (int i = 0; i < dtKho.Rows.Count; i++)
                             {
-                                dtKho.Rows[i]["STT"] = i + 1;
+                                var row = dtKho.Rows[i];
+                                dgvKho.Rows.Add(
+                                    i + 1, // STT
+                                    row["SOPHIEU"],
+                                    row["SOHOPDONG"],
+                                    row["LOAIGIAODICH"],
+                                    Convert.ToDateTime(row["NGAYGIAODICH"]).ToString("dd/MM/yyyy"),
+                                    row["TENVATTU"],
+                                    row["PHUONGTIEN"],
+                                    row["LAIXE"],
+                                    row["DONVIVANCHUYEN"],
+                                    row["NHACUNGCAP"],
+                                    row["MAKHO"] // Cột ẩn
+                                );
                             }
-                            
-                            dgvKho.DataSource = dtKho;
-                            dgvKho.Columns["ThoiGian"].DefaultCellStyle.Format = "dd/MM/yyyy";
                         }
                     }
                 }
@@ -300,30 +309,28 @@ namespace QuanLyTram.Forms
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
-                            while (reader.Read())
-                            {
-                                cbTram.Items.Add(new { Value = reader["MATRAM"], Display = reader["TENTRAM"].ToString() });
-                            }
+                            DataTable dtTram = new DataTable();
+                            dtTram.Load(reader);
+                            cbTram.DisplayMember = "TENTRAM";
+                            cbTram.ValueMember = "MATRAM";
+                            cbTram.DataSource = dtTram;
                         }
                     }
-                    cbTram.DisplayMember = "Display";
-                    cbTram.ValueMember = "Value";
                     if (cbTram.Items.Count > 0) cbTram.SelectedIndex = 0;
                     
                     // Load vật liệu
                     cbDonVi.Items.Clear();
-                    using (var cmd = new SqlCommand("SELECT TENVATTU, DONVITINH FROM VATTU", conn))
+                    using (var cmd = new SqlCommand("SELECT MAVATTU, TENVATTU, DONVITINH, HESOQUYDOI FROM VATTU", conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
-                            while (reader.Read())
-                            {
-                                cbDonVi.Items.Add(new { Value = reader["TENVATTU"], Display = reader["DONVITINH"].ToString() });
-                            }
+                            DataTable dtVatTu = new DataTable();
+                            dtVatTu.Load(reader);
+                            cbDonVi.DisplayMember = "TENVATTU";
+                            cbDonVi.ValueMember = "MAVATTU";
+                            cbDonVi.DataSource = dtVatTu;
                         }
                     }
-                    cbDonVi.DisplayMember = "Display";
-                    cbDonVi.ValueMember = "Value";
                     if (cbDonVi.Items.Count > 0) cbDonVi.SelectedIndex = 0;
                     
                     // Load phương tiện
@@ -375,6 +382,61 @@ namespace QuanLyTram.Forms
             }
         }
         
+        private void CbDonVi_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cbDonVi.SelectedItem != null)
+            {
+                // Lấy thông tin vật liệu từ DataTable
+                DataRowView row = cbDonVi.SelectedItem as DataRowView;
+                if (row != null)
+                {
+                    txtVatLieu.Text = row["TENVATTU"].ToString();
+                    txtQuyDoi.Text = row["HESOQUYDOI"].ToString();
+                    
+                    // Tính toán lại quy đổi về kg
+                    CalculateQuyDoiKg();
+                }
+            }
+        }
+        
+        private void TxtSLNhapXuat_TextChanged(object sender, EventArgs e)
+        {
+            CalculateQuyDoiKg();
+        }
+        
+        private void TxtQuyDoi_TextChanged(object sender, EventArgs e)
+        {
+            CalculateQuyDoiKg();
+        }
+        
+        private void CalculateQuyDoiKg()
+        {
+            decimal soLuong = 0;
+            decimal quyDoi = 0;
+            
+            decimal.TryParse(txtSLNhapXuat.Text, out soLuong);
+            decimal.TryParse(txtQuyDoi.Text, out quyDoi);
+            
+            // Tính quy đổi về kg
+            decimal quyDoiKg = soLuong * quyDoi;
+            
+            // Hiển thị kết quả (giả sử có TextBox txtQuyDoiKg)
+            foreach (Control control in this.Controls)
+            {
+                if (control is GroupBox)
+                {
+                    foreach (Control innerControl in control.Controls)
+                    {
+                        if (innerControl is TextBox && innerControl.Name == "txtQuyDoiKg")
+                        {
+                            innerControl.Text = quyDoiKg.ToString();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
         private void BtnThemMoi_Click(object sender, EventArgs e)
         {
             isAddingNew = true;
@@ -399,21 +461,80 @@ namespace QuanLyTram.Forms
                 isAddingNew = false;
                 LoadRowToForm(dgvKho.CurrentRow);
             }
+            else
+            {
+                MessageBox.Show("Vui lòng chọn một bản ghi để cập nhật!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
         
         private void LoadRowToForm(DataGridViewRow row)
         {
-            txtSoPhieu.Text = row.Cells["SoPhieu"].Value.ToString();
-            txtSoHoaDon.Text = row.Cells["SoHoaDon"].Value.ToString();
-            cbNhapXuat.Text = row.Cells["NhapXuat"].Value.ToString();
-            dtpNgay.Value = Convert.ToDateTime(row.Cells["ThoiGian"].Value);
-            txtVatLieu.Text = row.Cells["TenVatLieu"].Value.ToString();
-            cbPhuongTien.Text = row.Cells["BienXe"].Value.ToString();
-            txtLaiXe.Text = row.Cells["LaiXe"].Value.ToString();
-            cbDonViVC.Text = row.Cells["DonViVC"].Value.ToString();
-            cbNhaCungCap.Text = row.Cells["NhaCungCap"].Value.ToString();
-            txtSLNhapXuat.Text = row.Cells["SoLuong"].Value.ToString();
-            txtSoLuongTon.Text = row.Cells["TonKho"].Value.ToString();
+            try
+            {
+                // Lấy MAKHO từ dòng được chọn
+                int maKho = Convert.ToInt32(row.Cells["MAKHO"].Value);
+                
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    
+                    // Lấy thông tin chi tiết của phiếu kho
+                    using (var cmd = new SqlCommand(@"
+                    SELECT k.*, v.TENVATTU, v.DONVITINH, v.HESOQUYDOI
+                    FROM KHO k
+                    JOIN VATTU v ON k.MAVATTU = v.MAVATTU
+                    WHERE k.MAKHO = @maKho", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@maKho", maKho);
+                        
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                txtSoPhieu.Text = reader["SOPHIEU"].ToString();
+                                txtSoHoaDon.Text = reader["SOHOPDONG"].ToString();
+                                cbNhapXuat.Text = reader["LOAIGIAODICH"].ToString();
+                                dtpNgay.Value = Convert.ToDateTime(reader["NGAYGIAODICH"]);
+                                txtVatLieu.Text = reader["TENVATTU"].ToString();
+                                cbPhuongTien.Text = reader["PHUONGTIEN"].ToString();
+                                txtLaiXe.Text = reader["LAIXE"].ToString();
+                                cbDonViVC.Text = reader["DONVIVANCHUYEN"].ToString();
+                                cbNhaCungCap.Text = reader["NHACUNGCAP"].ToString();
+                                txtSLNhapXuat.Text = reader["SOLUONG"].ToString();
+                                txtSoLuongTon.Text = reader["TONKHO"].ToString();
+                                
+                                // Chọn vật liệu trong combobox
+                                int maVatTu = Convert.ToInt32(reader["MAVATTU"]);
+                                for (int i = 0; i < cbDonVi.Items.Count; i++)
+                                {
+                                    DataRowView item = cbDonVi.Items[i] as DataRowView;
+                                    if (item != null && Convert.ToInt32(item["MAVATTU"]) == maVatTu)
+                                    {
+                                        cbDonVi.SelectedIndex = i;
+                                        break;
+                                    }
+                                }
+                                
+                                // Chọn trạm trong combobox
+                                int maTram = Convert.ToInt32(reader["MATRAM"]);
+                                for (int i = 0; i < cbTram.Items.Count; i++)
+                                {
+                                    DataRowView item = cbTram.Items[i] as DataRowView;
+                                    if (item != null && Convert.ToInt32(item["MATRAM"]) == maTram)
+                                    {
+                                        cbTram.SelectedIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải dữ liệu chi tiết: " + ex.Message);
+            }
         }
         
         private void BtnLuu_Click(object sender, EventArgs e)
@@ -425,6 +546,13 @@ namespace QuanLyTram.Forms
                 return;
             }
             
+            if (cbDonVi.SelectedIndex == -1)
+            {
+                MessageBox.Show("Vui lòng chọn vật liệu.", "Thiếu thông tin", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cbDonVi.Focus();
+                return;
+            }
+            
             try
             {
                 using (var conn = DatabaseHelper.GetConnection())
@@ -432,20 +560,8 @@ namespace QuanLyTram.Forms
                     conn.Open();
                     
                     // Lấy giá trị từ ComboBox
-                    int maTram = cbTram.SelectedIndex >= 0 ? Convert.ToInt32((cbTram.SelectedItem as dynamic).Value) : 0;
-                    string tenVatLieu = cbDonVi.SelectedIndex >= 0 ? (cbDonVi.SelectedItem as dynamic).Value.ToString() : txtVatLieu.Text;
-                    
-                    // Lấy mã vật liệu từ tên
-                    int maVatTu = 0;
-                    using (var cmd = new SqlCommand("SELECT MAVATTU FROM VATTU WHERE TENVATTU = @tenVatLieu", conn))
-                    {
-                        cmd.Parameters.Add("@tenVatLieu", SqlDbType.NVarChar).Value = tenVatLieu;
-                        var result = cmd.ExecuteScalar();
-                        if (result != null)
-                        {
-                            maVatTu = Convert.ToInt32(result);
-                        }
-                    }
+                    int maTram = cbTram.SelectedValue != null ? Convert.ToInt32(cbTram.SelectedValue) : 0;
+                    int maVatTu = cbDonVi.SelectedValue != null ? Convert.ToInt32(cbDonVi.SelectedValue) : 0;
                     
                     decimal soLuong = 0;
                     decimal.TryParse(txtSLNhapXuat.Text, out soLuong);
@@ -492,7 +608,13 @@ namespace QuanLyTram.Forms
                     }
                     else
                     {
-                        int maKho = Convert.ToInt32(dgvKho.CurrentRow.Cells["ID"].Value);
+                        if (dgvKho.CurrentRow == null)
+                        {
+                            MessageBox.Show("Vui lòng chọn một bản ghi để cập nhật!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+                        
+                        int maKho = Convert.ToInt32(dgvKho.CurrentRow.Cells["MAKHO"].Value);
                         
                         using (var cmd = new SqlCommand(@"
                         UPDATE KHO 
