@@ -347,13 +347,6 @@ namespace QuanLyTram.Forms
         {
             DataChanged?.Invoke(this, e);
         }
-        
-        // Xử lý sự kiện khi form đóng
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            // Kích hoạt sự kiện dữ liệu đã thay đổi khi form đóng
-            OnDataChanged(EventArgs.Empty);
-            base.OnFormClosing(e);
-        }
+
     }
 }

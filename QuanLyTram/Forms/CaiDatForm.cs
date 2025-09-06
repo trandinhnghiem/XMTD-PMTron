@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Timer = System.Windows.Forms.Timer;
-
 namespace QuanLyTram.Forms
 {
     public class CaiDatForm : Form
@@ -20,6 +19,9 @@ namespace QuanLyTram.Forms
         private Form nextChild;
         private Button nextTab;
         private double fadeStep = 1; // càng lớn càng nhanh
+        
+        // Thêm sự kiện DataChanged để truyền ra bên ngoài
+        public event EventHandler DataChanged;
         
         public CaiDatForm()
         {
@@ -107,6 +109,12 @@ namespace QuanLyTram.Forms
         
         private void OpenChild(Form child, Button senderTab, bool firstLoad = false)
         {
+            // Hủy đăng ký sự kiện từ form con cũ
+            if (_currentChild is CaiDat_ChungForm oldChungForm)
+            {
+                oldChungForm.DataChanged -= ChildForm_DataChanged;
+            }
+            
             if (_currentChild == null || firstLoad)
             {
                 _currentChild = child;
@@ -116,6 +124,13 @@ namespace QuanLyTram.Forms
                 mainContent.Controls.Clear();
                 mainContent.Controls.Add(child);
                 child.Show();
+                
+                // Đăng ký sự kiện DataChanged từ form con
+                if (child is CaiDat_ChungForm chungForm)
+                {
+                    chungForm.DataChanged += ChildForm_DataChanged;
+                }
+                
                 SetActiveTab(senderTab);
                 return;
             }
@@ -133,10 +148,29 @@ namespace QuanLyTram.Forms
             mainContent.Controls.Add(nextChild);
             nextChild.Show();
             
+            // Đăng ký sự kiện DataChanged từ form con mới
+            if (nextChild is CaiDat_ChungForm newChungForm)
+            {
+                newChungForm.DataChanged += ChildForm_DataChanged;
+            }
+            
             fadeTimer = new Timer();
             fadeTimer.Interval = 10; // tick nhanh để mượt
             fadeTimer.Tick += FadeTimer_Tick;
             fadeTimer.Start();
+        }
+        
+        // Xử lý sự kiện DataChanged từ form con
+        private void ChildForm_DataChanged(object sender, EventArgs e)
+        {
+            // Truyền sự kiện ra ngoài
+            OnDataChanged(EventArgs.Empty);
+        }
+        
+        // Phương thức kích hoạt sự kiện DataChanged
+        protected virtual void OnDataChanged(EventArgs e)
+        {
+            DataChanged?.Invoke(this, e);
         }
         
         private void FadeTimer_Tick(object sender, EventArgs e)
@@ -162,6 +196,12 @@ namespace QuanLyTram.Forms
                 
                 if (_currentChild != null)
                 {
+                    // Hủy đăng ký sự kiện từ form con cũ
+                    if (_currentChild is CaiDat_ChungForm oldChungForm)
+                    {
+                        oldChungForm.DataChanged -= ChildForm_DataChanged;
+                    }
+                    
                     mainContent.Controls.Remove(_currentChild);
                     _currentChild.Close();
                     _currentChild.Dispose();

@@ -62,7 +62,7 @@ namespace QuanLyTram.Forms
             btnInPhieu.Click += (s, e) => OpenForm(typeof(InPhieuForm));
             btnThongKe.Click += (s, e) => OpenForm(typeof(ThongKeForm));
             btnKho.Click += (s, e) => OpenForm(typeof(KhoForm));
-            btnCaiDat.Click += (s, e) => OpenForm(typeof(CaiDat_ChungForm));
+            btnCaiDat.Click += (s, e) => OpenForm(typeof(CaiDatForm));
             
             // Thêm các nút vào toolbar
             tlpToolbar.Controls.Add(btnDanhMuc, 0, 0);
@@ -351,8 +351,8 @@ namespace QuanLyTram.Forms
             var form = (Form)Activator.CreateInstance(formType);
             form.StartPosition = FormStartPosition.CenterScreen;
             
-            // Kiểm tra nếu form là CaiDat_ChungForm thì đăng ký sự kiện DataChanged
-            if (form is CaiDat_ChungForm caiDatForm)
+            // Kiểm tra nếu form là CaiDatForm thì đăng ký sự kiện DataChanged
+            if (form is CaiDatForm caiDatForm)
             {
                 caiDatForm.DataChanged += (sender, e) => 
                 {
