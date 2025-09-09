@@ -73,3 +73,12 @@ D:\QUANLYTRAM - v2\QuanLyTron\obj\Debug\net6.0-windows\refint\QuanLyTron.dll
 D:\QUANLYTRAM - v2\QuanLyTron\obj\Debug\net6.0-windows\QuanLyTron.pdb
 D:\QUANLYTRAM - v2\QuanLyTron\obj\Debug\net6.0-windows\QuanLyTron.genruntimeconfig.cache
 D:\QUANLYTRAM - v2\QuanLyTron\obj\Debug\net6.0-windows\ref\QuanLyTron.dll
+D:\QUANLYTRAM - v2\QuanLyTron\bin\Debug\net6.0-windows\QuanLyTron.dll.config
+D:\QUANLYTRAM - v2\QuanLyTron\bin\Debug\net6.0-windows\ClosedXML.dll
+D:\QUANLYTRAM - v2\QuanLyTron\bin\Debug\net6.0-windows\ClosedXML.Parser.dll
+D:\QUANLYTRAM - v2\QuanLyTron\bin\Debug\net6.0-windows\DocumentFormat.OpenXml.dll
+D:\QUANLYTRAM - v2\QuanLyTron\bin\Debug\net6.0-windows\DocumentFormat.OpenXml.Framework.dll
+D:\QUANLYTRAM - v2\QuanLyTron\bin\Debug\net6.0-windows\ExcelNumberFormat.dll
+D:\QUANLYTRAM - v2\QuanLyTron\bin\Debug\net6.0-windows\RBush.dll
+D:\QUANLYTRAM - v2\QuanLyTron\bin\Debug\net6.0-windows\SixLabors.Fonts.dll
+D:\QUANLYTRAM - v2\QuanLyTron\bin\Debug\net6.0-windows\System.IO.Packaging.dll

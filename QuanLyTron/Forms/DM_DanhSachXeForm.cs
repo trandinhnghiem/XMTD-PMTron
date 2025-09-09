@@ -1,8 +1,10 @@
 using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
 using FontAwesome.Sharp;
+using QuanLyTron.DAL;
 
 namespace QuanLyTron.Forms
 {
@@ -43,7 +45,7 @@ namespace QuanLyTron.Forms
             BuildMainArea();
             WireEvents();
 
-            InitData();
+            LoadData();
             ApplyMode(EditMode.None);
         }
 
@@ -267,23 +269,34 @@ namespace QuanLyTron.Forms
             };
         }
 
-        private void InitData()
+        private void LoadData()
         {
-            dtData = new DataTable();
-            dtData.Columns.Add("Mã xe");
-            dtData.Columns.Add("Biển số xe");
-            dtData.Columns.Add("Lái xe");
+            try
+            {
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT MAXE, BIENSO, LAIXE FROM XE", conn))
+                    {
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            dtData = new DataTable();
+                            adapter.Fill(dtData);
 
-            dtData.Rows.Add("1", "51C-34567", "Nguyễn Văn An");
-            dtData.Rows.Add("2", "51D-67890", "Trần Quốc Bảo");
-            dtData.Rows.Add("3", "60A-24680", "Lê Minh Cường");
-            dtData.Rows.Add("4", "65H-11223", "Phạm Thị Dung");
-            dtData.Rows.Add("5", "66B-33445", "Huỳnh Tấn Đạt");
-            dtData.Rows.Add("6", "67C-55667", "Ngô Hoàng Phúc");
-            dtData.Rows.Add("7", "68D-77889", "Đỗ Thị Hồng");
-            dtData.Rows.Add("8", "69E-99001", "Bùi Văn Hùng");
+                            // Đổi tên cột để hiển thị
+                            dtData.Columns["MAXE"].ColumnName = "Mã xe";
+                            dtData.Columns["BIENSO"].ColumnName = "Biển số xe";
+                            dtData.Columns["LAIXE"].ColumnName = "Lái xe";
 
-            dgv.DataSource = dtData;
+                            dgv.DataSource = dtData;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải dữ liệu xe: " + ex.Message);
+            }
 
             // in đậm tiêu đề cột
             dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
@@ -352,22 +365,64 @@ namespace QuanLyTron.Forms
                 return;
             }
 
-            if (_mode == EditMode.Add)
+            try
             {
-                DataRow newRow = dtData.NewRow();
-                newRow["Mã xe"] = (dtData.Rows.Count + 1).ToString();
-                newRow["Biển số xe"] = bienso;
-                newRow["Lái xe"] = laixe;
-                dtData.Rows.Add(newRow);
-                dgv.CurrentCell = dgv.Rows[dgv.Rows.Count - 1].Cells[0];
-            }
-            else if (_mode == EditMode.Edit && dgv.CurrentRow != null)
-            {
-                dgv.CurrentRow.Cells["Biển số xe"].Value = bienso;
-                dgv.CurrentRow.Cells["Lái xe"].Value = laixe;
-            }
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
 
-            ApplyMode(EditMode.None);
+                    if (_mode == EditMode.Add)
+                    {
+                        using (var cmd = new SqlCommand(@"
+                        INSERT INTO XE (BIENSO, LAIXE)
+                        VALUES (@bienso, @laixe);
+                        SELECT SCOPE_IDENTITY();", conn))
+                        {
+                            cmd.Parameters.Add("@bienso", SqlDbType.NVarChar).Value = bienso;
+                            cmd.Parameters.Add("@laixe", SqlDbType.NVarChar).Value = laixe;
+
+                            int newId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                            // Thêm vào DataTable
+                            DataRow newRow = dtData.NewRow();
+                            newRow["Mã xe"] = newId;
+                            newRow["Biển số xe"] = bienso;
+                            newRow["Lái xe"] = laixe;
+                            dtData.Rows.Add(newRow);
+
+                            // Cập nhật DataGridView
+                            dgv.DataSource = dtData;
+                            dgv.CurrentCell = dgv.Rows[dgv.Rows.Count - 1].Cells[0];
+                        }
+                    }
+                    else if (_mode == EditMode.Edit && dgv.CurrentRow != null)
+                    {
+                        int maXe = Convert.ToInt32(dgv.CurrentRow.Cells["Mã xe"].Value);
+
+                        using (var cmd = new SqlCommand(@"
+                        UPDATE XE 
+                        SET BIENSO = @bienso, LAIXE = @laixe
+                        WHERE MAXE = @maXe", conn))
+                        {
+                            cmd.Parameters.Add("@bienso", SqlDbType.NVarChar).Value = bienso;
+                            cmd.Parameters.Add("@laixe", SqlDbType.NVarChar).Value = laixe;
+                            cmd.Parameters.Add("@maXe", SqlDbType.Int).Value = maXe;
+
+                            cmd.ExecuteNonQuery();
+
+                            // Cập nhật DataTable
+                            dgv.CurrentRow.Cells["Biển số xe"].Value = bienso;
+                            dgv.CurrentRow.Cells["Lái xe"].Value = laixe;
+                        }
+                    }
+                }
+
+                ApplyMode(EditMode.None);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi lưu dữ liệu xe: " + ex.Message);
+            }
         }
     }
 }

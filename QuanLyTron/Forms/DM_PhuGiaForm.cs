@@ -1,8 +1,10 @@
 using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
 using FontAwesome.Sharp;
+using QuanLyTron.DAL;
 
 namespace QuanLyTron.Forms
 {
@@ -42,7 +44,7 @@ namespace QuanLyTron.Forms
             BuildMainArea();
             WireEvents();
 
-            InitData();
+            LoadData();
             ApplyMode(EditMode.None);
         }
 
@@ -266,24 +268,34 @@ namespace QuanLyTron.Forms
             };
         }
 
-        private void InitData()
+        private void LoadData()
         {
-            dtData = new DataTable();
-            dtData.Columns.Add("Mã phụ gia");
-            dtData.Columns.Add("Tên phụ gia");
-            dtData.Columns.Add("Ghi chú");
+            try
+            {
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT MAPHUGIA, TENPHUGIA, GHICHU FROM PHUGIA", conn))
+                    {
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            dtData = new DataTable();
+                            adapter.Fill(dtData);
 
-            dtData.Rows.Add("1", "Phụ gia siêu dẻo", "Tăng độ chảy, giảm nước khi trộn bê tông");
-            dtData.Rows.Add("2", "Phụ gia chậm đông kết", "Kéo dài thời gian ninh kết, phù hợp công trình lớn");
-            dtData.Rows.Add("3", "Phụ gia chống thấm", "Tăng khả năng chống thấm cho bê tông và vữa");
-            dtData.Rows.Add("4", "Phụ gia khoáng hoạt tính", "Cải thiện cường độ và độ bền lâu dài");
-            dtData.Rows.Add("5", "Phụ gia cuốn khí", "Tăng khả năng chống nứt và chống băng giá");
-            dtData.Rows.Add("6", "Phụ gia tăng nhanh đông kết", "Rút ngắn thời gian ninh kết, thi công nhanh");
-            dtData.Rows.Add("7", "Phụ gia giảm co ngót", "Giảm hiện tượng nứt do co ngót");
-            dtData.Rows.Add("8", "Phụ gia khoáng mịn (Silica Fume)", "Tăng độ đặc chắc, chống xâm thực hóa chất");
+                            // Đổi tên cột để hiển thị
+                            dtData.Columns["MAPHUGIA"].ColumnName = "Mã phụ gia";
+                            dtData.Columns["TENPHUGIA"].ColumnName = "Tên phụ gia";
+                            dtData.Columns["GHICHU"].ColumnName = "Ghi chú";
 
-
-            dgv.DataSource = dtData;
+                            dgv.DataSource = dtData;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải dữ liệu phụ gia: " + ex.Message);
+            }
 
             // in đậm tiêu đề cột
             dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
@@ -352,22 +364,64 @@ namespace QuanLyTron.Forms
                 return;
             }
 
-            if (_mode == EditMode.Add)
+            try
             {
-                DataRow newRow = dtData.NewRow();
-                newRow["Mã phụ gia"] = (dtData.Rows.Count + 1).ToString();
-                newRow["Tên phụ gia"] = tenPG;
-                newRow["Ghi chú"] = ghiChu;
-                dtData.Rows.Add(newRow);
-                dgv.CurrentCell = dgv.Rows[dgv.Rows.Count - 1].Cells[0];
-            }
-            else if (_mode == EditMode.Edit && dgv.CurrentRow != null)
-            {
-                dgv.CurrentRow.Cells["Tên phụ gia"].Value = tenPG;
-                dgv.CurrentRow.Cells["Ghi chú"].Value = ghiChu;
-            }
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
 
-            ApplyMode(EditMode.None);
+                    if (_mode == EditMode.Add)
+                    {
+                        using (var cmd = new SqlCommand(@"
+                        INSERT INTO PHUGIA (TENPHUGIA, GHICHU)
+                        VALUES (@tenPG, @ghiChu);
+                        SELECT SCOPE_IDENTITY();", conn))
+                        {
+                            cmd.Parameters.Add("@tenPG", SqlDbType.NVarChar).Value = tenPG;
+                            cmd.Parameters.Add("@ghiChu", SqlDbType.NVarChar).Value = ghiChu;
+
+                            int newId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                            // Thêm vào DataTable
+                            DataRow newRow = dtData.NewRow();
+                            newRow["Mã phụ gia"] = newId;
+                            newRow["Tên phụ gia"] = tenPG;
+                            newRow["Ghi chú"] = ghiChu;
+                            dtData.Rows.Add(newRow);
+
+                            // Cập nhật DataGridView
+                            dgv.DataSource = dtData;
+                            dgv.CurrentCell = dgv.Rows[dgv.Rows.Count - 1].Cells[0];
+                        }
+                    }
+                    else if (_mode == EditMode.Edit && dgv.CurrentRow != null)
+                    {
+                        int maPhuGia = Convert.ToInt32(dgv.CurrentRow.Cells["Mã phụ gia"].Value);
+
+                        using (var cmd = new SqlCommand(@"
+                        UPDATE PHUGIA 
+                        SET TENPHUGIA = @tenPG, GHICHU = @ghiChu
+                        WHERE MAPHUGIA = @maPhuGia", conn))
+                        {
+                            cmd.Parameters.Add("@tenPG", SqlDbType.NVarChar).Value = tenPG;
+                            cmd.Parameters.Add("@ghiChu", SqlDbType.NVarChar).Value = ghiChu;
+                            cmd.Parameters.Add("@maPhuGia", SqlDbType.Int).Value = maPhuGia;
+
+                            cmd.ExecuteNonQuery();
+
+                            // Cập nhật DataTable
+                            dgv.CurrentRow.Cells["Tên phụ gia"].Value = tenPG;
+                            dgv.CurrentRow.Cells["Ghi chú"].Value = ghiChu;
+                        }
+                    }
+                }
+
+                ApplyMode(EditMode.None);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi lưu dữ liệu phụ gia: " + ex.Message);
+            }
         }
     }
 }

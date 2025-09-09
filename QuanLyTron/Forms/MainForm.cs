@@ -2,6 +2,10 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using FontAwesome.Sharp;
+using System.Data;
+using System.Data.SqlClient;
+using System.Configuration;
+using QuanLyTron.DAL;
 
 namespace QuanLyTron.Forms
 {
@@ -10,25 +14,287 @@ namespace QuanLyTron.Forms
         private ComboBox cbMac, cbBienSo;
         private TextBox txtKyHieu;
         private CheckBox chkBom;
-        private Label lblVersion;
         private DataGridView dgvData;
         private TableLayoutPanel mainLayout, rightPanel;
-
-        // --- quản lý form con ---
+        private IconButton wifiButton; // Thêm biến để lưu nút Wifi
         private Form currentChildForm;
-
+        
         public MainForm()
         {
             Text = "Quản lý tại trạm";
-
-            // --- Chỉnh cửa sổ ---
             StartPosition = FormStartPosition.CenterScreen;
             Size = new Size(1200, 500);
-
             MaximizeBox = false;
-            FormBorderStyle = FormBorderStyle.FixedSingle; // khóa resize
-
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             InitializeComponents();
+            
+            // Đăng ký sự kiện Load form
+            this.Load += MainForm_Load;
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            // Kiểm tra kết nối và cập nhật trạng thái nút Wifi
+            UpdateConnectionStatus();
+            
+            // Tải dữ liệu cho các điều khiển
+            LoadDataToControls();
+        }
+
+        // Phương thức kiểm tra kết nối CSDL
+        private bool CheckDatabaseConnection()
+        {
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    connection.Open();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi kết nối cơ sở dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        // Phương thức cập nhật trạng thái kết nối (màu nút Wifi)
+        private void UpdateConnectionStatus()
+        {
+            bool isConnected = CheckDatabaseConnection();
+            
+            if (wifiButton != null)
+            {
+                wifiButton.BackColor = isConnected ? Color.MediumSeaGreen : Color.Black;
+                wifiButton.IconColor = isConnected ? Color.White : Color.Gray;
+                
+                // Cập nhật sự kiện MouseEnter/MouseLeave
+                wifiButton.MouseEnter -= WifiButton_MouseEnter;
+                wifiButton.MouseLeave -= WifiButton_MouseLeave;
+                
+                wifiButton.MouseEnter += WifiButton_MouseEnter;
+                wifiButton.MouseLeave += WifiButton_MouseLeave;
+            }
+        }
+
+        private void WifiButton_MouseEnter(object sender, EventArgs e)
+        {
+            bool isConnected = CheckDatabaseConnection();
+            wifiButton.BackColor = isConnected ? ControlPaint.Light(Color.MediumSeaGreen) : ControlPaint.Light(Color.Black);
+        }
+
+        private void WifiButton_MouseLeave(object sender, EventArgs e)
+        {
+            bool isConnected = CheckDatabaseConnection();
+            wifiButton.BackColor = isConnected ? Color.MediumSeaGreen : Color.Black;
+        }
+
+        // Phương thức tải dữ liệu cho các điều khiển
+        private void LoadDataToControls()
+        {
+            // Tải dữ liệu cho ComboBox Mác
+            LoadMacComboBox();
+            
+            // Tải dữ liệu cho ComboBox Biển số
+            LoadBienSoComboBox();
+            
+            // Tải dữ liệu cho DataGridView
+            LoadDataGridView();
+            
+            // Đăng ký sự kiện thay đổi bộ lọc
+            cbMac.SelectedIndexChanged += FilterChanged;
+            cbBienSo.SelectedIndexChanged += FilterChanged;
+            txtKyHieu.TextChanged += FilterChanged;
+            chkBom.CheckedChanged += FilterChanged;
+        }
+
+        // Sự kiện khi bộ lọc thay đổi
+        private void FilterChanged(object sender, EventArgs e)
+        {
+            LoadDataGridView();
+        }
+
+        // Tải dữ liệu cho ComboBox Mác
+        private void LoadMacComboBox()
+        {
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    connection.Open();
+                    string query = "SELECT DISTINCT MACBETONG FROM CAPPHOI ORDER BY MACBETONG";
+                    
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        using (var adapter = new SqlDataAdapter(command))
+                        {
+                            var dataTable = new DataTable();
+                            adapter.Fill(dataTable);
+                            
+                            // Thêm mục "Tất cả"
+                            DataRow allRow = dataTable.NewRow();
+                            allRow["MACBETONG"] = "Tất cả";
+                            dataTable.Rows.InsertAt(allRow, 0);
+                            
+                            cbMac.DisplayMember = "MACBETONG";
+                            cbMac.ValueMember = "MACBETONG";
+                            cbMac.DataSource = dataTable;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi tải dữ liệu mác bê tông: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Tải dữ liệu cho ComboBox Biển số
+        private void LoadBienSoComboBox()
+        {
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    connection.Open();
+                    string query = "SELECT BIENSO FROM XE ORDER BY BIENSO";
+                    
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        using (var adapter = new SqlDataAdapter(command))
+                        {
+                            var dataTable = new DataTable();
+                            adapter.Fill(dataTable);
+                            
+                            // Thêm mục "Tất cả"
+                            DataRow allRow = dataTable.NewRow();
+                            allRow["BIENSO"] = "Tất cả";
+                            dataTable.Rows.InsertAt(allRow, 0);
+                            
+                            cbBienSo.DisplayMember = "BIENSO";
+                            cbBienSo.ValueMember = "BIENSO";
+                            cbBienSo.DataSource = dataTable;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi tải dữ liệu biển số xe: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Tải dữ liệu cho DataGridView
+        private void LoadDataGridView()
+        {
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    connection.Open();
+                    
+                    // Lấy giá trị bộ lọc
+                    string selectedMac = cbMac.SelectedValue?.ToString();
+                    string selectedBienSo = cbBienSo.SelectedValue?.ToString();
+                    string kyHieu = txtKyHieu.Text.Trim();
+                    bool useBom = chkBom.Checked;
+                    
+                    // Xây dựng câu truy vấn với bộ lọc
+                    string query = @"
+                        SELECT 
+                            ROW_NUMBER() OVER (ORDER BY dh.MADONHANG) AS STT,
+                            kh.TENKHACH AS KhachHang,
+                            dh.KHOILUONG AS KLDatHang,
+                            ISNULL(SUM(px.KHOILUONG), 0) AS KLDaCap,
+                            MAX(px.SOPHIEU) AS SoPhieu,
+                            ct.DIADIEM AS DiaDiem
+                        FROM DONHANG dh
+                        LEFT JOIN KHACHHANG kh ON dh.MAKHACH = kh.MAKHACH
+                        LEFT JOIN CONGTRINH ct ON dh.MACONGTRINH = ct.MACONGTRINH
+                        LEFT JOIN PHIEUXUAT px ON dh.MADONHANG = px.MADONHANG
+                        WHERE 1=1";
+                    
+                    // Thêm điều kiện lọc
+                    if (selectedMac != null && selectedMac != "Tất cả")
+                    {
+                        query += " AND px.MACBETONG = @Mac";
+                    }
+                    
+                    if (selectedBienSo != null && selectedBienSo != "Tất cả")
+                    {
+                        query += " AND px.MAXE IN (SELECT MAXE FROM XE WHERE BIENSO = @BienSo)";
+                    }
+                    
+                    if (!string.IsNullOrEmpty(kyHieu))
+                    {
+                        query += " AND dh.KYHIEUDON LIKE '%' + @KyHieu + '%'";
+                    }
+                    
+                    if (useBom)
+                    {
+                        query += " AND px.SUDUNGBOM = 1";
+                    }
+                    
+                    query += " GROUP BY dh.MADONHANG, kh.TENKHACH, dh.KHOILUONG, ct.DIADIEM";
+                    
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        // Thêm tham số
+                        if (selectedMac != null && selectedMac != "Tất cả")
+                        {
+                            command.Parameters.AddWithValue("@Mac", selectedMac);
+                        }
+                        
+                        if (selectedBienSo != null && selectedBienSo != "Tất cả")
+                        {
+                            command.Parameters.AddWithValue("@BienSo", selectedBienSo);
+                        }
+                        
+                        if (!string.IsNullOrEmpty(kyHieu))
+                        {
+                            command.Parameters.AddWithValue("@KyHieu", kyHieu);
+                        }
+                        
+                        using (var adapter = new SqlDataAdapter(command))
+                        {
+                            var dataTable = new DataTable();
+                            adapter.Fill(dataTable);
+                            
+                            // Cập nhật DataGridView
+                            dgvData.DataSource = dataTable;
+                            
+                            // Đổi tên header sang tiếng Việt
+                            dgvData.Columns["STT"].HeaderText = "STT";
+                            dgvData.Columns["KhachHang"].HeaderText = "Khách Hàng";
+                            dgvData.Columns["KLDatHang"].HeaderText = "Khối Lượng Đặt Hàng";
+                            dgvData.Columns["KLDaCap"].HeaderText = "Khối Lượng Đã Cấp";
+                            dgvData.Columns["SoPhieu"].HeaderText = "Số Phiếu";
+                            dgvData.Columns["DiaDiem"].HeaderText = "Địa Điểm Công Trình";
+                            
+                            // In đậm header
+                            dgvData.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+                            dgvData.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter; // căn giữa (nếu muốn)
+
+                            // Định dạng cột
+                            dgvData.Columns["STT"].Width = 50;
+                            dgvData.Columns["KhachHang"].Width = 250;
+                            dgvData.Columns["KLDatHang"].Width = 150;
+                            dgvData.Columns["KLDaCap"].Width = 150;
+                            dgvData.Columns["SoPhieu"].Width = 100;
+                            dgvData.Columns["DiaDiem"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                            
+                            // Định dạng số cho cột KL
+                            dgvData.Columns["KLDatHang"].DefaultCellStyle.Format = "N2";
+                            dgvData.Columns["KLDaCap"].DefaultCellStyle.Format = "N2";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void InitializeComponents()
@@ -42,7 +308,7 @@ namespace QuanLyTron.Forms
             mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 80));
             mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20));
             Controls.Add(mainLayout);
-
+            
             // ===== Left Panel =====
             var leftPanel = new TableLayoutPanel
             {
@@ -52,52 +318,66 @@ namespace QuanLyTron.Forms
             leftPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             leftPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             mainLayout.Controls.Add(leftPanel, 0, 0);
-
+            
             // --- Bộ lọc ---
             var filterPanel = new FlowLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 AutoSize = true
             };
-
-            filterPanel.Controls.Add(new Label { Text = "Mác:", AutoSize = true, Padding = new Padding(5) });
+            filterPanel.Controls.Add(new Label 
+            { 
+                Text = "Mác BT:", 
+                AutoSize = true, 
+                Padding = new Padding(5),
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+            });
             cbMac = new ComboBox { Width = 180, DropDownStyle = ComboBoxStyle.DropDownList };
             filterPanel.Controls.Add(cbMac);
 
-            filterPanel.Controls.Add(new Label { Text = "Biển số:", AutoSize = true, Padding = new Padding(5) });
+            filterPanel.Controls.Add(new Label 
+            { 
+                Text = "Biển số:", 
+                AutoSize = true, 
+                Padding = new Padding(5),
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+            });
             cbBienSo = new ComboBox { Width = 180, DropDownStyle = ComboBoxStyle.DropDownList };
             filterPanel.Controls.Add(cbBienSo);
 
-            filterPanel.Controls.Add(new Label { Text = "Ký hiệu:", AutoSize = true, Padding = new Padding(5) });
+            filterPanel.Controls.Add(new Label 
+            { 
+                Text = "Ký hiệu SP:", 
+                AutoSize = true, 
+                Padding = new Padding(5),
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+            });
             txtKyHieu = new TextBox { Width = 150 };
             filterPanel.Controls.Add(txtKyHieu);
 
-            chkBom = new CheckBox { Text = "Bơm BT", AutoSize = true, Padding = new Padding(5) };
+            chkBom = new CheckBox 
+            { 
+                Text = "Bơm BT", 
+                AutoSize = true, 
+                Padding = new Padding(5),
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+            };
             filterPanel.Controls.Add(chkBom);
 
-            lblVersion = new Label { Text = "V2.1", AutoSize = true, Padding = new Padding(5) };
-            filterPanel.Controls.Add(lblVersion);
-
             leftPanel.Controls.Add(filterPanel, 0, 0);
-
+            
             // --- DataGridView ---
             dgvData = new DataGridView
             {
                 Dock = DockStyle.Fill,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 BackgroundColor = Color.White,
-                RowHeadersVisible = false
+                RowHeadersVisible = false,
+                AllowUserToAddRows = false,
+                ReadOnly = true
             };
-
-            dgvData.Columns.Add("STT", "STT");
-            dgvData.Columns.Add("KhachHang", "Khách hàng");
-            dgvData.Columns.Add("KLDatHang", "KL đặt hàng");
-            dgvData.Columns.Add("KLDaCap", "KL đã cấp");
-            dgvData.Columns.Add("SoPhieu", "Số phiếu");
-            dgvData.Columns.Add("DiaDiem", "Địa điểm CT");
-
             leftPanel.Controls.Add(dgvData, 0, 1);
-
+            
             // ===== Right Panel =====
             rightPanel = new TableLayoutPanel
             {
@@ -107,31 +387,40 @@ namespace QuanLyTron.Forms
                 BackColor = Color.LightGray,
                 Padding = new Padding(10)
             };
-
+            
             // Hàng cố định 110px
             for (int i = 0; i < 4; i++)
                 rightPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 110));
-
             rightPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
             rightPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-
             mainLayout.Controls.Add(rightPanel, 1, 0);
-
+            
             // ===== Các nút chức năng =====
             AddButton("CẤP PHỐI", IconChar.Flask, Color.SteelBlue, 0, 0, (s, e) => OpenChildForm(new CapPhoiForm()));
             AddButton("DANH MỤC", IconChar.FolderOpen, Color.Teal, 0, 1, (s, e) => OpenChildForm(new DanhMucForm()));
             AddButton("ĐẶT HÀNG", IconChar.ShoppingCart, Color.OrangeRed, 1, 0, (s, e) => OpenChildForm(new DatHangForm()));
-            AddButton("IN PHIẾU", IconChar.Print, Color.MediumSeaGreen, 1, 1, (s, e) => OpenChildForm(new InPhieuForm()));
+            AddButton("IN PHIẾU", IconChar.Print, Color.Orange, 1, 1, (s, e) => OpenChildForm(new InPhieuForm()));
             AddButton("THỐNG KÊ", IconChar.ChartPie, Color.MediumPurple, 2, 0, (s, e) => OpenChildForm(new ThongKeForm()));
             AddButton("CÀI ĐẶT", IconChar.Cogs, Color.DarkSlateGray, 2, 1, (s, e) => OpenChildForm(new CaiDatForm()));
-
+            
             // ===== Nút đặc biệt (tròn) =====
-            AddCircleIconButton(IconChar.Wifi, Color.DodgerBlue, 3, 0, (s, e) =>
+            wifiButton = AddCircleIconButton(IconChar.Wifi, Color.MediumSeaGreen, 3, 0, (s, e) =>
             {
-                MessageBox.Show("Đang kết nối mạng...", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Kiểm tra lại kết nối khi nhấn nút
+                UpdateConnectionStatus();
+                
+                if (CheckDatabaseConnection())
+                {
+                    MessageBox.Show("Kết nối cơ sở dữ liệu và Internet thành công!", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Lỗi kết nối đến cơ sở dữ liệu!", "Lỗi",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             });
-
+            
             AddCircleIconButton(IconChar.PowerOff, Color.Red, 3, 1, (s, e) =>
             {
                 if (MessageBox.Show("Bạn có chắc muốn thoát ứng dụng?", "Xác nhận",
@@ -141,7 +430,7 @@ namespace QuanLyTron.Forms
                 }
             });
         }
-
+        
         // --- Quản lý mở/đóng child form ---
         private void OpenChildForm(Form childForm)
         {
@@ -149,12 +438,11 @@ namespace QuanLyTron.Forms
             {
                 currentChildForm.Close(); // đóng form cũ trước khi mở form mới
             }
-
             currentChildForm = childForm;
             currentChildForm.FormClosed += (s, e) => { currentChildForm = null; }; // khi user tự đóng thì reset
             childForm.Show(); // non-modal (song song với main)
         }
-
+        
         // Nút Icon + Text
         private void AddButton(string text, IconChar icon, Color backColor, int row, int col, EventHandler onClick)
         {
@@ -178,15 +466,13 @@ namespace QuanLyTron.Forms
             };
             btn.FlatAppearance.BorderSize = 0;
             btn.Click += onClick;
-
             btn.MouseEnter += (s, e) => btn.BackColor = ControlPaint.Light(backColor);
             btn.MouseLeave += (s, e) => btn.BackColor = backColor;
-
             rightPanel.Controls.Add(btn, col, row);
         }
-
+        
         // Nút tròn (icon-only)
-        private void AddCircleIconButton(IconChar icon, Color backColor, int row, int col, EventHandler onClick)
+        private IconButton AddCircleIconButton(IconChar icon, Color backColor, int row, int col, EventHandler onClick)
         {
             var btn = new IconButton
             {
@@ -204,18 +490,14 @@ namespace QuanLyTron.Forms
             };
             btn.FlatAppearance.BorderSize = 0;
             btn.Click += onClick;
-
-            btn.MouseEnter += (s, e) => btn.BackColor = ControlPaint.Light(backColor);
-            btn.MouseLeave += (s, e) => btn.BackColor = backColor;
-
             btn.Paint += (s, e) =>
             {
                 System.Drawing.Drawing2D.GraphicsPath gp = new System.Drawing.Drawing2D.GraphicsPath();
                 gp.AddEllipse(0, 0, btn.Width - 1, btn.Height - 1);
                 btn.Region = new Region(gp);
             };
-
             rightPanel.Controls.Add(btn, col, row);
+            return btn;
         }
     }
 }

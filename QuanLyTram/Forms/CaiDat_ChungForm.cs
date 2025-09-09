@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using FontAwesome.Sharp; // Thêm thư viện FontAwesome
 using QuanLyTram.DAL;
 
 namespace QuanLyTram.Forms
@@ -12,7 +13,7 @@ namespace QuanLyTram.Forms
         // Thêm sự kiện để thông báo khi dữ liệu thay đổi
         public event EventHandler DataChanged;
         
-        private Button btnThemMoi, btnCapNhat, btnLuu;
+        private IconButton btnThemMoi, btnCapNhat, btnLuu; // Thay đổi từ Button sang IconButton
         private TextBox txtMaTram, txtTenTram, txtChuTram, txtDiaDiem, txtSoDienThoai, txtCongSuat;
         private RadioButton rdTonTai, rdPhoiMe, rdPhoiChuan;
         private DataGridView dgvTram;
@@ -24,44 +25,74 @@ namespace QuanLyTram.Forms
             this.Size = new Size(1220, 720);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.Beige;
-            Font btnFont = new Font("Segoe UI", 10, FontStyle.Bold);
+            Font btnFont = new Font("Segoe UI", 11, FontStyle.Bold); // Tăng cỡ font cho button
             
             // ===== Nút chức năng =====
-            btnThemMoi = new Button()
+            // Nút Thêm mới
+            btnThemMoi = new IconButton()
             {
-                Text = " THÊM MỚI",
+                Text = "THÊM MỚI",
                 Width = 150,
                 Height = 50,
-                BackColor = Color.LightGreen,
                 Font = btnFont,
-                FlatStyle = FlatStyle.Standard,
-                Image = SystemIcons.Application.ToBitmap(),
-                TextImageRelation = TextImageRelation.ImageBeforeText
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(46,204,113),
+                FlatStyle = FlatStyle.Flat,
+                IconChar = IconChar.PlusCircle,
+                IconColor = Color.White,
+                IconFont = IconFont.Auto,
+                IconSize = 28,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(15, 0, 0, 0),
+                Cursor = Cursors.Hand
             };
+            btnThemMoi.FlatAppearance.BorderSize = 0;
             
-            btnCapNhat = new Button()
+            // Nút Cập nhật
+            btnCapNhat = new IconButton()
             {
-                Text = " CẬP NHẬT",
+                Text = "CẬP NHẬT",
                 Width = 150,
                 Height = 50,
-                BackColor = Color.Khaki,
                 Font = btnFont,
-                FlatStyle = FlatStyle.Standard,
-                Image = SystemIcons.Information.ToBitmap(),
-                TextImageRelation = TextImageRelation.ImageBeforeText
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(65, 131, 215),
+                FlatStyle = FlatStyle.Flat,
+                IconChar = IconChar.Edit,
+                IconColor = Color.White,
+                IconFont = IconFont.Auto,
+                IconSize = 28,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(15, 0, 0, 0),
+                Cursor = Cursors.Hand
             };
+            btnCapNhat.FlatAppearance.BorderSize = 0;
             
-            btnLuu = new Button()
+            // Nút Lưu
+            btnLuu = new IconButton()
             {
-                Text = " LƯU",
+                Text = "LƯU",
                 Width = 150,
                 Height = 50,
-                BackColor = Color.LightSkyBlue,
                 Font = btnFont,
-                FlatStyle = FlatStyle.Standard,
-                Image = SystemIcons.Shield.ToBitmap(),
-                TextImageRelation = TextImageRelation.ImageBeforeText
+                ForeColor = Color.White,
+                BackColor = Color.MediumPurple,
+                FlatStyle = FlatStyle.Flat,
+                IconChar = IconChar.Save,
+                IconColor = Color.White,
+                IconFont = IconFont.Auto,
+                IconSize = 28,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(15, 0, 0, 0),
+                Cursor = Cursors.Hand
             };
+            btnLuu.FlatAppearance.BorderSize = 0;
             
             // ===== Panel chứa 2 GroupBox =====
             Panel topPanel = new Panel()
@@ -75,21 +106,21 @@ namespace QuanLyTram.Forms
             {
                 Text = "THÔNG TIN TRẠM",
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                Size = new Size(580, 200),
+                Size = new Size(560, 200),
                 Location = new Point(0, 0)
             };
             
             Label lblMaTram = new Label() { Text = "Mã trạm:", Location = new Point(20, 30), AutoSize = true };
-            txtMaTram = new TextBox() { Location = new Point(120, 25), Width = 200, ReadOnly = true };
+            txtMaTram = new TextBox() { Location = new Point(120, 25), Width = 400, ReadOnly = true };
             
             Label lblTenTram = new Label() { Text = "Tên trạm:", Location = new Point(20, 60), AutoSize = true };
-            txtTenTram = new TextBox() { Location = new Point(120, 55), Width = 200 };
+            txtTenTram = new TextBox() { Location = new Point(120, 55), Width = 400 };
             
             Label lblChuTram = new Label() { Text = "Chủ trạm:", Location = new Point(20, 90), AutoSize = true };
-            txtChuTram = new TextBox() { Location = new Point(120, 85), Width = 200 };
+            txtChuTram = new TextBox() { Location = new Point(120, 85), Width = 400 };
             
             Label lblDiaDiem = new Label() { Text = "Địa điểm:", Location = new Point(20, 120), AutoSize = true };
-            txtDiaDiem = new TextBox() { Location = new Point(120, 115), Width = 200 };
+            txtDiaDiem = new TextBox() { Location = new Point(120, 115), Width = 400 };
             
             groupInfoLeft.Controls.AddRange(new Control[] {
                 lblMaTram, txtMaTram,
@@ -104,14 +135,14 @@ namespace QuanLyTram.Forms
                 Text = "THÔNG TIN KHÁC",
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 Size = new Size(580, 200),
-                Location = new Point(600, 0)
+                Location = new Point(580, 0)
             };
             
             Label lblSoDienThoai = new Label() { Text = "Số điện thoại:", Location = new Point(20, 30), AutoSize = true };
-            txtSoDienThoai = new TextBox() { Location = new Point(140, 25), Width = 250 };
+            txtSoDienThoai = new TextBox() { Location = new Point(140, 25), Width = 400 };
             
             Label lblCongSuat = new Label() { Text = "Công suất:", Location = new Point(20, 60), AutoSize = true };
-            txtCongSuat = new TextBox() { Location = new Point(140, 55), Width = 250 };
+            txtCongSuat = new TextBox() { Location = new Point(140, 55), Width = 400 };
             
             rdTonTai = new RadioButton() { Text = "Trạm đang tồn tại", Location = new Point(20, 90), AutoSize = true };
             rdPhoiMe = new RadioButton() { Text = "Theo cấp phối từng mẻ", Location = new Point(20, 120), AutoSize = true };
@@ -140,7 +171,7 @@ namespace QuanLyTram.Forms
             dgvTram = new DataGridView()
             {
                 Location = new Point(20, 270),
-                Size = new Size(1180, 300),
+                Size = new Size(1160, 300),
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 ReadOnly = true,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect
@@ -347,6 +378,5 @@ namespace QuanLyTram.Forms
         {
             DataChanged?.Invoke(this, e);
         }
-
     }
 }

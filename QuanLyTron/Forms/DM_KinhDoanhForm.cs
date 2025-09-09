@@ -1,8 +1,10 @@
 using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
 using FontAwesome.Sharp;
+using QuanLyTron.DAL;
 
 namespace QuanLyTron.Forms
 {
@@ -42,7 +44,7 @@ namespace QuanLyTron.Forms
             BuildMainArea();
             WireEvents();
 
-            InitData();
+            LoadData();
             ApplyMode(EditMode.None);
         }
 
@@ -248,22 +250,33 @@ namespace QuanLyTron.Forms
             };
         }
 
-        private void InitData()
+        private void LoadData()
         {
-            dtData = new DataTable();
-            dtData.Columns.Add("Mã kinh doanh");
-            dtData.Columns.Add("Tên kinh doanh");
+            try
+            {
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT MAKINHDOANH, TENKINHDOANH FROM KINHDOANH", conn))
+                    {
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            dtData = new DataTable();
+                            adapter.Fill(dtData);
 
-            dtData.Rows.Add("1", "Công ty TNHH Thương mại An Phát");
-            dtData.Rows.Add("2", "Công ty CP Xây dựng Minh Tâm");
-            dtData.Rows.Add("3", "Doanh nghiệp Tư nhân Hoàng Gia");
-            dtData.Rows.Add("4", "Công ty TNHH SX - TM Đại Thành");
-            dtData.Rows.Add("5", "Công ty CP Vận tải Đông Dương");
-            dtData.Rows.Add("6", "Công ty TNHH Cơ khí Tân Tiến");
-            dtData.Rows.Add("7", "Công ty CP VLXD Sài Gòn");
-            dtData.Rows.Add("8", "Doanh nghiệp Tư nhân Hòa Bình");
+                            // Đổi tên cột để hiển thị
+                            dtData.Columns["MAKINHDOANH"].ColumnName = "Mã kinh doanh";
+                            dtData.Columns["TENKINHDOANH"].ColumnName = "Tên kinh doanh";
 
-            dgv.DataSource = dtData;
+                            dgv.DataSource = dtData;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải dữ liệu kinh doanh: " + ex.Message);
+            }
 
             // in đậm tiêu đề cột
             dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
@@ -322,20 +335,60 @@ namespace QuanLyTron.Forms
                 return;
             }
 
-            if (_mode == EditMode.Add)
+            try
             {
-                DataRow newRow = dtData.NewRow();
-                newRow["Mã kinh doanh"] = (dtData.Rows.Count + 1).ToString();
-                newRow["Tên kinh doanh"] = tenkd;
-                dtData.Rows.Add(newRow);
-                dgv.CurrentCell = dgv.Rows[dgv.Rows.Count - 1].Cells[0];
-            }
-            else if (_mode == EditMode.Edit && dgv.CurrentRow != null)
-            {
-                dgv.CurrentRow.Cells["Tên kinh doanh"].Value = tenkd;
-            }
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
 
-            ApplyMode(EditMode.None);
+                    if (_mode == EditMode.Add)
+                    {
+                        using (var cmd = new SqlCommand(@"
+                        INSERT INTO KINHDOANH (TENKINHDOANH)
+                        VALUES (@tenkd);
+                        SELECT SCOPE_IDENTITY();", conn))
+                        {
+                            cmd.Parameters.Add("@tenkd", SqlDbType.NVarChar).Value = tenkd;
+
+                            int newId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                            // Thêm vào DataTable
+                            DataRow newRow = dtData.NewRow();
+                            newRow["Mã kinh doanh"] = newId;
+                            newRow["Tên kinh doanh"] = tenkd;
+                            dtData.Rows.Add(newRow);
+
+                            // Cập nhật DataGridView
+                            dgv.DataSource = dtData;
+                            dgv.CurrentCell = dgv.Rows[dgv.Rows.Count - 1].Cells[0];
+                        }
+                    }
+                    else if (_mode == EditMode.Edit && dgv.CurrentRow != null)
+                    {
+                        int maKinhDoanh = Convert.ToInt32(dgv.CurrentRow.Cells["Mã kinh doanh"].Value);
+
+                        using (var cmd = new SqlCommand(@"
+                        UPDATE KINHDOANH 
+                        SET TENKINHDOANH = @tenkd
+                        WHERE MAKINHDOANH = @maKinhDoanh", conn))
+                        {
+                            cmd.Parameters.Add("@tenkd", SqlDbType.NVarChar).Value = tenkd;
+                            cmd.Parameters.Add("@maKinhDoanh", SqlDbType.Int).Value = maKinhDoanh;
+
+                            cmd.ExecuteNonQuery();
+
+                            // Cập nhật DataTable
+                            dgv.CurrentRow.Cells["Tên kinh doanh"].Value = tenkd;
+                        }
+                    }
+                }
+
+                ApplyMode(EditMode.None);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi lưu dữ liệu kinh doanh: " + ex.Message);
+            }
         }
     }
 }

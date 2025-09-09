@@ -1,8 +1,10 @@
 using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
 using FontAwesome.Sharp;
+using QuanLyTron.DAL;
 
 namespace QuanLyTron.Forms
 {
@@ -43,7 +45,7 @@ namespace QuanLyTron.Forms
             BuildMainArea();
             WireEvents();
 
-            InitData();
+            LoadData();
             ApplyMode(EditMode.None);
         }
 
@@ -279,29 +281,37 @@ namespace QuanLyTron.Forms
             };
         }
 
-        private void InitData()
+        private void LoadData()
         {
-            dtData = new DataTable();
-            dtData.Columns.Add("Mã khách");
-            dtData.Columns.Add("Tên khách hàng");
-            dtData.Columns.Add("Địa chỉ");
+            try
+            {
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT MAKHACH, TENKHACH, DIACHI FROM KHACHHANG", conn))
+                    {
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            dtData = new DataTable();
+                            adapter.Fill(dtData);
 
-            dtData.Rows.Add("1", "ANH DƯƠNG", "");
-            dtData.Rows.Add("2", "CTY TNHH TM-XD VẠN AN PHÁT CT", "");
-            dtData.Rows.Add("3", "ANH GIÀU", "");
-            dtData.Rows.Add("4", "CTY HÙNG THỊNH", "");
-            dtData.Rows.Add("5", "CTY 585", "");
-            dtData.Rows.Add("6", "CTY THIÊN MINH", "");
-            dtData.Rows.Add("7", "CTY BẢO LONG", "");
-            dtData.Rows.Add("8", "CTY TNHH CT MINH THÀNH", "");
-            dtData.Rows.Add("9", "ANH TÂM", "");
-            dtData.Rows.Add("10", "NGUYỄN VĂN CẢNH", "");
+                            // Đổi tên cột để hiển thị
+                            dtData.Columns["MAKHACH"].ColumnName = "Mã khách";
+                            dtData.Columns["TENKHACH"].ColumnName = "Tên khách hàng";
+                            dtData.Columns["DIACHI"].ColumnName = "Địa chỉ";
 
-            dgv.DataSource = dtData;
+                            dgv.DataSource = dtData;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải dữ liệu khách hàng: " + ex.Message);
+            }
 
             // in đậm tiêu đề cột
             dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
-
 
             if (dgv.Rows.Count > 0)
                 dgv.CurrentCell = dgv.Rows[0].Cells[0];
@@ -327,7 +337,7 @@ namespace QuanLyTron.Forms
             }
             else if (mode == EditMode.Edit && dgv.CurrentRow != null)
             {
-                txtTen.Text = dgv.CurrentRow.Cells["Tên Khách hàng"].Value.ToString();
+                txtTen.Text = dgv.CurrentRow.Cells["Tên khách hàng"].Value.ToString();
                 txtDiaChi.Text = dgv.CurrentRow.Cells["Địa chỉ"].Value.ToString();
 
                 _originalTen = txtTen.Text;
@@ -338,7 +348,7 @@ namespace QuanLyTron.Forms
             }
             else if (mode == EditMode.None && dgv.CurrentRow != null)
             {
-                txtTen.Text = dgv.CurrentRow.Cells["Tên Khách hàng"].Value.ToString();
+                txtTen.Text = dgv.CurrentRow.Cells["Tên khách hàng"].Value.ToString();
                 txtDiaChi.Text = dgv.CurrentRow.Cells["Địa chỉ"].Value.ToString();
 
                 _originalTen = txtTen.Text;
@@ -367,22 +377,64 @@ namespace QuanLyTron.Forms
                 return;
             }
 
-            if (_mode == EditMode.Add)
+            try
             {
-                DataRow newRow = dtData.NewRow();
-                newRow["Mã khách"] = (dtData.Rows.Count + 1).ToString();
-                newRow["Tên khách hàng"] = ten;
-                newRow["Địa chỉ"] = diachi;
-                dtData.Rows.Add(newRow);
-                dgv.CurrentCell = dgv.Rows[dgv.Rows.Count - 1].Cells[0];
-            }
-            else if (_mode == EditMode.Edit && dgv.CurrentRow != null)
-            {
-                dgv.CurrentRow.Cells["Tên Khách hàng"].Value = ten;
-                dgv.CurrentRow.Cells["Địa chỉ"].Value = diachi;
-            }
+                using (var conn = DatabaseHelper.GetConnection())
+                {
+                    conn.Open();
 
-            ApplyMode(EditMode.None);
+                    if (_mode == EditMode.Add)
+                    {
+                        using (var cmd = new SqlCommand(@"
+                        INSERT INTO KHACHHANG (TENKHACH, DIACHI)
+                        VALUES (@ten, @diachi);
+                        SELECT SCOPE_IDENTITY();", conn))
+                        {
+                            cmd.Parameters.Add("@ten", SqlDbType.NVarChar).Value = ten;
+                            cmd.Parameters.Add("@diachi", SqlDbType.NVarChar).Value = diachi;
+
+                            int newId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                            // Thêm vào DataTable
+                            DataRow newRow = dtData.NewRow();
+                            newRow["Mã khách"] = newId;
+                            newRow["Tên khách hàng"] = ten;
+                            newRow["Địa chỉ"] = diachi;
+                            dtData.Rows.Add(newRow);
+
+                            // Cập nhật DataGridView
+                            dgv.DataSource = dtData;
+                            dgv.CurrentCell = dgv.Rows[dgv.Rows.Count - 1].Cells[0];
+                        }
+                    }
+                    else if (_mode == EditMode.Edit && dgv.CurrentRow != null)
+                    {
+                        int maKhach = Convert.ToInt32(dgv.CurrentRow.Cells["Mã khách"].Value);
+
+                        using (var cmd = new SqlCommand(@"
+                        UPDATE KHACHHANG 
+                        SET TENKHACH = @ten, DIACHI = @diachi
+                        WHERE MAKHACH = @maKhach", conn))
+                        {
+                            cmd.Parameters.Add("@ten", SqlDbType.NVarChar).Value = ten;
+                            cmd.Parameters.Add("@diachi", SqlDbType.NVarChar).Value = diachi;
+                            cmd.Parameters.Add("@maKhach", SqlDbType.Int).Value = maKhach;
+
+                            cmd.ExecuteNonQuery();
+
+                            // Cập nhật DataTable
+                            dgv.CurrentRow.Cells["Tên khách hàng"].Value = ten;
+                            dgv.CurrentRow.Cells["Địa chỉ"].Value = diachi;
+                        }
+                    }
+                }
+
+                ApplyMode(EditMode.None);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi lưu dữ liệu khách hàng: " + ex.Message);
+            }
         }
     }
 }
