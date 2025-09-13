@@ -58,3 +58,11 @@ D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\ExcelNumberFormat.dll
 D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\RBush.dll
 D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\SixLabors.Fonts.dll
 D:\QUANLYTRAM - v2\QuanLyTram\bin\Debug\net6.0-windows\System.IO.Packaging.dll
+D:\QUANLYTRAM\QuanLyTram\bin\Debug\net6.0-windows\ClosedXML.dll
+D:\QUANLYTRAM\QuanLyTram\bin\Debug\net6.0-windows\ClosedXML.Parser.dll
+D:\QUANLYTRAM\QuanLyTram\bin\Debug\net6.0-windows\DocumentFormat.OpenXml.dll
+D:\QUANLYTRAM\QuanLyTram\bin\Debug\net6.0-windows\DocumentFormat.OpenXml.Framework.dll
+D:\QUANLYTRAM\QuanLyTram\bin\Debug\net6.0-windows\ExcelNumberFormat.dll
+D:\QUANLYTRAM\QuanLyTram\bin\Debug\net6.0-windows\RBush.dll
+D:\QUANLYTRAM\QuanLyTram\bin\Debug\net6.0-windows\SixLabors.Fonts.dll
+D:\QUANLYTRAM\QuanLyTram\bin\Debug\net6.0-windows\System.IO.Packaging.dll

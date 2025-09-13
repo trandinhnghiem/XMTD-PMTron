@@ -82,3 +82,37 @@ D:\QUANLYTRAM - v2\QuanLyTron\bin\Debug\net6.0-windows\ExcelNumberFormat.dll
 D:\QUANLYTRAM - v2\QuanLyTron\bin\Debug\net6.0-windows\RBush.dll
 D:\QUANLYTRAM - v2\QuanLyTron\bin\Debug\net6.0-windows\SixLabors.Fonts.dll
 D:\QUANLYTRAM - v2\QuanLyTron\bin\Debug\net6.0-windows\System.IO.Packaging.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\QuanLyTron.exe
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\QuanLyTron.dll.config
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\QuanLyTron.deps.json
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\QuanLyTron.runtimeconfig.json
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\QuanLyTron.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\QuanLyTron.pdb
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\ClosedXML.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\ClosedXML.Parser.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\DocumentFormat.OpenXml.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\DocumentFormat.OpenXml.Framework.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\ExcelNumberFormat.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\FontAwesome.Sharp.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\RBush.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\SixLabors.Fonts.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\System.Configuration.ConfigurationManager.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\System.Data.SqlClient.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\System.IO.Packaging.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\System.Security.Cryptography.ProtectedData.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\runtimes\win-arm64\native\sni.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\runtimes\win-x64\native\sni.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\runtimes\win-x86\native\sni.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\runtimes\unix\lib\net6.0\System.Data.SqlClient.dll
+D:\XMTD-PMTron\QuanLyTron\bin\Debug\net6.0-windows\runtimes\win\lib\net6.0\System.Data.SqlClient.dll
+D:\XMTD-PMTron\QuanLyTron\obj\Debug\net6.0-windows\QuanLyTron.csproj.AssemblyReference.cache
+D:\XMTD-PMTron\QuanLyTron\obj\Debug\net6.0-windows\QuanLyTron.GeneratedMSBuildEditorConfig.editorconfig
+D:\XMTD-PMTron\QuanLyTron\obj\Debug\net6.0-windows\QuanLyTron.AssemblyInfoInputs.cache
+D:\XMTD-PMTron\QuanLyTron\obj\Debug\net6.0-windows\QuanLyTron.AssemblyInfo.cs
+D:\XMTD-PMTron\QuanLyTron\obj\Debug\net6.0-windows\QuanLyTron.csproj.CoreCompileInputs.cache
+D:\XMTD-PMTron\QuanLyTron\obj\Debug\net6.0-windows\QuanLyTron.csproj.CopyComplete
+D:\XMTD-PMTron\QuanLyTron\obj\Debug\net6.0-windows\QuanLyTron.dll
+D:\XMTD-PMTron\QuanLyTron\obj\Debug\net6.0-windows\refint\QuanLyTron.dll
+D:\XMTD-PMTron\QuanLyTron\obj\Debug\net6.0-windows\QuanLyTron.pdb
+D:\XMTD-PMTron\QuanLyTron\obj\Debug\net6.0-windows\QuanLyTron.genruntimeconfig.cache
+D:\XMTD-PMTron\QuanLyTron\obj\Debug\net6.0-windows\ref\QuanLyTron.dll

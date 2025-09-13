@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "N1LADZT0PxU/qlwBOs45A0rwgkYUxnVRDm1pOrG2bHuxHom9gRlbOpi4J4Ncx0a5vKAa3oEqSmM/fxf1wiEmMg==",
+  "dgSpecHash": "nn0bjgnxBwtXW/w505oa4CKwGppFgSwlP/1UQGQqUOJez08A8BtbQmNNiwfPYl4HCdLVBmTt6MZb8TZKHuijag==",
   "success": true,
-  "projectFilePath": "D:\\QUANLYTRAM - v2\\QuanLyTron\\QuanLyTron.csproj",
+  "projectFilePath": "D:\\QUANLYTRAM\\QuanLyTron\\QuanLyTron.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\XMTD-IT\\.nuget\\packages\\closedxml\\0.105.0\\closedxml.0.105.0.nupkg.sha512",
     "C:\\Users\\XMTD-IT\\.nuget\\packages\\closedxml.parser\\2.0.0\\closedxml.parser.2.0.0.nupkg.sha512",

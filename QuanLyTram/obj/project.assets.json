@@ -626,11 +626,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\QUANLYTRAM - v2\\QuanLyTram\\QuanLyTram.csproj",
+      "projectUniqueName": "D:\\QUANLYTRAM\\QuanLyTram\\QuanLyTram.csproj",
       "projectName": "QuanLyTram",
-      "projectPath": "D:\\QUANLYTRAM - v2\\QuanLyTram\\QuanLyTram.csproj",
+      "projectPath": "D:\\QUANLYTRAM\\QuanLyTram\\QuanLyTram.csproj",
       "packagesPath": "C:\\Users\\XMTD-IT\\.nuget\\packages\\",
-      "outputPath": "D:\\QUANLYTRAM - v2\\QuanLyTram\\obj\\",
+      "outputPath": "D:\\QUANLYTRAM\\QuanLyTram\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\XMTD-IT\\AppData\\Roaming\\NuGet\\NuGet.Config"

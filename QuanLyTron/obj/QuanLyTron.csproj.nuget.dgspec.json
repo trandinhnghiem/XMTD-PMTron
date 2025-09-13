@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\QUANLYTRAM - v2\\QuanLyTron\\QuanLyTron.csproj": {}
+    "D:\\QUANLYTRAM\\QuanLyTron\\QuanLyTron.csproj": {}
   },
   "projects": {
-    "D:\\QUANLYTRAM - v2\\QuanLyTron\\QuanLyTron.csproj": {
+    "D:\\QUANLYTRAM\\QuanLyTron\\QuanLyTron.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\QUANLYTRAM - v2\\QuanLyTron\\QuanLyTron.csproj",
+        "projectUniqueName": "D:\\QUANLYTRAM\\QuanLyTron\\QuanLyTron.csproj",
         "projectName": "QuanLyTron",
-        "projectPath": "D:\\QUANLYTRAM - v2\\QuanLyTron\\QuanLyTron.csproj",
+        "projectPath": "D:\\QUANLYTRAM\\QuanLyTron\\QuanLyTron.csproj",
         "packagesPath": "C:\\Users\\XMTD-IT\\.nuget\\packages\\",
-        "outputPath": "D:\\QUANLYTRAM - v2\\QuanLyTron\\obj\\",
+        "outputPath": "D:\\QUANLYTRAM\\QuanLyTron\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\XMTD-IT\\AppData\\Roaming\\NuGet\\NuGet.Config"
