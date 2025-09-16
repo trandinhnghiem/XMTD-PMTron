@@ -34,7 +34,7 @@ namespace QuanLyTron.Forms
             BuildTabs();
             BuildMainContent();
             // Mặc định mở CÀI ĐẶT CHUNG
-            var chungForm = new CaiDat_ChungForm();
+            var chungForm = new CaiDat_TramTron();
             chungForm.DataChanged += OnDataChanged;
             OpenChild(chungForm, tabChung, firstLoad: true);
         }
@@ -43,7 +43,7 @@ namespace QuanLyTron.Forms
         private void OnDataChanged(object sender, EventArgs e)
         {
             // Lấy ID trạm từ form CaiDat_ChungForm
-            if (_currentChild is CaiDat_ChungForm chungForm && !string.IsNullOrEmpty(chungForm.txtMaTram.Text))
+            if (_currentChild is CaiDat_TramTron chungForm && !string.IsNullOrEmpty(chungForm.txtMaTram.Text))
             {
                 currentTramID = Convert.ToInt32(chungForm.txtMaTram.Text);
             }
@@ -80,7 +80,7 @@ namespace QuanLyTron.Forms
             // Gắn sự kiện click tab
             tabChung.Click += (s, e) => 
             {
-                var chungForm = new CaiDat_ChungForm();
+                var chungForm = new CaiDat_TramTron();
                 chungForm.DataChanged += OnDataChanged;
                 OpenChild(chungForm, tabChung);
             };

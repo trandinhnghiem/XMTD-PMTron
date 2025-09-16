@@ -18,6 +18,7 @@ namespace QuanLyTron.Forms
         private TableLayoutPanel mainLayout, rightPanel;
         private IconButton wifiButton; // Thêm biến để lưu nút Wifi
         private Form currentChildForm;
+        private Label lblStationInfo; // Thêm label hiển thị thông tin trạm
         
         public MainForm()
         {
@@ -31,16 +32,42 @@ namespace QuanLyTron.Forms
             // Đăng ký sự kiện Load form
             this.Load += MainForm_Load;
         }
-
+        
         private void MainForm_Load(object sender, EventArgs e)
         {
+            // Hiển thị thông tin trạm hiện tại
+            UpdateStationInfo();
+            
             // Kiểm tra kết nối và cập nhật trạng thái nút Wifi
             UpdateConnectionStatus();
             
             // Tải dữ liệu cho các điều khiển
             LoadDataToControls();
         }
-
+        
+        // Phương thức cập nhật thông tin trạm
+        private void UpdateStationInfo()
+        {
+            try
+            {
+                int stationId = DatabaseHelper.CurrentStationId;
+                string stationName = DatabaseHelper.GetCurrentStationName();
+                
+                if (lblStationInfo != null)
+                {
+                    lblStationInfo.Text = $"Trạm: {stationName} (Mã trạm: {stationId})";
+                }
+                
+                // Cập nhật tiêu đề form
+                this.Text = $"Quản lý tại trạm - {stationName}";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi cập nhật thông tin trạm: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        
         // Phương thức kiểm tra kết nối CSDL
         private bool CheckDatabaseConnection()
         {
@@ -54,11 +81,12 @@ namespace QuanLyTron.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi kết nối cơ sở dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi kết nối cơ sở dữ liệu: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }
-
+        
         // Phương thức cập nhật trạng thái kết nối (màu nút Wifi)
         private void UpdateConnectionStatus()
         {
@@ -77,19 +105,19 @@ namespace QuanLyTron.Forms
                 wifiButton.MouseLeave += WifiButton_MouseLeave;
             }
         }
-
+        
         private void WifiButton_MouseEnter(object sender, EventArgs e)
         {
             bool isConnected = CheckDatabaseConnection();
             wifiButton.BackColor = isConnected ? ControlPaint.Light(Color.MediumSeaGreen) : ControlPaint.Light(Color.Black);
         }
-
+        
         private void WifiButton_MouseLeave(object sender, EventArgs e)
         {
             bool isConnected = CheckDatabaseConnection();
             wifiButton.BackColor = isConnected ? Color.MediumSeaGreen : Color.Black;
         }
-
+        
         // Phương thức tải dữ liệu cho các điều khiển
         private void LoadDataToControls()
         {
@@ -108,13 +136,13 @@ namespace QuanLyTron.Forms
             txtKyHieu.TextChanged += FilterChanged;
             chkBom.CheckedChanged += FilterChanged;
         }
-
+        
         // Sự kiện khi bộ lọc thay đổi
         private void FilterChanged(object sender, EventArgs e)
         {
             LoadDataGridView();
         }
-
+        
         // Tải dữ liệu cho ComboBox Mác
         private void LoadMacComboBox()
         {
@@ -123,10 +151,17 @@ namespace QuanLyTron.Forms
                 using (var connection = DatabaseHelper.GetConnection())
                 {
                     connection.Open();
-                    string query = "SELECT DISTINCT MACBETONG FROM CAPPHOI ORDER BY MACBETONG";
+                    
+                    // Lấy ID trạm hiện tại
+                    int stationId = DatabaseHelper.CurrentStationId;
+                    
+                    // Cập nhật câu truy vấn để lọc theo trạm
+                    string query = "SELECT DISTINCT MACBETONG FROM CAPPHOI WHERE MATRAM = @stationId ORDER BY MACBETONG";
                     
                     using (var command = new SqlCommand(query, connection))
                     {
+                        command.Parameters.AddWithValue("@stationId", stationId);
+                        
                         using (var adapter = new SqlDataAdapter(command))
                         {
                             var dataTable = new DataTable();
@@ -146,10 +181,11 @@ namespace QuanLyTron.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi tải dữ liệu mác bê tông: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi tải dữ liệu mác bê tông: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        
         // Tải dữ liệu cho ComboBox Biển số
         private void LoadBienSoComboBox()
         {
@@ -158,6 +194,8 @@ namespace QuanLyTron.Forms
                 using (var connection = DatabaseHelper.GetConnection())
                 {
                     connection.Open();
+                    
+                    // Bảng XE là dùng chung cho tất cả các trạm nên không cần lọc theo MATRAM
                     string query = "SELECT BIENSO FROM XE ORDER BY BIENSO";
                     
                     using (var command = new SqlCommand(query, connection))
@@ -181,10 +219,11 @@ namespace QuanLyTron.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi tải dữ liệu biển số xe: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi tải dữ liệu biển số xe: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        
         // Tải dữ liệu cho DataGridView
         private void LoadDataGridView()
         {
@@ -193,6 +232,9 @@ namespace QuanLyTron.Forms
                 using (var connection = DatabaseHelper.GetConnection())
                 {
                     connection.Open();
+                    
+                    // Lấy ID trạm hiện tại
+                    int stationId = DatabaseHelper.CurrentStationId;
                     
                     // Lấy giá trị bộ lọc
                     string selectedMac = cbMac.SelectedValue?.ToString();
@@ -213,7 +255,7 @@ namespace QuanLyTron.Forms
                         LEFT JOIN KHACHHANG kh ON dh.MAKHACH = kh.MAKHACH
                         LEFT JOIN CONGTRINH ct ON dh.MACONGTRINH = ct.MACONGTRINH
                         LEFT JOIN PHIEUXUAT px ON dh.MADONHANG = px.MADONHANG
-                        WHERE 1=1";
+                        WHERE dh.MATRAM = @stationId"; // Thêm điều kiện lọc theo trạm
                     
                     // Thêm điều kiện lọc
                     if (selectedMac != null && selectedMac != "Tất cả")
@@ -240,6 +282,9 @@ namespace QuanLyTron.Forms
                     
                     using (var command = new SqlCommand(query, connection))
                     {
+                        // Thêm tham số trạm
+                        command.Parameters.AddWithValue("@stationId", stationId);
+                        
                         // Thêm tham số
                         if (selectedMac != null && selectedMac != "Tất cả")
                         {
@@ -274,8 +319,8 @@ namespace QuanLyTron.Forms
                             
                             // In đậm header
                             dgvData.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
-                            dgvData.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter; // căn giữa (nếu muốn)
-
+                            dgvData.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                            
                             // Định dạng cột
                             dgvData.Columns["STT"].Width = 50;
                             dgvData.Columns["KhachHang"].Width = 250;
@@ -293,10 +338,11 @@ namespace QuanLyTron.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        
         private void InitializeComponents()
         {
             // Main layout
@@ -313,11 +359,32 @@ namespace QuanLyTron.Forms
             var leftPanel = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                RowCount = 2
+                RowCount = 3  // Tăng lên 3 để chứa thông tin trạm
             };
-            leftPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            leftPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            leftPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));  // Cho thông tin trạm
+            leftPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));  // Cho bộ lọc
+            leftPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));  // Cho DataGridView
             mainLayout.Controls.Add(leftPanel, 0, 0);
+            
+            // --- Thông tin trạm ---
+            var stationPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                AutoSize = true,
+                FlowDirection = FlowDirection.LeftToRight
+            };
+            
+            lblStationInfo = new Label
+            {
+                Text = "Đang tải thông tin trạm...",
+                AutoSize = true,
+                Padding = new Padding(5),
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                ForeColor = Color.MediumSeaGreen
+            };
+            
+            stationPanel.Controls.Add(lblStationInfo);
+            leftPanel.Controls.Add(stationPanel, 0, 0);
             
             // --- Bộ lọc ---
             var filterPanel = new FlowLayoutPanel
@@ -334,7 +401,6 @@ namespace QuanLyTron.Forms
             });
             cbMac = new ComboBox { Width = 180, DropDownStyle = ComboBoxStyle.DropDownList };
             filterPanel.Controls.Add(cbMac);
-
             filterPanel.Controls.Add(new Label 
             { 
                 Text = "Biển số:", 
@@ -344,7 +410,6 @@ namespace QuanLyTron.Forms
             });
             cbBienSo = new ComboBox { Width = 180, DropDownStyle = ComboBoxStyle.DropDownList };
             filterPanel.Controls.Add(cbBienSo);
-
             filterPanel.Controls.Add(new Label 
             { 
                 Text = "Ký hiệu SP:", 
@@ -354,7 +419,6 @@ namespace QuanLyTron.Forms
             });
             txtKyHieu = new TextBox { Width = 150 };
             filterPanel.Controls.Add(txtKyHieu);
-
             chkBom = new CheckBox 
             { 
                 Text = "Bơm BT", 
@@ -363,8 +427,7 @@ namespace QuanLyTron.Forms
                 Font = new Font("Segoe UI", 9, FontStyle.Bold),
             };
             filterPanel.Controls.Add(chkBom);
-
-            leftPanel.Controls.Add(filterPanel, 0, 0);
+            leftPanel.Controls.Add(filterPanel, 0, 1);
             
             // --- DataGridView ---
             dgvData = new DataGridView
@@ -376,7 +439,7 @@ namespace QuanLyTron.Forms
                 AllowUserToAddRows = false,
                 ReadOnly = true
             };
-            leftPanel.Controls.Add(dgvData, 0, 1);
+            leftPanel.Controls.Add(dgvData, 0, 2);
             
             // ===== Right Panel =====
             rightPanel = new TableLayoutPanel

@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using FontAwesome.Sharp; // Thêm thư viện FontAwesome
 using QuanLyTron.DAL;
+
 namespace QuanLyTron.Forms
 {
     public class DatHangForm : Form
@@ -17,6 +18,7 @@ namespace QuanLyTron.Forms
         private DataGridView dgvDonHang;
         private DataTable dtDonHang;
         private bool isAddingNew = false;
+        
         public DatHangForm()
         {
             this.Text = "QUẢN LÝ ĐƠN ĐẶT HÀNG";
@@ -129,15 +131,15 @@ namespace QuanLyTron.Forms
             
             // TextBoxes, ComboBoxes
             dtpNgay = new DateTimePicker() { Font = new Font("Segoe UI", 10.5f), Location = new Point(150, startY), Width = 200, Format = DateTimePickerFormat.Custom, CustomFormat = "dd/MM/yyyy" };
-            txtMaDon = new TextBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(150, startY + 1 * gapY), Width = 200 };
+            txtMaDon = new TextBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(150, startY + 1 * gapY), Width = 200, ReadOnly = true };
             txtKyHieu = new TextBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(150, startY + 2 * gapY), Width = 200 };
             txtSoPhieu = new TextBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(150, startY + 3 * gapY), Width = 200 };
             txtDatHang = new TextBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(150, startY + 4 * gapY), Width = 200 };
             txtTichLuy = new TextBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(150, startY + 5 * gapY), Width = 200 };
-            cbTramTron = new ComboBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(500, startY), Width = 350 };
-            cbKhachHang = new ComboBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(500, startY + 1 * gapY), Width = 350 };
-            cbDiaDiem = new ComboBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(500, startY + 2 * gapY), Width = 350 };
-            cbKinhDoanh = new ComboBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(500, startY + 3 * gapY), Width = 350 };
+            cbTramTron = new ComboBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(500, startY), Width = 350, DropDownStyle = ComboBoxStyle.DropDownList };
+            cbKhachHang = new ComboBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(500, startY + 1 * gapY), Width = 350, DropDownStyle = ComboBoxStyle.DropDownList };
+            cbDiaDiem = new ComboBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(500, startY + 2 * gapY), Width = 350, DropDownStyle = ComboBoxStyle.DropDownList };
+            cbKinhDoanh = new ComboBox() { Font = new Font("Segoe UI", 10.5f), Location = new Point(500, startY + 3 * gapY), Width = 350, DropDownStyle = ComboBoxStyle.DropDownList };
             
             // CheckBox
             chkHoatDong = new CheckBox() { Text = "Hoạt động", Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.Black, Location = new Point(500, 190), AutoSize = true };
@@ -221,7 +223,10 @@ namespace QuanLyTron.Forms
         {
             try
             {
-                // Load dữ liệu đơn hàng
+                // Lấy ID trạm hiện tại
+                int stationId = DatabaseHelper.CurrentStationId;
+                
+                // Load dữ liệu đơn hàng theo trạm
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
@@ -231,8 +236,12 @@ namespace QuanLyTron.Forms
                     FROM DONHANG dh
                     LEFT JOIN KHACHHANG kh ON dh.MAKHACH = kh.MAKHACH
                     LEFT JOIN CONGTRINH ct ON dh.MACONGTRINH = ct.MACONGTRINH
-                    LEFT JOIN KINHDOANH kd ON dh.MAKINHDOANH = kd.MAKINHDOANH", conn))
+                    LEFT JOIN KINHDOANH kd ON dh.MAKINHDOANH = kd.MAKINHDOANH
+                    WHERE dh.MATRAM = @stationId
+                    ORDER BY dh.NGAYDAT DESC", conn))
                     {
+                        cmd.Parameters.AddWithValue("@stationId", stationId);
+                        
                         using (var adapter = new SqlDataAdapter(cmd))
                         {
                             dtDonHang = new DataTable();
@@ -271,14 +280,19 @@ namespace QuanLyTron.Forms
         {
             try
             {
+                // Lấy ID trạm hiện tại
+                int stationId = DatabaseHelper.CurrentStationId;
+                
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
                     
-                    // Load trạm trộn
+                    // Load trạm trộn - chỉ hiển thị trạm hiện tại
                     cbTramTron.Items.Clear();
-                    using (var cmd = new SqlCommand("SELECT MATRAM, TENTRAM FROM TRAM", conn))
+                    using (var cmd = new SqlCommand("SELECT MATRAM, TENTRAM FROM TRAM WHERE MATRAM = @stationId", conn))
                     {
+                        cmd.Parameters.AddWithValue("@stationId", stationId);
+                        
                         using (var reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
@@ -293,7 +307,7 @@ namespace QuanLyTron.Forms
                     
                     // Load khách hàng
                     cbKhachHang.Items.Clear();
-                    using (var cmd = new SqlCommand("SELECT MAKHACH, TENKHACH FROM KHACHHANG", conn))
+                    using (var cmd = new SqlCommand("SELECT MAKHACH, TENKHACH FROM KHACHHANG ORDER BY TENKHACH", conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -309,7 +323,7 @@ namespace QuanLyTron.Forms
                     
                     // Load địa điểm công trình
                     cbDiaDiem.Items.Clear();
-                    using (var cmd = new SqlCommand("SELECT MACONGTRINH, DIADIEM FROM CONGTRINH", conn))
+                    using (var cmd = new SqlCommand("SELECT MACONGTRINH, DIADIEM FROM CONGTRINH ORDER BY DIADIEM", conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -325,7 +339,7 @@ namespace QuanLyTron.Forms
                     
                     // Load kinh doanh
                     cbKinhDoanh.Items.Clear();
-                    using (var cmd = new SqlCommand("SELECT MAKINHDOANH, TENKINHDOANH FROM KINHDOANH", conn))
+                    using (var cmd = new SqlCommand("SELECT MAKINHDOANH, TENKINHDOANH FROM KINHDOANH ORDER BY TENKINHDOANH", conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -381,11 +395,12 @@ namespace QuanLyTron.Forms
             txtDatHang.Text = "";
             txtSoPhieu.Text = "0";
             txtTichLuy.Text = "0";
+            // Không cần reset cbTramTron vì đã được thiết lập chỉ có 1 trạm
             cbKhachHang.SelectedIndex = -1;
             cbDiaDiem.SelectedIndex = -1;
             dtpNgay.Value = DateTime.Today;
             chkHoatDong.Checked = true;
-            txtMaDon.Focus();
+            txtKyHieu.Focus();
         }
         
         private void BtnCapNhat_Click(object sender, EventArgs e)
@@ -408,13 +423,15 @@ namespace QuanLyTron.Forms
                     try
                     {
                         int maDonHang = Convert.ToInt32(dgvDonHang.CurrentRow.Cells["Mã"].Value);
+                        int stationId = DatabaseHelper.CurrentStationId;
                         
                         using (var conn = DatabaseHelper.GetConnection())
                         {
                             conn.Open();
-                            using (var cmd = new SqlCommand("DELETE FROM DONHANG WHERE MADONHANG = @maDonHang", conn))
+                            using (var cmd = new SqlCommand("DELETE FROM DONHANG WHERE MADONHANG = @maDonHang AND MATRAM = @stationId", conn))
                             {
-                                cmd.Parameters.Add("@maDonHang", SqlDbType.Int).Value = maDonHang;
+                                cmd.Parameters.AddWithValue("@maDonHang", maDonHang);
+                                cmd.Parameters.AddWithValue("@stationId", stationId);
                                 cmd.ExecuteNonQuery();
                             }
                         }
@@ -443,12 +460,15 @@ namespace QuanLyTron.Forms
             
             try
             {
+                // Lấy ID trạm hiện tại
+                int stationId = DatabaseHelper.CurrentStationId;
+                
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
                     
                     // Lấy giá trị từ ComboBox
-                    int maTram = cbTramTron.SelectedIndex >= 0 ? Convert.ToInt32((cbTramTron.SelectedItem as dynamic).Value) : 0;
+                    int maTram = cbTramTron.SelectedIndex >= 0 ? Convert.ToInt32((cbTramTron.SelectedItem as dynamic).Value) : stationId;
                     int maKhach = cbKhachHang.SelectedIndex >= 0 ? Convert.ToInt32((cbKhachHang.SelectedItem as dynamic).Value) : 0;
                     int maCongTrinh = cbDiaDiem.SelectedIndex >= 0 ? Convert.ToInt32((cbDiaDiem.SelectedItem as dynamic).Value) : 0;
                     int maKinhDoanh = cbKinhDoanh.SelectedIndex >= 0 ? Convert.ToInt32((cbKinhDoanh.SelectedItem as dynamic).Value) : 0;
@@ -471,7 +491,7 @@ namespace QuanLyTron.Forms
                             cmd.Parameters.Add("@sophieu", SqlDbType.NVarChar).Value = txtSoPhieu.Text;
                             cmd.Parameters.Add("@khoiluong", SqlDbType.Decimal).Value = khoiLuong;
                             cmd.Parameters.Add("@tichluy", SqlDbType.Decimal).Value = tichLuy;
-                            cmd.Parameters.Add("@matram", SqlDbType.Int).Value = maTram;
+                            cmd.Parameters.Add("@matram", SqlDbType.Int).Value = stationId; // Luôn sử dụng trạm hiện tại
                             cmd.Parameters.Add("@makhach", SqlDbType.Int).Value = maKhach;
                             cmd.Parameters.Add("@makd", SqlDbType.Int).Value = maKinhDoanh;
                             cmd.Parameters.Add("@mact", SqlDbType.Int).Value = maCongTrinh;
@@ -508,7 +528,7 @@ namespace QuanLyTron.Forms
                         SET NGAYDAT = @ngaydat, KYHIEUDON = @kyhieu, SOPHIEU = @sophieu, 
                             KHOILUONG = @khoiluong, TICHLUY = @tichluy, MATRAM = @matram, 
                             MAKHACH = @makhach, MAKINHDOANH = @makd, MACONGTRINH = @mact, HOATDONG = @hoatdong
-                        WHERE MADONHANG = @maDonHang", conn))
+                        WHERE MADONHANG = @maDonHang AND MATRAM = @stationId", conn))
                         {
                             cmd.Parameters.Add("@maDonHang", SqlDbType.Int).Value = maDonHang;
                             cmd.Parameters.Add("@ngaydat", SqlDbType.DateTime).Value = dtpNgay.Value;
@@ -516,11 +536,12 @@ namespace QuanLyTron.Forms
                             cmd.Parameters.Add("@sophieu", SqlDbType.NVarChar).Value = txtSoPhieu.Text;
                             cmd.Parameters.Add("@khoiluong", SqlDbType.Decimal).Value = khoiLuong;
                             cmd.Parameters.Add("@tichluy", SqlDbType.Decimal).Value = tichLuy;
-                            cmd.Parameters.Add("@matram", SqlDbType.Int).Value = maTram;
+                            cmd.Parameters.Add("@matram", SqlDbType.Int).Value = stationId; // Luôn sử dụng trạm hiện tại
                             cmd.Parameters.Add("@makhach", SqlDbType.Int).Value = maKhach;
                             cmd.Parameters.Add("@makd", SqlDbType.Int).Value = maKinhDoanh;
                             cmd.Parameters.Add("@mact", SqlDbType.Int).Value = maCongTrinh;
                             cmd.Parameters.Add("@hoatdong", SqlDbType.Bit).Value = chkHoatDong.Checked;
+                            cmd.Parameters.Add("@stationId", SqlDbType.Int).Value = stationId; // Điều kiện WHERE
                             
                             cmd.ExecuteNonQuery();
                             

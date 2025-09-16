@@ -16,21 +16,22 @@ namespace QuanLyTron.Forms
         private ComboBox cboLoaiVatLieu;
         private Button btnLuu;
         private int selectedMACUA = -1; // Lưu ID của bản ghi đang chọn
-
+        
         public CaiDat_VatLieuForm()
         {
             InitializeComponent();
             LoadData();
             SetupEventHandlers();
         }
-
+        
         private void InitializeComponent()
         {
             BackColor = Color.LightYellow;
             Font = new Font("Segoe UI", 10);
-
+            
             // ===== Thanh công cụ =====
             var toolbar = new Panel { Height = 56, Dock = DockStyle.Top, BackColor = Color.LightYellow };
+            
             IconButton BigBtn(string text, IconChar icon, Color backColor, EventHandler onClick)
             {
                 var b = new IconButton
@@ -50,16 +51,19 @@ namespace QuanLyTron.Forms
                 if (onClick != null) b.Click += onClick;
                 return b;
             }
+            
             var btnThemMoi = BigBtn("THÊM MỚI", IconChar.PlusCircle, Color.MediumSeaGreen, BtnThemMoi_Click);
             var btnCapNhat = BigBtn("CẬP NHẬT", IconChar.SyncAlt, Color.RoyalBlue, BtnCapNhat_Click);
             var btnDongBo = BigBtn("ĐỒNG BỘ CÀI ĐẶT", IconChar.Sync, Color.DeepSkyBlue, BtnDongBo_Click);
             var btnKhoiTao = BigBtn("KHỞI TẠO CỬA", IconChar.Cogs, Color.DodgerBlue, BtnKhoiTao_Click);
+            
             btnThemMoi.Location = new Point(10, 5);
             btnCapNhat.Location = new Point(200, 5);
             btnDongBo.Location = new Point(800, 5);
             btnKhoiTao.Location = new Point(1000, 5);
+            
             toolbar.Controls.AddRange(new Control[] { btnThemMoi, btnCapNhat, btnDongBo, btnKhoiTao });
-
+            
             // ===== DataGridView =====
             grid = new DataGridView
             {
@@ -73,7 +77,7 @@ namespace QuanLyTron.Forms
                 ColumnHeadersHeight = 40,
                 AutoGenerateColumns = false // Không tự động tạo cột từ database
             };
-
+            
             // Header style
             grid.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
             {
@@ -81,14 +85,14 @@ namespace QuanLyTron.Forms
                 Alignment = DataGridViewContentAlignment.MiddleCenter,
                 ForeColor = Color.Black,
             };
-
+            
             // Cell style (trừ header)
             grid.DefaultCellStyle = new DataGridViewCellStyle
             {
                 Font = new Font("Segoe UI", 9, FontStyle.Regular),
                 ForeColor = Color.Black,
             };
-
+            
             // Tạo các cột thủ công
             grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "STT", HeaderText = "STT" });
             grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "TenTram", HeaderText = "Tên trạm" });
@@ -96,10 +100,9 @@ namespace QuanLyTron.Forms
             grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "TenCua", HeaderText = "Tên cửa vật liệu" });
             grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Heso", HeaderText = "Hệ số quy đổi" });
             grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "DVT", HeaderText = "Đơn vị tính" });
-
             // Thêm cột ẩn để lưu MACUA
             grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "MACUA", HeaderText = "MACUA", Visible = false });
-
+            
             var gbGrid = new GroupBox
             {
                 Text = "CỬA VẬT LIỆU",
@@ -109,7 +112,7 @@ namespace QuanLyTron.Forms
                 Size = new Size(820, 530)
             };
             gbGrid.Controls.Add(grid);
-
+            
             // ===== GroupBox Thông tin cửa =====
             var gbInfo = new GroupBox
             {
@@ -119,10 +122,10 @@ namespace QuanLyTron.Forms
                 Location = new Point(gbGrid.Right + 1, gbGrid.Top),
                 Size = new Size(359, gbGrid.Height),
             };
-
+            
             int y = 40;
             int spacing = 40;
-
+            
             Label Lbl(string text) =>
                 new Label
                 {
@@ -132,7 +135,7 @@ namespace QuanLyTron.Forms
                     Font = new Font("Segoe UI", 9, FontStyle.Regular),
                     ForeColor = Color.Black
                 };
-
+                
             TextBox Txt() =>
                 new TextBox
                 {
@@ -141,11 +144,11 @@ namespace QuanLyTron.Forms
                     Font = new Font("Segoe UI", 9, FontStyle.Bold),
                     ForeColor = Color.Black
                 };
-
+            
             // Số thứ tự
             gbInfo.Controls.Add(Lbl("SỐ THỨ TỰ CỬA:"));
             txtSoThuTu = Txt(); gbInfo.Controls.Add(txtSoThuTu); y += spacing;
-
+            
             // Loại vật liệu
             gbInfo.Controls.Add(Lbl("LOẠI VẬT LIỆU:"));
             cboLoaiVatLieu = new ComboBox
@@ -160,23 +163,27 @@ namespace QuanLyTron.Forms
             cboLoaiVatLieu.SelectedIndex = 0;
             gbInfo.Controls.Add(cboLoaiVatLieu);
             y += spacing;
-
+            
             // Tên cửa
             gbInfo.Controls.Add(Lbl("TÊN CỬA:"));
             txtTenCua = Txt(); gbInfo.Controls.Add(txtTenCua); y += spacing;
-
+            
             // Hệ số quy đổi
             gbInfo.Controls.Add(Lbl("HỆ SỐ QUY ĐỔI:"));
             txtHeSoQuyDoi = Txt(); gbInfo.Controls.Add(txtHeSoQuyDoi); y += spacing;
-
+            
             // Đơn vị tính khác
             gbInfo.Controls.Add(Lbl("ĐƠN VỊ TÍNH KHÁC:"));
             txtDonViKhac = Txt(); gbInfo.Controls.Add(txtDonViKhac); y += spacing;
-
+            
             // Trạm trộn
             gbInfo.Controls.Add(Lbl("TRẠM TRỘN:"));
-            txtTramTron = Txt(); gbInfo.Controls.Add(txtTramTron); y += spacing + 10;
-
+            txtTramTron = Txt(); 
+            // Tự động điền tên trạm hiện tại
+            txtTramTron.ReadOnly = true;
+            txtTramTron.Text = DatabaseHelper.GetCurrentStationName();
+            gbInfo.Controls.Add(txtTramTron); y += spacing + 10;
+            
             // Nút Lưu
             btnLuu = new IconButton
             {
@@ -194,7 +201,7 @@ namespace QuanLyTron.Forms
             };
             btnLuu.FlatAppearance.BorderSize = 0;
             gbInfo.Controls.Add(btnLuu);
-
+            
             // ===== Layout chính =====
             var mainPanel = new Panel { Dock = DockStyle.Fill };
             mainPanel.Controls.Add(gbGrid);
@@ -202,41 +209,51 @@ namespace QuanLyTron.Forms
             Controls.Add(mainPanel);
             Controls.Add(toolbar);
         }
-
+        
         private void SetupEventHandlers()
         {
             btnLuu.Click += BtnLuu_Click;
             grid.CellClick += Grid_CellClick;
+            
+            // Load dữ liệu khi form được mở
+            this.Load += (s, e) => LoadData();
         }
-
+        
         // =================== CÁC HÀM XỬ LÝ ===================
-
         private void LoadData()
         {
             try
             {
+                // Lấy ID trạm hiện tại
+                int currentStationId = DatabaseHelper.CurrentStationId;
+                string currentStationName = DatabaseHelper.GetCurrentStationName();
+                
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
-                    string query = "SELECT MACUA, STT, TENTRAM, LOAIVATTU, TENCUA, HESOQUYDOI, DONVITINH FROM CUA_VATTU ORDER BY STT";
+                    string query = "SELECT MACUA, STT, TENTRAM, LOAIVATTU, TENCUA, HESOQUYDOI, DONVITINH FROM CUA_VATTU WHERE TENTRAM = @stationName ORDER BY STT";
                     using (var cmd = new SqlCommand(query, conn))
-                    using (var adapter = new SqlDataAdapter(cmd))
                     {
-                        var dt = new DataTable();
-                        adapter.Fill(dt);
-
-                        grid.Rows.Clear();
-                        foreach (DataRow row in dt.Rows)
+                        cmd.Parameters.AddWithValue("@stationName", currentStationName);
+                        
+                        using (var adapter = new SqlDataAdapter(cmd))
                         {
-                            grid.Rows.Add(
-                                row["STT"],
-                                row["TENTRAM"],
-                                row["LOAIVATTU"],
-                                row["TENCUA"],
-                                row["HESOQUYDOI"],
-                                row["DONVITINH"],
-                                row["MACUA"]
-                            );
+                            var dt = new DataTable();
+                            adapter.Fill(dt);
+                            grid.Rows.Clear();
+                            
+                            foreach (DataRow row in dt.Rows)
+                            {
+                                grid.Rows.Add(
+                                    row["STT"],
+                                    row["TENTRAM"],
+                                    row["LOAIVATTU"],
+                                    row["TENCUA"],
+                                    row["HESOQUYDOI"],
+                                    row["DONVITINH"],
+                                    row["MACUA"]
+                                );
+                            }
                         }
                     }
                 }
@@ -246,7 +263,7 @@ namespace QuanLyTron.Forms
                 MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        
         private void Grid_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
@@ -261,13 +278,15 @@ namespace QuanLyTron.Forms
                 txtDonViKhac.Text = row.Cells["DVT"].Value.ToString();
             }
         }
-
+        
         private void BtnThemMoi_Click(object sender, EventArgs e)
         {
             ClearForm();
             selectedMACUA = -1;
+            // Tự động điền tên trạm hiện tại
+            txtTramTron.Text = DatabaseHelper.GetCurrentStationName();
         }
-
+        
         private void BtnCapNhat_Click(object sender, EventArgs e)
         {
             if (selectedMACUA == -1)
@@ -275,7 +294,7 @@ namespace QuanLyTron.Forms
                 MessageBox.Show("Vui lòng chọn bản ghi cần cập nhật!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
+            
             try
             {
                 using (var conn = DatabaseHelper.GetConnection())
@@ -305,7 +324,7 @@ namespace QuanLyTron.Forms
                 MessageBox.Show($"Lỗi cập nhật: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        
         private void BtnDongBo_Click(object sender, EventArgs e)
         {
             try
@@ -317,66 +336,63 @@ namespace QuanLyTron.Forms
                 MessageBox.Show($"Lỗi đồng bộ: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        
         private void BtnKhoiTao_Click(object sender, EventArgs e)
         {
             try
             {
+                // Lấy thông tin trạm hiện tại
+                int currentStationId = DatabaseHelper.CurrentStationId;
+                string currentStationName = DatabaseHelper.GetCurrentStationName();
+                
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
-                    var tramList = new List<string>();
-                    using (var cmd = new SqlCommand("SELECT TENTRAM FROM TRAM", conn))
-                    using (var reader = cmd.ExecuteReader())
+                    
+                    // Kiểm tra xem đã có cửa vật liệu cho trạm hiện tại chưa
+                    bool exists = false;
+                    using (var cmd = new SqlCommand("SELECT COUNT(*) FROM CUA_VATTU WHERE TENTRAM = @TENTRAM", conn))
                     {
-                        while (reader.Read())
-                        {
-                            tramList.Add(reader["TENTRAM"].ToString());
-                        }
+                        cmd.Parameters.AddWithValue("@TENTRAM", currentStationName);
+                        exists = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
                     }
-
-                    foreach (var tram in tramList)
+                    
+                    if (!exists)
                     {
-                        bool exists = false;
-                        using (var cmd = new SqlCommand("SELECT COUNT(*) FROM CUA_VATTU WHERE TENTRAM = @TENTRAM", conn))
+                        string[] loaiVatLieu = { "CÁT", "ĐÁ", "XI MĂNG", "NƯỚC", "PHỤ GIA" };
+                        string[] donViTinh = { "m3", "m3", "Bao", "L", "Kg" };
+                        decimal[] heSoQuyDoi = { 1.0m, 1.0m, 1.0m, 1.0m, 1.0m };
+                        
+                        for (int i = 0; i < loaiVatLieu.Length; i++)
                         {
-                            cmd.Parameters.AddWithValue("@TENTRAM", tram);
-                            exists = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
-                        }
-
-                        if (!exists)
-                        {
-                            string[] loaiVatLieu = { "CÁT", "ĐÁ", "XI MĂNG", "NƯỚC", "PHỤ GIA" };
-                            string[] donViTinh = { "m3", "m3", "Bao", "L", "Kg" };
-                            decimal[] heSoQuyDoi = { 1.0m, 1.0m, 1.0m, 1.0m, 1.0m };
-
-                            for (int i = 0; i < loaiVatLieu.Length; i++)
+                            using (var cmd = new SqlCommand(@"INSERT INTO CUA_VATTU (STT, TENTRAM, LOAIVATTU, TENCUA, HESOQUYDOI, DONVITINH) 
+                                                          VALUES (@STT, @TENTRAM, @LOAIVATTU, @TENCUA, @HESOQUYDOI, @DONVITINH)", conn))
                             {
-                                using (var cmd = new SqlCommand(@"INSERT INTO CUA_VATTU (STT, TENTRAM, LOAIVATTU, TENCUA, HESOQUYDOI, DONVITINH) 
-                                                              VALUES (@STT, @TENTRAM, @LOAIVATTU, @TENCUA, @HESOQUYDOI, @DONVITINH)", conn))
-                                {
-                                    cmd.Parameters.AddWithValue("@STT", i + 1);
-                                    cmd.Parameters.AddWithValue("@TENTRAM", tram);
-                                    cmd.Parameters.AddWithValue("@LOAIVATTU", loaiVatLieu[i]);
-                                    cmd.Parameters.AddWithValue("@TENCUA", $"Cửa {loaiVatLieu[i]}");
-                                    cmd.Parameters.AddWithValue("@HESOQUYDOI", heSoQuyDoi[i]);
-                                    cmd.Parameters.AddWithValue("@DONVITINH", donViTinh[i]);
-                                    cmd.ExecuteNonQuery();
-                                }
+                                cmd.Parameters.AddWithValue("@STT", i + 1);
+                                cmd.Parameters.AddWithValue("@TENTRAM", currentStationName);
+                                cmd.Parameters.AddWithValue("@LOAIVATTU", loaiVatLieu[i]);
+                                cmd.Parameters.AddWithValue("@TENCUA", $"Cửa {loaiVatLieu[i]}");
+                                cmd.Parameters.AddWithValue("@HESOQUYDOI", heSoQuyDoi[i]);
+                                cmd.Parameters.AddWithValue("@DONVITINH", donViTinh[i]);
+                                cmd.ExecuteNonQuery();
                             }
                         }
+                        
+                        MessageBox.Show("Khởi tạo cửa vật liệu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadData();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Trạm hiện tại đã có cửa vật liệu!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
-
-                MessageBox.Show("Khởi tạo cửa vật liệu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LoadData();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Lỗi khởi tạo cửa: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        
         private void BtnLuu_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(txtTenCua.Text))
@@ -384,13 +400,16 @@ namespace QuanLyTron.Forms
                 MessageBox.Show("Vui lòng nhập tên cửa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
+            
             try
             {
+                // Lấy thông tin trạm hiện tại
+                string currentStationName = DatabaseHelper.GetCurrentStationName();
+                
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
-
+                    
                     if (selectedMACUA == -1)
                     {
                         string query = @"INSERT INTO CUA_VATTU (STT, TENTRAM, LOAIVATTU, TENCUA, HESOQUYDOI, DONVITINH) 
@@ -398,7 +417,7 @@ namespace QuanLyTron.Forms
                         using (var cmd = new SqlCommand(query, conn))
                         {
                             cmd.Parameters.AddWithValue("@STT", string.IsNullOrEmpty(txtSoThuTu.Text) ? 1 : Convert.ToInt32(txtSoThuTu.Text));
-                            cmd.Parameters.AddWithValue("@TENTRAM", txtTramTron.Text);
+                            cmd.Parameters.AddWithValue("@TENTRAM", currentStationName);
                             cmd.Parameters.AddWithValue("@LOAIVATTU", cboLoaiVatLieu.Text);
                             cmd.Parameters.AddWithValue("@TENCUA", txtTenCua.Text);
                             cmd.Parameters.AddWithValue("@HESOQUYDOI", string.IsNullOrEmpty(txtHeSoQuyDoi.Text) ? 1 : Convert.ToDecimal(txtHeSoQuyDoi.Text));
@@ -416,7 +435,7 @@ namespace QuanLyTron.Forms
                         using (var cmd = new SqlCommand(query, conn))
                         {
                             cmd.Parameters.AddWithValue("@STT", Convert.ToInt32(txtSoThuTu.Text));
-                            cmd.Parameters.AddWithValue("@TENTRAM", txtTramTron.Text);
+                            cmd.Parameters.AddWithValue("@TENTRAM", currentStationName);
                             cmd.Parameters.AddWithValue("@LOAIVATTU", cboLoaiVatLieu.Text);
                             cmd.Parameters.AddWithValue("@TENCUA", txtTenCua.Text);
                             cmd.Parameters.AddWithValue("@HESOQUYDOI", Convert.ToDecimal(txtHeSoQuyDoi.Text));
@@ -434,14 +453,14 @@ namespace QuanLyTron.Forms
                 MessageBox.Show($"Lỗi lưu dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        
         private void ClearForm()
         {
             txtSoThuTu.Text = "";
             txtTenCua.Text = "";
             txtHeSoQuyDoi.Text = "";
             txtDonViKhac.Text = "";
-            txtTramTron.Text = "";
+            // Không xóa trạm trộn, giữ lại trạm hiện tại
             cboLoaiVatLieu.SelectedIndex = 0;
         }
     }

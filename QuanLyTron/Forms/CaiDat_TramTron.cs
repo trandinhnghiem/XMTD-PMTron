@@ -9,12 +9,12 @@ using QuanLyTron.DAL;
 
 namespace QuanLyTron.Forms
 {
-    public class CaiDat_ChungForm : Form
+    public class CaiDat_TramTron : Form
     {
         // Thêm sự kiện để thông báo khi dữ liệu thay đổi
         public event EventHandler DataChanged;
         
-        private IconButton btnThemMoi, btnCapNhat, btnLuu, btnCaiDatMayIn; // Thêm nút cài đặt máy in
+        private IconButton btnCapNhat, btnLuu, btnCaiDatMayIn; // Bỏ nút thêm mới
         
         // Thay đổi modifier của txtMaTram từ private thành public để có thể truy cập từ bên ngoài
         public TextBox txtMaTram;
@@ -24,37 +24,19 @@ namespace QuanLyTron.Forms
         private DataTable dtTram;
         private PrintDocument printDocument = new PrintDocument(); // Thêm đối tượng in
         
-        public CaiDat_ChungForm()
+        // Thêm biến để lưu thông tin trạm hiện tại
+        private int currentStationId;
+        private DataRow currentStationRow;
+        
+        public CaiDat_TramTron()
         {
-            this.Text = "CÀI ĐẶT CHUNG";
+            this.Text = "CÀI ĐẶT THÔNG TIN TRẠM TRỘN";
             this.Size = new Size(1220, 720);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.Beige;
             Font btnFont = new Font("Segoe UI", 11, FontStyle.Bold); // Tăng cỡ font cho button
             
             // ===== Nút chức năng =====
-            // Nút Thêm mới
-            btnThemMoi = new IconButton()
-            {
-                Text = "THÊM MỚI",
-                Width = 150,
-                Height = 50,
-                Font = btnFont,
-                ForeColor = Color.White,
-                BackColor = Color.FromArgb(46,204,113),
-                FlatStyle = FlatStyle.Flat,
-                IconChar = IconChar.PlusCircle,
-                IconColor = Color.White,
-                IconFont = IconFont.Auto,
-                IconSize = 28,
-                TextImageRelation = TextImageRelation.ImageBeforeText,
-                TextAlign = ContentAlignment.MiddleCenter,
-                ImageAlign = ContentAlignment.MiddleCenter,
-                Padding = new Padding(15, 0, 0, 0),
-                Cursor = Cursors.Hand
-            };
-            btnThemMoi.FlatAppearance.BorderSize = 0;
-            
             // Nút Cập nhật
             btnCapNhat = new IconButton()
             {
@@ -131,7 +113,7 @@ namespace QuanLyTron.Forms
             // ===== GroupBox Thông tin trạm (trái) =====
             GroupBox groupInfoLeft = new GroupBox()
             {
-                Text = "THÔNG TIN TRẠM",
+                Text = "THÔNG TIN TRẠM HIỆN TẠI",
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 Size = new Size(560, 200),
                 Location = new Point(0, 0)
@@ -187,7 +169,7 @@ namespace QuanLyTron.Forms
             // ===== Label tiêu đề DataGridView =====
             Label dgvTitle = new Label()
             {
-                Text = "DANH SÁCH TRẠM TRỘN",
+                Text = "DANH SÁCH TẤT CẢ TRẠM TRỘN",
                 Font = new Font("Segoe UI", 12, FontStyle.Bold),
                 Location = new Point(20, 240),
                 AutoSize = true
@@ -206,30 +188,33 @@ namespace QuanLyTron.Forms
             this.Controls.Add(dgvTram);
             
             // Nút chức năng dưới DataGridView
-            btnThemMoi.Location = new Point(20, 590);
-            btnCapNhat.Location = new Point(190, 590);
+            btnCapNhat.Location = new Point(190, 590); // Đổi vị trí do bỏ nút thêm mới
             btnLuu.Location = new Point(360, 590);
-            btnCaiDatMayIn.Location = new Point(980, 590); // Đặt nút cài đặt máy ở bên phải
-            this.Controls.AddRange(new Control[] { btnThemMoi, btnCapNhat, btnLuu, btnCaiDatMayIn });
-            
-            // Load dữ liệu
-            LoadData();
+            btnCaiDatMayIn.Location = new Point(980, 590);
+            this.Controls.AddRange(new Control[] { btnCapNhat, btnLuu, btnCaiDatMayIn });
             
             // Đăng ký sự kiện
-            btnThemMoi.Click += BtnThemMoi_Click;
             btnCapNhat.Click += BtnCapNhat_Click;
             btnLuu.Click += BtnLuu_Click;
-            btnCaiDatMayIn.Click += BtnCaiDatMayIn_Click; // Thêm sự kiện cho nút cài đặt máy in
+            btnCaiDatMayIn.Click += BtnCaiDatMayIn_Click;
             dgvTram.SelectionChanged += DgvTram_SelectionChanged;
+            
+            // Load dữ liệu khi form được mở
+            this.Load += (s, e) => LoadCurrentStationData();
         }
         
-        private void LoadData()
+        private void LoadCurrentStationData()
         {
             try
             {
+                // Lấy ID trạm hiện tại
+                currentStationId = DatabaseHelper.CurrentStationId;
+                
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
+                    
+                    // Load dữ liệu tất cả các trạm để hiển thị trong DataGridView
                     using (var cmd = new SqlCommand(
                         "SELECT MATRAM, TENTRAM, CHUTRAM, DIADIEM, CONGSUAT, DIENTHOAI, TRANGTHAI, LOAICAPPHOI FROM TRAM", conn))
                     {
@@ -249,53 +234,87 @@ namespace QuanLyTron.Forms
                             dgvTram.Columns["LOAICAPPHOI"].HeaderText = "Loại cấp phối";
                         }
                     }
+                    
+                    // Tải thông tin chi tiết của trạm hiện tại
+                    using (var cmd = new SqlCommand(
+                        "SELECT MATRAM, TENTRAM, CHUTRAM, DIADIEM, CONGSUAT, DIENTHOAI, TRANGTHAI, LOAICAPPHOI FROM TRAM WHERE MATRAM = @stationId", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@stationId", currentStationId);
+                        
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                // Lưu thông tin trạm hiện tại
+                                currentStationRow = dtTram.NewRow();
+                                currentStationRow["MATRAM"] = reader["MATRAM"];
+                                currentStationRow["TENTRAM"] = reader["TENTRAM"];
+                                currentStationRow["CHUTRAM"] = reader["CHUTRAM"];
+                                currentStationRow["DIADIEM"] = reader["DIADIEM"];
+                                currentStationRow["CONGSUAT"] = reader["CONGSUAT"];
+                                currentStationRow["DIENTHOAI"] = reader["DIENTHOAI"];
+                                currentStationRow["TRANGTHAI"] = reader["TRANGTHAI"];
+                                currentStationRow["LOAICAPPHOI"] = reader["LOAICAPPHOI"];
+                                
+                                // Hiển thị thông tin trạm hiện tại lên form
+                                DisplayCurrentStationInfo();
+                            }
+                        }
+                    }
+                }
+                
+                // Vô hiệu hóa các trạm không phải trạm hiện tại
+                foreach (DataGridViewRow row in dgvTram.Rows)
+                {
+                    if (Convert.ToInt32(row.Cells["MATRAM"].Value) != currentStationId)
+                    {
+                        row.ReadOnly = true;
+                        row.DefaultCellStyle.BackColor = Color.LightGray;
+                        row.DefaultCellStyle.ForeColor = Color.DarkGray;
+                    }
+                    else
+                    {
+                        // Chọn trạm hiện tại
+                        row.Selected = true;
+                        dgvTram.FirstDisplayedScrollingRowIndex = row.Index;
+                    }
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi khi tải dữ liệu trạm: " + ex.Message);
             }
-            
-            if (dgvTram.Rows.Count > 0)
+        }
+        
+        // Phương thức hiển thị thông tin trạm hiện tại
+        private void DisplayCurrentStationInfo()
+        {
+            if (currentStationRow != null)
             {
-                dgvTram.CurrentCell = dgvTram.Rows[0].Cells[0];
-                LoadRowToForm(dgvTram.Rows[0]);
+                txtMaTram.Text = currentStationRow["MATRAM"].ToString();
+                txtTenTram.Text = currentStationRow["TENTRAM"].ToString();
+                txtChuTram.Text = currentStationRow["CHUTRAM"].ToString();
+                txtDiaDiem.Text = currentStationRow["DIADIEM"].ToString();
+                txtSoDienThoai.Text = currentStationRow["DIENTHOAI"].ToString();
+                txtCongSuat.Text = currentStationRow["CONGSUAT"].ToString();
+                
+                string loaiCapPhoi = currentStationRow["LOAICAPPHOI"]?.ToString();
+                rdTonTai.Checked = loaiCapPhoi == "Trạm đang tồn tại";
+                rdPhoiMe.Checked = loaiCapPhoi == "Theo cấp phối từng mẻ";
+                rdPhoiChuan.Checked = loaiCapPhoi == "Theo cấp phối chuẩn";
             }
         }
         
         private void LoadRowToForm(DataGridViewRow row)
         {
-            txtMaTram.Text = row.Cells["MATRAM"].Value.ToString();
-            txtTenTram.Text = row.Cells["TENTRAM"].Value.ToString();
-            txtChuTram.Text = row.Cells["CHUTRAM"].Value.ToString();
-            txtDiaDiem.Text = row.Cells["DIADIEM"].Value.ToString();
-            txtSoDienThoai.Text = row.Cells["DIENTHOAI"].Value.ToString();
-            txtCongSuat.Text = row.Cells["CONGSUAT"].Value.ToString();
-            
-            string loaiCapPhoi = row.Cells["LOAICAPPHOI"].Value?.ToString();
-            rdTonTai.Checked = loaiCapPhoi == "Trạm đang tồn tại";
-            rdPhoiMe.Checked = loaiCapPhoi == "Theo cấp phối từng mẻ";
-            rdPhoiChuan.Checked = loaiCapPhoi == "Theo cấp phối chuẩn";
-        }
-        
-        private void BtnThemMoi_Click(object sender, EventArgs e)
-        {
-            txtMaTram.Text = "";
-            txtTenTram.Text = "";
-            txtChuTram.Text = "";
-            txtDiaDiem.Text = "";
-            txtSoDienThoai.Text = "";
-            txtCongSuat.Text = "";
-            rdTonTai.Checked = true;
-            txtTenTram.Focus();
+            // Không làm gì cả, thông tin trạm hiện tại sẽ luôn được hiển thị
+            // Người dùng có thể chọn các trạm khác để xem nhưng thông tin trên form không thay đổi
         }
         
         private void BtnCapNhat_Click(object sender, EventArgs e)
         {
-            if (dgvTram.CurrentRow != null)
-            {
-                LoadRowToForm(dgvTram.CurrentRow);
-            }
+            // Hiển thị lại thông tin trạm hiện tại
+            DisplayCurrentStationInfo();
         }
         
         private void BtnLuu_Click(object sender, EventArgs e)
@@ -309,6 +328,14 @@ namespace QuanLyTron.Forms
             
             try
             {
+                // Kiểm tra xem có đang cập nhật trạm hiện tại không
+                if (string.IsNullOrWhiteSpace(txtMaTram.Text) || Convert.ToInt32(txtMaTram.Text) != currentStationId)
+                {
+                    MessageBox.Show("Bạn chỉ có thể cập nhật thông tin của trạm hiện tại!", 
+                        "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
@@ -316,75 +343,45 @@ namespace QuanLyTron.Forms
                                           rdPhoiMe.Checked ? "Theo cấp phối từng mẻ" :
                                           "Theo cấp phối chuẩn";
                                           
-                    if (string.IsNullOrWhiteSpace(txtMaTram.Text))
+                    // Cập nhật
+                    int maTram = Convert.ToInt32(txtMaTram.Text);
+                    using (var cmd = new SqlCommand(@"
+                        UPDATE TRAM 
+                        SET TENTRAM = @tentram, CHUTRAM = @chutram, DIADIEM = @diadiem, 
+                            CONGSUAT = @congsuat, DIENTHOAI = @dienthoai, LOAICAPPHOI = @loaiCAPPHOI
+                        WHERE MATRAM = @matram", conn))
                     {
-                        // Thêm mới
-                        using (var cmd = new SqlCommand(@"
-                            INSERT INTO TRAM (TENTRAM, CHUTRAM, DIADIEM, CONGSUAT, DIENTHOAI, TRANGTHAI, LOAICAPPHOI)
-                            VALUES (@tentram, @chutram, @diadiem, @congsuat, @dienthoai, @trangthai, @loaiCAPPHOI);
-                            SELECT SCOPE_IDENTITY();", conn))
+                        cmd.Parameters.Add("@matram", SqlDbType.Int).Value = maTram;
+                        cmd.Parameters.Add("@tentram", SqlDbType.NVarChar).Value = txtTenTram.Text;
+                        cmd.Parameters.Add("@chutram", SqlDbType.NVarChar).Value = txtChuTram.Text;
+                        cmd.Parameters.Add("@diadiem", SqlDbType.NVarChar).Value = txtDiaDiem.Text;
+                        cmd.Parameters.Add("@congsuat", SqlDbType.NVarChar).Value = txtCongSuat.Text;
+                        cmd.Parameters.Add("@dienthoai", SqlDbType.NVarChar).Value = txtSoDienThoai.Text;
+                        cmd.Parameters.Add("@loaiCAPPHOI", SqlDbType.NVarChar).Value = loaiCapPhoi;
+                        cmd.ExecuteNonQuery();
+                        
+                        // Cập nhật DataTable
+                        foreach (DataRow row in dtTram.Rows)
                         {
-                            cmd.Parameters.Add("@tentram", SqlDbType.NVarChar).Value = txtTenTram.Text;
-                            cmd.Parameters.Add("@chutram", SqlDbType.NVarChar).Value = txtChuTram.Text;
-                            cmd.Parameters.Add("@diadiem", SqlDbType.NVarChar).Value = txtDiaDiem.Text;
-                            cmd.Parameters.Add("@congsuat", SqlDbType.NVarChar).Value = txtCongSuat.Text;
-                            cmd.Parameters.Add("@dienthoai", SqlDbType.NVarChar).Value = txtSoDienThoai.Text;
-                            cmd.Parameters.Add("@trangthai", SqlDbType.NVarChar).Value = "Online";
-                            cmd.Parameters.Add("@loaiCAPPHOI", SqlDbType.NVarChar).Value = loaiCapPhoi;
-                            int newId = Convert.ToInt32(cmd.ExecuteScalar());
-                            DataRow newRow = dtTram.NewRow();
-                            newRow["MATRAM"] = newId;
-                            newRow["TENTRAM"] = txtTenTram.Text;
-                            newRow["CHUTRAM"] = txtChuTram.Text;
-                            newRow["DIADIEM"] = txtDiaDiem.Text;
-                            newRow["CONGSUAT"] = txtCongSuat.Text;
-                            newRow["DIENTHOAI"] = txtSoDienThoai.Text;
-                            newRow["TRANGTHAI"] = "Online";
-                            newRow["LOAICAPPHOI"] = loaiCapPhoi;
-                            dtTram.Rows.Add(newRow);
-                            dgvTram.CurrentCell = dgvTram.Rows[dgvTram.Rows.Count - 1].Cells[0];
-                            MessageBox.Show("Thêm trạm thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            
-                            // Kích hoạt sự kiện dữ liệu đã thay đổi
-                            OnDataChanged(EventArgs.Empty);
-                        }
-                    }
-                    else
-                    {
-                        // Cập nhật
-                        int maTram = Convert.ToInt32(txtMaTram.Text);
-                        using (var cmd = new SqlCommand(@"
-                            UPDATE TRAM 
-                            SET TENTRAM = @tentram, CHUTRAM = @chutram, DIADIEM = @diadiem, 
-                                CONGSUAT = @congsuat, DIENTHOAI = @dienthoai, LOAICAPPHOI = @loaiCAPPHOI
-                            WHERE MATRAM = @matram", conn))
-                        {
-                            cmd.Parameters.Add("@matram", SqlDbType.Int).Value = maTram;
-                            cmd.Parameters.Add("@tentram", SqlDbType.NVarChar).Value = txtTenTram.Text;
-                            cmd.Parameters.Add("@chutram", SqlDbType.NVarChar).Value = txtChuTram.Text;
-                            cmd.Parameters.Add("@diadiem", SqlDbType.NVarChar).Value = txtDiaDiem.Text;
-                            cmd.Parameters.Add("@congsuat", SqlDbType.NVarChar).Value = txtCongSuat.Text;
-                            cmd.Parameters.Add("@dienthoai", SqlDbType.NVarChar).Value = txtSoDienThoai.Text;
-                            cmd.Parameters.Add("@loaiCAPPHOI", SqlDbType.NVarChar).Value = loaiCapPhoi;
-                            cmd.ExecuteNonQuery();
-                            foreach (DataRow row in dtTram.Rows)
+                            if (Convert.ToInt32(row["MATRAM"]) == maTram)
                             {
-                                if (Convert.ToInt32(row["MATRAM"]) == maTram)
-                                {
-                                    row["TENTRAM"] = txtTenTram.Text;
-                                    row["CHUTRAM"] = txtChuTram.Text;
-                                    row["DIADIEM"] = txtDiaDiem.Text;
-                                    row["CONGSUAT"] = txtCongSuat.Text;
-                                    row["DIENTHOAI"] = txtSoDienThoai.Text;
-                                    row["LOAICAPPHOI"] = loaiCapPhoi;
-                                    break;
-                                }
+                                row["TENTRAM"] = txtTenTram.Text;
+                                row["CHUTRAM"] = txtChuTram.Text;
+                                row["DIADIEM"] = txtDiaDiem.Text;
+                                row["CONGSUAT"] = txtCongSuat.Text;
+                                row["DIENTHOAI"] = txtSoDienThoai.Text;
+                                row["LOAICAPPHOI"] = loaiCapPhoi;
+                                
+                                // Cập nhật lại thông tin trạm hiện tại
+                                currentStationRow = row;
+                                break;
                             }
-                            MessageBox.Show("Cập nhật trạm thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            
-                            // Kích hoạt sự kiện dữ liệu đã thay đổi
-                            OnDataChanged(EventArgs.Empty);
                         }
+                        
+                        MessageBox.Show("Cập nhật thông tin trạm thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        
+                        // Kích hoạt sự kiện dữ liệu đã thay đổi
+                        OnDataChanged(EventArgs.Empty);
                     }
                 }
             }
@@ -423,7 +420,8 @@ namespace QuanLyTron.Forms
         {
             if (dgvTram.CurrentRow != null)
             {
-                LoadRowToForm(dgvTram.CurrentRow);
+                // Không làm gì cả, thông tin trạm hiện tại sẽ luôn được hiển thị
+                // Người dùng có thể chọn các trạm khác để xem nhưng thông tin trên form không thay đổi
             }
         }
         

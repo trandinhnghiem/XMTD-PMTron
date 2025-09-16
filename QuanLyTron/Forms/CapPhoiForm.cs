@@ -284,11 +284,17 @@ namespace QuanLyTron.Forms
         {
             try
             {
+                // Lấy ID trạm hiện tại
+                int stationId = DatabaseHelper.CurrentStationId;
+                
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new SqlCommand("SELECT MACAPPHOI, STT, MACBETONG, CUONGDO, COTLIEUMAX, DOSUT, TONGSLVATTU FROM CAPPHOI", conn))
+                    // Cập nhật câu truy vấn để lọc theo trạm
+                    using (var cmd = new SqlCommand("SELECT MACAPPHOI, STT, MACBETONG, CUONGDO, COTLIEUMAX, DOSUT, TONGSLVATTU FROM CAPPHOI WHERE MATRAM = @stationId ORDER BY STT", conn))
                     {
+                        cmd.Parameters.AddWithValue("@stationId", stationId);
+                        
                         using (var adapter = new SqlDataAdapter(cmd))
                         {
                             dtCapPhoi = new DataTable();
@@ -418,16 +424,20 @@ namespace QuanLyTron.Forms
             
             try
             {
+                // Lấy ID trạm hiện tại
+                int stationId = DatabaseHelper.CurrentStationId;
+                
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
                     
                     if (currentId == -1) // Thêm mới
                     {
-                        // Kiểm tra STT đã tồn tại chưa
-                        using (var checkCmd = new SqlCommand("SELECT COUNT(*) FROM CAPPHOI WHERE STT = @stt", conn))
+                        // Kiểm tra STT đã tồn tại chưa trong trạm hiện tại
+                        using (var checkCmd = new SqlCommand("SELECT COUNT(*) FROM CAPPHOI WHERE STT = @stt AND MATRAM = @stationId", conn))
                         {
                             checkCmd.Parameters.AddWithValue("@stt", int.Parse(txtSTT.Text));
+                            checkCmd.Parameters.AddWithValue("@stationId", stationId);
                             int count = Convert.ToInt32(checkCmd.ExecuteScalar());
                             
                             if (count > 0)
@@ -439,8 +449,8 @@ namespace QuanLyTron.Forms
                         }
                         
                         using (var cmd = new SqlCommand(@"
-                        INSERT INTO CAPPHOI (STT, MACBETONG, CUONGDO, COTLIEUMAX, DOSUT, TONGSLVATTU)
-                        VALUES (@stt, @macbt, @cuongdo, @cotlieumax, @dosut, @tongsl);
+                        INSERT INTO CAPPHOI (STT, MACBETONG, CUONGDO, COTLIEUMAX, DOSUT, TONGSLVATTU, MATRAM)
+                        VALUES (@stt, @macbt, @cuongdo, @cotlieumax, @dosut, @tongsl, @stationId);
                         SELECT SCOPE_IDENTITY();", conn))
                         {
                             cmd.Parameters.Add("@stt", SqlDbType.Int).Value = int.Parse(txtSTT.Text);
@@ -449,6 +459,7 @@ namespace QuanLyTron.Forms
                             cmd.Parameters.Add("@cotlieumax", SqlDbType.NVarChar).Value = txtCotLieuMax.Text;
                             cmd.Parameters.Add("@dosut", SqlDbType.NVarChar).Value = txtDoSut.Text;
                             cmd.Parameters.Add("@tongsl", SqlDbType.Decimal).Value = tongKhoiLuong;
+                            cmd.Parameters.Add("@stationId", SqlDbType.Int).Value = stationId;
                             
                             object result = cmd.ExecuteScalar();
                             
@@ -483,7 +494,7 @@ namespace QuanLyTron.Forms
                         UPDATE CAPPHOI 
                         SET STT = @stt, MACBETONG = @macbt, CUONGDO = @cuongdo, 
                             COTLIEUMAX = @cotlieumax, DOSUT = @dosut, TONGSLVATTU = @tongsl
-                        WHERE MACAPPHOI = @id", conn))
+                        WHERE MACAPPHOI = @id AND MATRAM = @stationId", conn))
                         {
                             cmd.Parameters.Add("@id", SqlDbType.Int).Value = currentId;
                             cmd.Parameters.Add("@stt", SqlDbType.Int).Value = int.Parse(txtSTT.Text);
@@ -492,6 +503,7 @@ namespace QuanLyTron.Forms
                             cmd.Parameters.Add("@cotlieumax", SqlDbType.NVarChar).Value = txtCotLieuMax.Text;
                             cmd.Parameters.Add("@dosut", SqlDbType.NVarChar).Value = txtDoSut.Text;
                             cmd.Parameters.Add("@tongsl", SqlDbType.Decimal).Value = tongKhoiLuong;
+                            cmd.Parameters.Add("@stationId", SqlDbType.Int).Value = stationId;
                             
                             int rowsAffected = cmd.ExecuteNonQuery();
                             
@@ -541,12 +553,16 @@ namespace QuanLyTron.Forms
             {
                 try
                 {
+                    // Lấy ID trạm hiện tại
+                    int stationId = DatabaseHelper.CurrentStationId;
+                    
                     using (var conn = DatabaseHelper.GetConnection())
                     {
                         conn.Open();
-                        using (var cmd = new SqlCommand("DELETE FROM CAPPHOI WHERE MACAPPHOI = @id", conn))
+                        using (var cmd = new SqlCommand("DELETE FROM CAPPHOI WHERE MACAPPHOI = @id AND MATRAM = @stationId", conn))
                         {
                             cmd.Parameters.Add("@id", SqlDbType.Int).Value = currentId;
+                            cmd.Parameters.Add("@stationId", SqlDbType.Int).Value = stationId;
                             cmd.ExecuteNonQuery();
                             
                             // Load lại dữ liệu
@@ -572,11 +588,16 @@ namespace QuanLyTron.Forms
         {
             try
             {
+                // Lấy ID trạm hiện tại
+                int stationId = DatabaseHelper.CurrentStationId;
+                
                 using (var conn = DatabaseHelper.GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new SqlCommand("SELECT ISNULL(MAX(STT), 0) + 1 FROM CAPPHOI", conn))
+                    // Cập nhật câu truy vấn để lấy STT tiếp theo theo trạm
+                    using (var cmd = new SqlCommand("SELECT ISNULL(MAX(STT), 0) + 1 FROM CAPPHOI WHERE MATRAM = @stationId", conn))
                     {
+                        cmd.Parameters.AddWithValue("@stationId", stationId);
                         return Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
