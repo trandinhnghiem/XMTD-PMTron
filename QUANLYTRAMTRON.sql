@@ -561,3 +561,100 @@ VALUES
 (10, 4, 150, N'Nước sạch'),
 (10, 6, 6.0, N'Phụ gia chậm đông kết')
 GO
+
+-- 1. Thêm trường MATRAM vào bảng CAPPHOI
+ALTER TABLE CAPPHOI
+ADD MATRAM INT FOREIGN KEY REFERENCES TRAM(MATRAM)
+GO
+
+-- 2. Thêm trường MATRAM vào bảng VATTU
+ALTER TABLE VATTU
+ADD MATRAM INT FOREIGN KEY REFERENCES TRAM(MATRAM)
+GO
+
+-- 3. Thêm trường MATRAM vào bảng CHITIETPHIEUXUAT
+ALTER TABLE CHITIETPHIEUXUAT
+ADD MATRAM INT FOREIGN KEY REFERENCES TRAM(MATRAM)
+GO
+
+-- 4. Thêm trường MATRAM vào bảng THONGKE
+ALTER TABLE THONGKE
+ADD MATRAM INT FOREIGN KEY REFERENCES TRAM(MATRAM)
+GO
+
+-- 5. Thêm trường MATRAM vào bảng CHITIET_VATTU_THONGKE
+ALTER TABLE CHITIET_VATTU_THONGKE
+ADD MATRAM INT FOREIGN KEY REFERENCES TRAM(MATRAM)
+GO
+
+-- 6. Cập nhật dữ liệu mẫu cho bảng CAPPHOI
+-- Giả sử tất cả các cấp phối hiện tại thuộc về trạm 1
+UPDATE CAPPHOI
+SET MATRAM = 1
+GO
+
+-- 7. Cập nhật dữ liệu mẫu cho bảng VATTU
+-- Cập nhật vật tư cho từng trạm
+UPDATE VATTU
+SET MATRAM = 1
+WHERE MAVATTU <= 4
+GO
+
+UPDATE VATTU
+SET MATRAM = 2
+WHERE MAVATTU > 4
+GO
+
+-- 8. Cập nhật dữ liệu mẫu cho bảng CHITIETPHIEUXUAT
+-- Cập nhật MATRAM cho CHITIETPHIEUXUAT dựa trên MATRAM của PHIEUXUAT
+UPDATE C
+SET C.MATRAM = P.MATRAM
+FROM CHITIETPHIEUXUAT C
+JOIN PHIEUXUAT P ON C.MAPHIEUXUAT = P.MAPHIEUXUAT
+GO
+
+-- 9. Cập nhật dữ liệu mẫu cho bảng THONGKE
+-- Giả sử tất cả các thống kê hiện tại thuộc về trạm 1
+UPDATE THONGKE
+SET MATRAM = 1
+GO
+
+-- 10. Cập nhật dữ liệu mẫu cho bảng CHITIET_VATTU_THONGKE
+-- Cập nhật MATRAM cho CHITIET_VATTU_THONGKE dựa trên MATRAM của THONGKE
+UPDATE C
+SET C.MATRAM = T.MATRAM
+FROM CHITIET_VATTU_THONGKE C
+JOIN THONGKE T ON C.IDTHONGKE = T.ID
+GO
+
+-- 11. Thêm dữ liệu mẫu cho bảng VATTU cho các trạm khác
+-- Thêm vật tư cho trạm 2
+INSERT INTO VATTU (TENVATTU, DONVITINH, HESOQUYDOI, TONKHO, MATRAM) 
+VALUES 
+(N'Xi măng PCB 40', N'Bao', N'50', 100, 2),
+(N'Cát vàng', N'm3', N'1500', 50, 2),
+(N'Đá 1-2', N'm3', N'1600', 80, 2),
+(N'Nước sạch', N'L', N'1', 500, 2),
+(N'Phụ gia siêu dẻo', N'Kg', N'1', 20, 2)
+GO
+
+-- 12. Thêm dữ liệu mẫu cho bảng CAPPHOI cho các trạm khác
+-- Thêm cấp phối cho trạm 2
+INSERT INTO CAPPHOI (STT, MACBETONG, CUONGDO, COTLIEUMAX, DOSUT, MATRAM) 
+VALUES 
+(1, N'C30R28-10±2', N'25', N'20', N'10±2', 2),
+(2, N'C20R28-12±2', N'20', N'16', N'12±2', 2),
+(3, N'C25R28-14±2', N'22', N'18', N'14±2', 2)
+GO
+
+-- 13. Cập nhật dữ liệu mẫu cho bảng DONHANG
+-- Cập nhật MATRAM cho DONHANG
+UPDATE DONHANG
+SET MATRAM = 1
+WHERE MADONHANG <= 4
+GO
+
+UPDATE DONHANG
+SET MATRAM = 2
+WHERE MADONHANG > 4
+GO
